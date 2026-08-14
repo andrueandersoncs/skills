@@ -8,9 +8,11 @@ compatibility: Requires a runtime that provides the skill-creator skill.
 
 Create a **workflow skill** for the user's repeatable task; this skill governs documenting that task, not carrying it out. Read [`../transcript-extraction/SKILL.md`](../transcript-extraction/SKILL.md) and [`../transcript-filing/SKILL.md`](../transcript-filing/SKILL.md) as the local standard before drafting.
 
-## Inputs and output
+## Input(s)
 
 The user supplies a repeatable task, its intended skill name when known, and any task-specific requirements. Use the repository to fill in its relevant commands, paths, conventions, and existing records.
+
+## Output(s)
 
 Create or revise `.agents/skills/<name>/SKILL.md`. The result is a Markdown workflow skill with a valid frontmatter name matching `<name>`, an explicit routing description, and a procedure that another agent can execute without inventing policy.
 
