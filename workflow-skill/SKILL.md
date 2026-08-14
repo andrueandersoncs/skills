@@ -6,7 +6,7 @@ compatibility: Requires a runtime that provides the skill-creator skill.
 
 # Workflow Skill
 
-Create a **workflow skill** for the user's repeatable task; this skill governs documenting that task, not carrying it out. Read [`../transcript-extraction/SKILL.md`](../transcript-extraction/SKILL.md) and [`../transcript-filing/SKILL.md`](../transcript-filing/SKILL.md) as the local standard before drafting.
+Create a **workflow skill** for the user's repeatable task; this skill governs documenting that task, not carrying it out.
 
 ## Input(s)
 
@@ -32,8 +32,8 @@ Replace the placeholders with the contract gathered above, then supply these req
 
 - Keep `SKILL.md` short. Its YAML frontmatter name matches the directory, and its description states both the outcome and concrete request triggers.
 - Start with one sentence that names the workflow's scope and its boundary.
-- State inputs and outputs before the procedure. Give exact path patterns, naming rules, and ownership boundaries when they matter.
-- Write the process as an ordered sequence. Each step performs one observable transition and ends with a checkable completion criterion.
+- Use the exact second-level sections `## Input(s)`, `## Output(s)`, and `## Procedure`, in that order. Give exact path patterns, naming rules, and ownership boundaries when they matter.
+- Under `## Procedure`, write the process as an ordered, numbered sequence. Each step performs one observable transition and ends with a checkable completion criterion.
 - Put every decision branch beside the step that reaches it. State the condition, action, and result for each branch.
 - Preserve important invariants explicitly: source preservation, idempotency, non-overwrite rules, authority boundaries, or required handoffs.
 - Finish with the exact result to report and the condition that makes the workflow complete.
@@ -41,4 +41,4 @@ Replace the placeholders with the contract gathered above, then supply these req
 
 ### 3. Verify the result
 
-Re-read the created `SKILL.md` and confirm that an agent can determine its trigger, inputs, output, every ordered action, branch behavior, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty. Report the skill path and any assumptions made.
+Re-read the created `SKILL.md` and confirm that it contains `## Input(s)`, `## Output(s)`, and `## Procedure` in that order, with numbered steps under the procedure. Confirm that an agent can determine its trigger, inputs, output, every action, branch behavior, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty. Report the skill path and any assumptions made.
