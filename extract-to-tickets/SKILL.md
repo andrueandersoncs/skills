@@ -1,31 +1,92 @@
 ---
 name: extract-to-tickets
-description: Turn transcript-extraction `extract.md` reports into approved, deduplicated local tickets. Use when asked to triage transcript extracts or create local ticket files from `extract.md` reports.
+description: Convert transcript-extraction `extract.md` reports into an approved, deduplicated set of local tracer-bullet tickets. Use when asked to triage transcript extracts, propose ticket slices from transcript findings, or create local ticket files from `extract.md` reports.
 compatibility: Requires the active repository to provide a to-tickets skill plus issue-tracker and triage-label documentation under docs/agents/.
 disable-model-invocation: true
 ---
 
 # Extract to Tickets
 
-Turn actionable claims in transcript-extraction reports into approved local tickets; this is a triage and publication pass, not transcript interpretation, promotion, or implementation.
+Turn actionable extraction claims into approved local tickets; this workflow triages and publishes work but does not reinterpret transcripts, promote records, or implement changes.
 
-## Inputs and output
+## Inputs
 
-The user supplies one or more `docs/transcripts/<day>/<order>-<slug>/extract.md` paths or transcript directories, resolved from the repository root; a directory supplies its direct `extract.md`. They may also supply an effort slug. Publishing additionally requires explicit approval of the proposed breakdown.
+### A. Extraction sources
 
-Before approval, output a numbered candidate breakdown and excluded/deferred items in the conversation. After approval, create only `.scratch/<effort-slug>/issues/<NN>-<slug>.md`, one ticket per approved tracer-bullet vertical slice, numbered from `01` in dependency order.
+A required selection of one or more repository-relative `docs/transcripts/<day>/<order>-<slug>/extract.md` paths or transcript directories. A directory denotes its direct `extract.md`; duplicate paths denote the same source.
 
-## Process
+### B. Effort slug
 
-1. **Resolve the sources.** Every supplied file must be an `extract.md`; every directory must contain one. If a source is missing or invalid, stop and ask for a valid extraction or for [`transcript-extraction`](../transcript-extraction/SKILL.md) to run first. Read each distinct extraction in full, plus the active repository's `to-tickets` skill, `docs/agents/issue-tracker.md`, and `docs/agents/triage-labels.md`. The completion criterion is a source map for every in-scope item: claim, certainty, reconciliation, transcript source, evidence quote, and existing work or behavior bearing on it.
-2. **Classify candidates faithfully.** Inspect `.scratch/`, cited canonical records, relevant code, and existing work. Consider ticket candidates only from **Decisions and requirements**, **Change requests**, and **Bugs and observed behavior**; use every other extraction section only as context. Retain every item’s extraction path, section, certainty, reconciliation, transcript source, and short evidence quote.
-   - Exclude an item that confirms verified behavior, is resolved, historical, implemented, duplicate, or too unspecified for a verifiable outcome.
-   - A conflict, required canonical-record promotion, or unresolved decision is a human authority gate, not implementation work. Present its current record, evidence, and needed decision; if the user settles it, reclassify it while retaining provenance, otherwise defer it.
-   - Otherwise, make a candidate only when it is a new settled requirement with a clear governing record, a specific proposed change the user explicitly elects to pursue, or a current reported or verified bug. A reported bug retains verification as an acceptance criterion or gets a blocking investigation ticket; never state an unverified cause as fact.
-   Merge items only when they deliver the same user-visible outcome. The completion criterion is that every in-scope item is represented exactly once as a candidate or with an exclusion/defer reason.
-3. **Slice, order, and approve the work.** Follow `to-tickets`’ tracer-bullet vertical-slice and blocking-edge rules. Each candidate must be demoable or verifiable on its own; add only genuine blockers, in a topological order. Present a numbered breakdown with **Title**, **Source** (path and section), **Blocked by**, **What it delivers**, and **Evidence**, then separately list excluded/deferred items and their reason. Ask the user to approve the scope, grouping, granularity, blockers, and proposed changes. If there are no candidates, report that result and stop. The completion criterion is explicit approval of the exact breakdown; before it, create no directories or ticket files.
-4. **Publish the approved breakdown.** If no effort slug was supplied, ask for one; it must be lowercase kebab-case. Require an unused `.scratch/<effort-slug>/issues/` destination. If it contains ticket files or a planned filename exists, stop and ask for a fresh slug rather than overwrite, renumber, append to, or modify existing tickets. Create the directory and write one ticket per approved slice as `.scratch/<effort-slug>/issues/<NN>-<slug>.md`, numbered from `01` so each blocker has a lower number. Use the `to-tickets` local template, `Status: ready-for-agent` unless the user chose another canonical state, and a concise `## Source` section with the extraction path, section, certainty, reconciliation, transcript source, and evidence quote. The completion criterion is that every approved slice exists exactly once with its template fields, provenance, and genuine blockers, while no source, canonical record, code, or existing ticket changed.
+An optional lowercase kebab-case slug naming `.scratch/<effort-slug>/issues/`. It is required only for publication and must identify an unused destination.
 
-## Completion report
+### C. Publication approval
 
-Report **Created:** every ticket path; **Excluded/deferred:** every omitted item and its reason, including required human decisions or bug verification; and **Boundary:** that extraction reports, transcript sources, canonical records, product code, and existing tickets were not modified. The workflow is complete when that report accompanies the approved ticket files, or when a missing input, authority decision, approval, collision, or empty candidate set has been explicitly reported as the stopping condition.
+The user's explicit approval of the exact proposed scope, grouping, granularity, blockers, and elected change requests. It is absent during triage and required before any directory or ticket is created.
+
+### D. Repository context
+
+Required repository context: the active repository's `to-tickets` skill, `docs/agents/issue-tracker.md`, `docs/agents/triage-labels.md`, cited canonical records, relevant code, and existing work. These records govern ticket shape, labels, current behavior, and authority.
+
+## Outputs
+
+### A. Candidate breakdown
+
+A conversational numbered proposal with **Title**, **Source** (extraction path and section), **Blocked by**, **What it delivers**, and **Evidence** for every candidate, followed by every excluded or deferred item and its reason. It is complete when every in-scope extraction item appears exactly once.
+
+### B. Approved ticket set
+
+After approval, one local ticket per approved tracer-bullet slice at `.scratch/<effort-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order. Each file uses the active `to-tickets` template, carries required provenance, and has `Status: ready-for-agent` unless the user selected another canonical state. The set is complete when every approved slice appears exactly once, all blockers point backward in dependency order, and no unapproved or pre-existing file changed.
+
+### C. Completion report
+
+A final report containing **Created**, **Excluded/deferred**, **Boundary**, and **Stopped**. It accounts for every ticket or omission and states whether publication succeeded or which permitted stopping condition ended the workflow.
+
+## Procedure
+
+### 1. Resolve sources and governing context
+
+Resolve paths from the repository root, deduplicate them, and read every extraction plus the repository context in Input D. Build a source map for each potentially actionable item containing its claim, certainty, reconciliation, transcript source, evidence quote, and relevant existing behavior or work.
+
+- If a file is not `extract.md`, a directory lacks its direct `extract.md`, or required repository context is unavailable, record the missing valid input and skip to Step 6 without creating files; suggest [`transcript-extraction`](../transcript-extraction/SKILL.md) when extraction has not occurred.
+- Completion evidence: every accepted source is mapped in full, or **Stopped** names the missing or invalid input and no files were created.
+
+### 2. Classify every in-scope item
+
+Inspect `.scratch/`, cited canonical records, relevant code, and existing work. Treat items from **Decisions and requirements**, **Change requests**, and **Bugs and observed behavior** as candidate-bearing; use all other sections only as context. Retain extraction path, section, certainty, reconciliation, transcript source, and a short evidence quote for each item.
+
+- Exclude verified-current behavior, resolved, historical, implemented, duplicate, or unverifiable/underspecified items.
+- Defer conflicts, required canonical-record promotion, and unresolved decisions as human authority gates, showing the current record, evidence, and required decision. If the user settles one, reclassify it without losing provenance.
+- Create a candidate only for a new settled requirement with a clear governing record, a specific proposed change the user explicitly elects to pursue, or a current reported or verified bug. For a reported bug, preserve verification as an acceptance criterion or create a blocking investigation ticket; never assert an unverified cause.
+- Merge items only when they deliver the same user-visible outcome.
+- Completion evidence: a classification ledger represents every in-scope item exactly once as a candidate, exclusion, or deferral with its reason and provenance.
+
+### 3. Slice and present the proposal
+
+Apply the active `to-tickets` tracer-bullet vertical-slice and blocking-edge rules. Make each candidate independently demoable or verifiable, add only genuine blockers, and topologically order the numbered breakdown. Present Output A and ask for explicit approval.
+
+- If no candidates remain, record `no candidates` and skip to Step 6 without creating files.
+- If the user changes scope, grouping, granularity, blockers, or a proposed change, revise the ledger and re-present the exact breakdown; prior approval does not carry forward.
+- If approval is withheld or unavailable, record `approval not granted` and skip to Step 6 without creating files.
+- Completion evidence: the user explicitly approves the currently displayed breakdown, or **Stopped** records `no candidates` or `approval not granted`; no directory or ticket exists from this run.
+
+### 4. Validate the publication destination
+
+After approval, obtain Input B and validate lowercase kebab-case plus an unused `.scratch/<effort-slug>/issues/` destination. Derive every planned filename and confirm each blocker will have a lower number.
+
+- If the slug is absent or invalid, ask for a valid slug before continuing.
+- If the destination contains ticket files or any planned filename exists, record the collision and skip to Step 6 without writing; request a fresh slug in the final report and never overwrite, append to, renumber, or modify existing tickets.
+- Completion evidence: an approved filename plan has no collisions and is dependency ordered, or **Stopped** records the slug or collision issue with no writes.
+
+### 5. Publish and verify the approved tickets
+
+Create the validated directory and write exactly one ticket for each approved slice using Output B. Include a concise `## Source` section with extraction path, section, certainty, reconciliation, transcript source, and evidence quote. Re-read the files and compare them with the approved breakdown and governing template.
+
+Preserve these invariants: do not alter extraction reports, transcript sources, canonical records, product code, or existing tickets; do not publish unapproved work; do not silently resolve authority gates; and do not overwrite any path.
+
+- Completion evidence: every approved slice exists exactly once with all template fields, provenance, and genuine blockers; no unapproved file or protected source changed.
+
+### 6. Report the exact result
+
+Return **Created:** every created ticket path, or `none`; **Excluded/deferred:** every omitted item and reason, including human decisions and bug verification, or `none`; **Boundary:** confirmation that extraction reports, transcript sources, canonical records, product code, and existing tickets were not modified; and **Stopped:** `none` or the exact missing input, authority decision, approval, collision, or empty-candidate condition.
+
+- Completion evidence: this report accompanies a verified approved ticket set with **Stopped: none**, or records a permitted stopping condition and confirms that no unauthorized write occurred.

@@ -1,69 +1,59 @@
 ---
 name: transcript-extraction
-description: Extract decision-ready product, business, domain, constraint, change, and bug information from a recorded conversation. Use when the user asks to process a transcript or capture what a transcript says.
+description: Create or update evidence-linked extract.md reports that capture decision-ready product, business, domain, constraint, change, and bug claims. Use when the user asks to process a conversation transcript, capture what a transcript says, or extract decisions, requirements, bugs, or domain knowledge from transcript.txt.
 disable-model-invocation: true
 ---
 
 # Transcript Extraction
 
-Turn a transcript into a durable, evidence-linked **extraction**. This is a capture pass: retain every claim that could affect the product, business, or future work, while preserving its certainty. It is not a planning or implementation pass.
+Turn transcripts into durable, evidence-linked extractions; this is a capture pass, not planning or implementation, and it preserves each claim's actual certainty.
 
-## Input and output
+## Inputs
 
-Transcript records live at `docs/transcripts/<day>/<order>-<slug>/`. A day can contain multiple transcript directories. `<order>` is a two-digit conversation sequence such as `01-invite-codes`; each transcript directory contains exactly one source file named `transcript.txt`.
+### A. Transcript sources
 
-The user supplies one or more transcript directories or `transcript.txt` paths. Resolve relative paths from the repository root. For each source, write or revise `extract.md` in that same transcript directory. Do not write extraction files in the day directory or in a shared extractions directory.
+A required selection of one or more user-supplied `docs/transcripts/<day>/<order>-<slug>/` directories or their direct `transcript.txt` files, resolved from the repository root. `<order>` is a two-digit conversation sequence. Each directory must contain exactly one source named `transcript.txt`; sources are read-only.
 
-Use [`references/report-template.md`](references/report-template.md) as the output shape.
+### B. Current repository record
 
-## Process
+Repository-supplied context documents, the initial idea, relevant ADRs, and verified product behavior that bear on transcript claims. Individual records are optional when absent; every existing relevant record is required context and authoritative for reconciliation.
 
-### 1. Establish the current record
+### C. Report template
 
-Read the complete transcript. Before reconciling claims, read `CONTEXT.md`, or the relevant contexts named by `CONTEXT-MAP.md`, when present; read `docs/initial-idea.md` when present; and read every ADR that touches a claim. Search the repository for existing product behavior when the transcript reports a bug or refers to a feature as already built.
+The required bundled [`references/report-template.md`](references/report-template.md), which defines every extraction report's required shape and empty-section notation.
 
-The completion criterion is a source map: each candidate claim has a transcript quote and the existing record that supports, refines, or conflicts with it.
+## Outputs
 
-### 2. Atomize the claims
+### A. Extraction reports
 
-Extract a claim only when it could change product behavior, user experience, domain language, process ownership, business strategy, market/customer understanding, risk, or a future decision. Keep claims atomic: one subject, one asserted fact or requested outcome.
+For each source, a created or revised `docs/transcripts/<day>/<order>-<slug>/extract.md` beside `transcript.txt`, following the report template. It is complete when every relevant atomic claim appears once with certainty, reconciliation, a short verbatim quote, and its transcript source, and every empty section says `None.`
 
-Capture these categories:
+### B. Completion report
 
-- **Decisions and requirements** — settled product behavior, terminology, scope, or process rules.
-- **Change requests** — requested changes that are not yet a settled design.
-- **Bugs and observed behavior** — the reported symptom, reproduction context, and visible error; separate it from an unverified cause.
-- **Business and domain knowledge** — customers, roles, market model, value proposition, operational reality, economics, and vocabulary.
-- **Constraints and boundaries** — legal, security, process, adoption, integration, timing, or explicit non-goals.
-- **Hypotheses and open questions** — ideas, alternatives, uncertainties, and decisions still to make.
+A response listing each extraction path and whether it was created or updated, followed only by decided items needing promotion, reported bugs needing verification, conflicts, open questions, and the preservation boundary. Use `None` for an empty list.
 
-Include both sides of a discussion only when each is materially relevant. Omit greetings, navigation commentary, speculative implementation detail, and repetition that introduces no new claim.
+## Procedure
 
-### 3. Preserve certainty and provenance
+### 1. Resolve and read the sources
 
-Classify each claim by what the speakers actually established:
+Resolve every supplied path from the repository root, deduplicate it, and map a directory to its direct `transcript.txt`. If a path is missing, a file is not named `transcript.txt`, or a directory does not contain exactly that one transcript source, stop and identify the invalid input; otherwise read every transcript completely without changing it. This step is complete when there is a validated list of distinct source files and each has been read end to end.
 
-- **Decided** — explicit commitment, agreement, or conclusion.
-- **Observed** — a reported fact or visible product behavior; a bug is an observation until verified.
-- **Proposed** — a candidate approach or desired change not yet accepted.
-- **Open** — a question, ambiguity, or choice left unresolved.
+### 2. Build the evidence and current-record map
 
-For every claim, include a short, verbatim evidence quote and its transcript file. Do not turn a proposal into a decision, infer a speaker's intent from garbled transcription, or manufacture a cause, requirement, metric, or owner. Where the transcript is unclear, write the narrowest faithful claim and mark it **Open**.
+For each transcript, identify candidate assertions and attach a short verbatim quote. Before reconciling them, use `CONTEXT-MAP.md` to select relevant context files when present, otherwise read `CONTEXT.md` when present; also read `docs/initial-idea.md` when present and every ADR touching a candidate. When a candidate reports a bug or says a feature already exists, search the repository for the relevant product behavior; if behavior cannot be verified, retain that uncertainty rather than infer it. This step is complete when every candidate links to transcript evidence and to each found record or behavior that supports, refines, or conflicts with it.
 
-The completion criterion is traceability: every extracted item can be checked against the source without rereading the entire transcript.
+### 3. Atomize and classify the claims
 
-### 4. Reconcile without overwriting
+Retain every claim that could affect product behavior, user experience, domain language, process ownership, business strategy, customer or market understanding, risk, or a future decision. Make each claim one subject plus one asserted fact or requested outcome, and place it once under **Decisions and requirements**, **Change requests**, **Bugs and observed behavior**, **Business and domain knowledge**, **Constraints and boundaries**, or **Open questions and hypotheses**. Omit greetings, navigation commentary, speculative implementation detail, and repetition without a new claim; include both sides of a discussion only when each is materially relevant. Classify certainty as **Decided** (explicit commitment), **Observed** (reported fact or behavior), **Proposed** (unaccepted candidate), or **Open** (unresolved). For a reported bug, separate its symptom and reproduction context from any unverified cause. If wording is garbled or intent is unclear, record the narrowest faithful claim as **Open**; never manufacture intent, causes, requirements, metrics, or owners. This step is complete when every relevant assertion is represented once as an atomic, categorized, certainty-preserving claim with evidence.
 
-Compare each claim to the current record:
+### 4. Reconcile without replacing authority
 
-- Mark it **New**, **Confirms**, **Refines**, or **Conflicts**.
-- A transcript can propose a change to an accepted ADR or documented behavior; surface the conflict explicitly and retain both records.
-- Treat repository documents and verified behavior as the current record. A transcript alone supplies evidence for a candidate, not authority to silently rewrite canonical documentation.
+Compare each claim with the current record and mark it **New**, **Confirms**, **Refines**, or **Conflicts**. When a transcript differs from an accepted ADR, canonical document, or verified behavior, preserve both records, cite the current one, and surface **Conflicts** rather than silently choosing or rewriting either. Treat the transcript as evidence for a candidate, not authority to alter canonical state. This step is complete when every claim has exactly one supported reconciliation status and every conflict names the competing record.
 
-Write the extraction report. It is the durable handoff for later domain modeling, specification, triage, or implementation work. Do not create tickets, change application code, alter `CONTEXT.md`, amend an ADR, or modify product documentation during this skill unless the user separately asks for that follow-on work.
+### 5. Materialize and validate each extraction
 
-### 5. Close with an actionable summary
+Create a missing `extract.md` or revise the existing one in place from the bundled template, keeping each report scoped to its adjacent transcript. Re-running is an update, not an append: merge duplicates and preserve still-supported claims so each appears once. Fill every template section or write `None.`, then compare the report back to the full transcript and current-record map to correct omissions, unsupported certainty, missing evidence, duplicate claims, and undisclosed conflicts. Do not create tickets or modify transcripts, `CONTEXT.md`, context-map targets, ADRs, product documentation, or application code. This step is complete when every report satisfies Output A and the only repository files changed by this workflow are the intended `extract.md` files.
 
-Report the output path and list only: decided items needing promotion, reported bugs needing verification, conflicts, and open questions. State when none exist.
+### 6. Report completion
 
-The extraction is complete when every relevant claim is classified, evidence-linked, reconciled, and represented once in the report.
+Report exactly `Extraction: <path> (created|updated)` for each output, then `Promote:`, `Verify:`, `Conflicts:`, `Open:`, and `Boundary: Only the listed extract.md files changed.` List only the corresponding decided items needing promotion, reported bugs needing verification, conflicts, and open questions; write `None` after any empty label. The workflow is complete only when every validated source has one adjacent, template-conformant report whose relevant claims are classified, evidence-linked, reconciled, and represented once, all preservation boundaries hold, and this exact completion report has been returned.

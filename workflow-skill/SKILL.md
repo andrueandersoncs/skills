@@ -12,7 +12,7 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
 ### A. Repeatable task
 
-A description of the repeatable task the workflow skill will document, supplied by the user. It establishes the workflow's scope without asking the skill to perform the task itself.
+A required description of the repeatable task the workflow skill will document, supplied by the user. It establishes the workflow's scope without asking the skill to perform the task itself.
 
 ### B. Intended skill name
 
@@ -20,11 +20,11 @@ The repository skill name supplied by the user when known. This input is optiona
 
 ### C. Task-specific requirements
 
-User-supplied constraints, branches, invariants, or completion conditions that the workflow must preserve.
+Optional user-supplied constraints, branches, invariants, or completion conditions that the workflow must preserve.
 
 ### D. Repository context
 
-The commands, paths, conventions, and existing records that define how the workflow fits the repository. This context is discovered from the repository and serves as the source of truth for local behavior.
+Required repository context: the commands, paths, conventions, and existing records that define how the workflow fits the repository. This context is discovered from the repository and serves as the source of truth for local behavior.
 
 ## Outputs
 
@@ -36,13 +36,13 @@ A created or revised Markdown workflow skill at `.agents/skills/<name>/SKILL.md`
 
 ### 1. Gather the contract
 
-Identify the workflow's trigger, supplied inputs, output location and shape, required repository context, state-changing actions, branches, and completion evidence. Ask only for a missing decision that prevents a concrete procedure. Use the repository as the source of truth for commands, paths, and conventions.
+Identify the workflow's trigger, supplied inputs, output location and shape, required repository context, state-changing actions, decision branches, invariants, and completion evidence. Use the repository as the source of truth for commands, paths, and conventions. If a missing decision prevents a concrete procedure, ask one explicit blocking question and stop until the user answers; do not invoke `skill-creator` with an unresolved contract. This step is complete only when every required contract element is known.
 
 ### 2. Delegate creation
 
 Call the `/skill-creator` skill with this input (use `/skill:skill-creator` if the runtime requires the colon form):
 
-> Create a markdown skill named `<name>` in `.agents/skills/<name>/`. It is a workflow skill for `<task>`. Follow the workflow-skill contract below, using the user's requirements and the repository's existing conventions. Do not add helper files unless the main skill needs a reusable template or detailed reference.
+> Create or revise the Markdown skill named `<name>` in `.agents/skills/<name>/`. It is a workflow skill for `<task>`. Follow the workflow-skill contract below, using the user's requirements and the repository's existing conventions. Preserve existing behavior when revising. Do not add helper files unless the main skill needs a reusable template or detailed reference.
 
 Replace the placeholders with the contract gathered above, then supply these requirements to that skill:
 
@@ -57,6 +57,10 @@ Replace the placeholders with the contract gathered above, then supply these req
 - Finish with the exact result to report and the condition that makes the workflow complete.
 - Prefer repository lookups over duplicating facts that package configuration, commands, or directory layout already provides. Put conditional or exhaustive material in a linked reference file.
 
-### 3. Verify the result
+If the runtime cannot invoke `skill-creator`, stop without editing and report that dependency as the blocker. Otherwise, this step is complete when `skill-creator` has created or revised `.agents/skills/<name>/SKILL.md` and returned without an unresolved error.
 
-Re-read the created `SKILL.md` and confirm that it contains `## Inputs`, `## Outputs`, and `## Procedure` in that order, with uppercase alphabetically indexed `###` input and output subheadings and numbered procedure steps. Confirm that inputs and outputs declaratively define the contract while instructions and state-changing actions appear in the procedure. Confirm that an agent can determine its trigger, inputs, output, every action, branch behavior, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty. Report the skill path and any assumptions made.
+### 3. Verify and report the result
+
+Re-read the resulting `SKILL.md` and confirm that it contains `## Inputs`, `## Outputs`, and `## Procedure` in that order, with uppercase alphabetically indexed `###` input and output subheadings and numbered procedure steps. Confirm that inputs and outputs declaratively define the contract while instructions and state-changing actions appear in the procedure. Confirm that an agent can determine its trigger, inputs, output, every action, branch behavior, invariants, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty and routes concrete requests.
+
+Report exactly `Workflow skill: .agents/skills/<name>/SKILL.md` and `Change: <created|updated>`, followed by `Assumptions: <items|None>`; if verification failed, report `Verification failed: <checks>` instead and do not claim completion. The workflow is complete only when every check passes and the exact path and applicable change state are reported.
