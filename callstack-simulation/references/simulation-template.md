@@ -1,6 +1,6 @@
 # Simulation Report Template
 
-Use this compact structure by default. Replace placeholders, omit optional sections when empty, keep each frame to one line unless a material decision needs one short note, and put exactly one spacer line between every callstack line, including notes. Fill each spacer with `│` guides wherever a call branch continues below.
+Use this compact structure by default. Replace placeholders, omit optional sections when empty, keep each frame to one line unless a material decision needs one short note or conditional block, and put exactly one spacer line between every callstack line, including notes. Fill each spacer with `│` guides wherever a call branch continues below.
 
 ```markdown
 # Simulation: <target or entry point>
@@ -15,7 +15,11 @@ Use this compact structure by default. Replace placeholders, omit optional secti
 │
 ├─ **first-callee**(arguments): <outcome>
 │  │
-│  └─ branch: `<condition>` → `<selected path>` <uncertainty marker when needed>
+│  ├─ if (`<first pattern>`): <first case> <uncertainty marker when needed>
+│  │
+│  ├─ else if (`<second pattern>`): <second case> <uncertainty marker when needed>
+│  │
+│  └─ else: <fallback case> <uncertainty marker when needed>
 │
 └─ **second-callee**(arguments): <return | throw | blocked | truncated>
    │
@@ -23,14 +27,16 @@ Use this compact structure by default. Replace placeholders, omit optional secti
 
 ## Alternative paths
 
-- `<branch>` → <different continuation and outcome> <linked uncertainty>
+if (`<first pattern>`): <different continuation and outcome> <linked uncertainty>
+else if (`<second pattern>`): <different continuation and outcome> <linked uncertainty>
+else: <fallback continuation and outcome> <linked uncertainty>
 
 ## Assumptions and uncertainties
 
 - `U1` · <kind> · <operation or call path>: <detail> → <effect>
 ```
 
-Write `None` when the uncertainty ledger is empty. Omit **Alternative paths** when no unresolved branch materially changes the result. Add **Limits** to the header only when controls are nondefault or truncation occurs.
+Write `None` when the uncertainty ledger is empty. Omit **Alternative paths** when no unresolved condition materially changes the result. Conditional cases must use ordered `if (<pattern>): <case>`, `else if (<pattern>): <case>`, and `else: <case>` clauses on separate lines. Omit nonexistent clauses, and place a long or nested case on the next indented line. Never use a `branch:` label, arrows, or comma-separated pattern-to-case mappings. Add **Limits** to the header only when controls are nondefault or truncation occurs.
 
 ## Trace notation
 
@@ -38,7 +44,7 @@ Write `None` when the uncertainty ledger is empty. Omit **Alternative paths** wh
 - Put exactly one spacer line between all callstack lines, including frame lines and indented note lines. On the spacer, render `│` at each indentation column whose branch continues below and spaces where a branch has ended.
 - `:` gives that frame's outcome: return value, throw, blocked reason, or truncation limit.
 - Identify frames by operation name and nesting; do not generate or display numeric frame IDs. Distinguish repeated calls by their arguments or call path when needed.
-- Use one indented note only for a material branch, state change, intended side effect, or uncertainty.
+- Use one indented note or conditional block only for a material condition, state change, intended side effect, or uncertainty. A conditional block may contain multiple `if`/`else if`/`else` clause lines.
 - Link unsupported behavior with `[assumption U<n>]` or `[unknown U<n>]`; source-defined behavior needs no marker in compact mode.
 - Render spawned concurrent work as a separate operation-named root and show a join only when the target guarantees one.
 
