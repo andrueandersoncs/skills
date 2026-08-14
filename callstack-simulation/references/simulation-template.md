@@ -1,6 +1,6 @@
 # Simulation Report Template
 
-Use this compact structure by default. Replace placeholders and omit optional sections when empty. Render each frame as one call line without an appended or separate outcome annotation. Put exactly one spacer line between every callstack line, including notes, and fill each spacer with `│` guides wherever a call branch continues below.
+Use the following structure and replace its placeholders:
 
 ```markdown
 # Simulation: <target or entry point>
@@ -8,6 +8,7 @@ Use this compact structure by default. Replace placeholders and omit optional se
 - **Scenario:** <concrete inputs or named symbolic scenario>
 - **Status:** <complete | partial | blocked>
 - **Execution:** Dry run only; no target operation or side effect was performed.
+- **Limits:** <nondefault controls or truncation>
 
 ## Callstack
 
@@ -28,15 +29,14 @@ Use this compact structure by default. Replace placeholders and omit optional se
       └─ if (failure condition): throws <error>
 ```
 
-Write each finite alternative directly in the relevant conditional block. Do not add a separate assumptions, ambiguities, or uncertainties section, and do not add reference markers for symbolic values or unsupported behavior. Conditional cases must use ordered `if (<pattern>): <case>`, `else if (<pattern>): <case>`, and `else: <case>` clauses on separate lines. Omit nonexistent clauses, and place a long or nested case on the next indented line. Never use a `branch:` label, arrows, or comma-separated pattern-to-case mappings. Add **Limits** to the header only when controls are nondefault or truncation occurs.
+## Rendering rules
 
-## Trace notation
-
-- A bold operation line represents one frame; indentation represents caller/callee nesting, and siblings remain in execution order.
-- Render no `outcome:` line and do not append an outcome to an operation line.
-- Put exactly one spacer line between every callstack line, including frame-to-note and note-to-note transitions. On the spacer, render `│` at each indentation column whose call branch continues below and spaces where a branch has ended.
-- Identify frames by their operation names and nesting; do not generate or display numeric frame IDs. Distinguish repeated calls by their arguments or call path when needed.
-- Use one indented note or conditional block only for a material condition, state change, intended side effect, blocker, truncation, or error. A conditional block may contain multiple `if`/`else if`/`else` clause lines.
-- Render spawned concurrent work as a separate operation-named root and show a join only when the target guarantees one.
-
-For `expanded` detail, add concise `enter`, `step`, or `state` notes beneath the relevant frame. Do not duplicate routine information, add outcome annotations, or add generated frame IDs.
+- In compact detail, represent a frame as `**operation**(arguments)`. Indentation shows caller/callee nesting; sibling order shows execution order. Distinguish repeated calls by arguments or call path. Do not add numeric frame IDs, routine return values, outcome annotations, or routine enter, exit, step, resume, unchanged-state, and source-marker text.
+- Do not enclose the complete caller string in backticks or retain placeholder angle brackets around operation names or arguments.
+- Put exactly one spacer line between all rendered callstack lines, including notes and conditional clauses. On that spacer, place `│` at each indentation column whose call branch continues below and spaces where it has ended.
+- Beneath a frame, include at most one short note or conditional block, limited to a material condition, state change, intended side effect, blocker, truncation, or error.
+- Write conditional clauses in source order on separate lines as `if (<pattern>): <case>`, `else if (<pattern>): <case>`, and `else: <case>`, omitting nonexistent clauses. Move a long or nested case to the next indented line. Never use a `branch:` label or arrow- or comma-separated pattern mappings.
+- Show alternative continuations inline only when unresolved conditions materially change the result.
+- Represent spawned concurrent work as a separate operation-named root; include a join only when the target guarantees one.
+- Expanded detail may additionally include concise entry values and ordered `enter`, `step`, or `state` notes; all other rules still apply.
+- Do not add assumptions, ambiguities, uncertainties, reference markers for symbolic values or unsupported behavior, or post-report completion metadata. Include **Limits** only for nondefault controls or truncation.
