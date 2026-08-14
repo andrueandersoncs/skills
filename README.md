@@ -26,4 +26,4 @@ Each top-level skill directory can be added to an agent runtime's configured ski
 
 - `extract-skill-to-repository` expects the active project and its sibling `../skills` directory to be Git repositories.
 - `extract-to-tickets` expects the active repository to provide a `to-tickets` skill, `docs/agents/issue-tracker.md`, and `docs/agents/triage-labels.md`.
-- `workflow-skill` expects the runtime to provide `skill-creator`.
+- `workflow-skill` expects the runtime to provide `skill-creator` and `callstack-simulation`.

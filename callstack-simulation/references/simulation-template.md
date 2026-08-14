@@ -1,17 +1,8 @@
-# Simulation Report Template
+# Callstack Template
 
-Use the following structure and replace its placeholders:
+Output only the following callstack structure with its placeholders replaced. Do not include the surrounding code fence.
 
 ```markdown
-# Simulation: <target or entry point>
-
-- **Scenario:** <concrete inputs or named symbolic scenario>
-- **Status:** <complete | partial | blocked>
-- **Execution:** Dry run only; no target operation or side effect was performed.
-- **Limits:** <nondefault controls or truncation>
-
-## Callstack
-
 **Entry Point**(arguments)
 │
 ├─ **First Callee**(arguments)
@@ -39,4 +30,4 @@ Use the following structure and replace its placeholders:
 - Show alternative continuations inline only when unresolved conditions materially change the result.
 - Represent spawned concurrent work as a separate operation-named root; include a join only when the target guarantees one.
 - Expanded detail may additionally include concise entry values and ordered `enter`, `step`, or `state` notes; all other rules still apply.
-- Do not add assumptions, ambiguities, uncertainties, reference markers for symbolic values or unsupported behavior, or post-report completion metadata. Include **Limits** only for nondefault controls or truncation.
+- Output the callstack directly with no title, section heading, scenario, status, execution, limits, assumptions, ambiguities, uncertainties, symbolic-value reference markers, wrapper, or completion metadata. Represent material blockers and truncation only as notes within the relevant frame.

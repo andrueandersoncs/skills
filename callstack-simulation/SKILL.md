@@ -27,15 +27,15 @@ Optional entry-point override, branch selection, expansion depth, loop or recurs
 
 ## Outputs
 
-### A. Simulation report
+### A. Callstack
 
-One Markdown report, returned inline or written to the authorized destination, that conforms to [`references/simulation-template.md`](references/simulation-template.md), the sole formatting specification. It is complete when it presents the validated, source-traceable call hierarchy and material decisions under the correct status.
+One Markdown callstack, returned inline or written to the authorized destination, that conforms to [`references/simulation-template.md`](references/simulation-template.md), the sole formatting specification. It is complete when it directly presents the validated, source-traceable call hierarchy and material decisions without a title, section heading, metadata, wrapper, or completion message.
 
 ## Procedure
 
 ### 1. Resolve the contract
 
-Read every input and determine the root operation, initial values, source identifiers, authority order, limits, and output location. If supporting context conflicts with the target, retain the target's behavior and flag the conflict. If the target or entry point is missing, unreadable, or ambiguous, stop before creating a report and name the blocker. Also stop when the requested destination exists without revision authority. This step is complete when the simulation contract is fixed or a blocker has been returned.
+Read every input and determine the root operation, initial values, source identifiers, authority order, limits, and output location. If supporting context conflicts with the target, retain the target's behavior and flag the conflict. If the target or entry point is missing, unreadable, or ambiguous, stop before creating a callstack and name the blocker. Also stop when the requested destination exists without revision authority. This step is complete when the simulation contract is fixed or a blocker has been returned.
 
 ### 2. Build the execution model
 
@@ -54,10 +54,10 @@ Initialize and enter the root frame with concrete or symbolic bindings before tr
 
 This step is complete when each path has balanced stack transitions or an explicit blocked or truncated boundary.
 
-### 4. Validate and classify the trace
+### 4. Validate the trace
 
-Compare the trace with every input and correct omissions, reordering, impossible case combinations, fabricated values, unsupported state changes, hidden truncation, and violations of the workflow boundary. Assign `complete` when the selected scenario reaches a defined terminal state without result-affecting symbolism or truncation; assign `partial` when symbolic alternatives or limits affect otherwise useful paths; assign `blocked` when no meaningful path continues beyond a blocker. This step is complete when every frame is source-traceable and the chosen status is accurate.
+Compare the trace with every input and correct omissions, reordering, impossible case combinations, fabricated values, unsupported state changes, hidden truncation, and violations of the workflow boundary. This step is complete when every frame is source-traceable and every blocker or truncation is represented within the callstack.
 
-### 5. Publish the report
+### 5. Publish the callstack
 
-Render the validated trace according to the output contract, then return it inline or write it at the resolved destination without a separate completion message. The workflow is complete when that report exists at the resolved location.
+Render the validated trace according to the output contract, then return it inline or write it at the resolved destination. Output the callstack directly: do not add a simulation title, `## Callstack` heading, scenario, status, execution, limits, wrapper, or separate completion message. The workflow is complete when that callstack exists at the resolved location.
