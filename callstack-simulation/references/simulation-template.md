@@ -1,6 +1,6 @@
 # Simulation Report Template
 
-Use this compact structure by default. Replace placeholders, omit optional sections when empty, and keep each frame to one line unless a material decision needs one short note.
+Use this compact structure by default. Replace placeholders, omit optional sections when empty, keep each frame to one line unless a material decision needs one short note, and put exactly one blank line between every callstack line, including notes.
 
 ```markdown
 # Simulation: <target or entry point>
@@ -12,9 +12,13 @@ Use this compact structure by default. Replace placeholders, omit optional secti
 ## Callstack
 
 `<entry-point>(<arguments>)` → <outcome>
+
 ├─ `<first-callee>(<arguments>)` → <outcome>
+
 │  └─ branch: `<condition>` → `<selected path>` <uncertainty marker when needed>
+
 └─ `<second-callee>(<arguments>)` → <return | throw | blocked | truncated>
+
    └─ `<nested-callee>(<arguments>)` → <outcome>
 
 ## Alternative paths
@@ -31,6 +35,7 @@ Write `None` when the uncertainty ledger is empty. Omit **Alternative paths** wh
 ## Trace notation
 
 - One line represents one frame; indentation represents caller/callee nesting, and siblings remain in execution order.
+- Put exactly one blank line between all callstack lines, including frame lines and indented note lines.
 - `→` gives that frame's outcome: return value, throw, blocked reason, or truncation limit.
 - Keep hierarchical frame IDs internally; display one only when repeated calls need disambiguation or an uncertainty needs an exact ledger link.
 - Use one indented note only for a material branch, state change, intended side effect, or uncertainty.
