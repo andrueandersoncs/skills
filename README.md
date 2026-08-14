@@ -7,6 +7,7 @@ Reusable workflow skills following the [Agent Skills](https://agentskills.io/) f
 - `extract-to-tickets` — turns transcript extraction reports into approved local tickets.
 - `transcript-extraction` — captures evidence-linked claims from transcripts.
 - `transcript-filing` — files raw transcripts into a dated archive, then extracts them.
+- `transcript-purpose-analysis` — segments transcripts and labels each section by its communicative purpose.
 - `workflow-skill` — creates completion-checked workflow skills.
 
 Each top-level skill directory can be added to an agent runtime's configured skill path independently. The workflows operate on the active repository rather than this collection.
