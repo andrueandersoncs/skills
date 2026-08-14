@@ -11,15 +11,15 @@ Use this compact structure by default. Replace placeholders, omit optional secti
 
 ## Callstack
 
-`<entry-point>(<arguments>)` → <outcome>
+**entry-point**(arguments): <outcome>
 │
-├─ `<first-callee>(<arguments>)` → <outcome>
+├─ **first-callee**(arguments): <outcome>
 │  │
 │  └─ branch: `<condition>` → `<selected path>` <uncertainty marker when needed>
 │
-└─ `<second-callee>(<arguments>)` → <return | throw | blocked | truncated>
+└─ **second-callee**(arguments): <return | throw | blocked | truncated>
    │
-   └─ `<nested-callee>(<arguments>)` → <outcome>
+   └─ **nested-callee**(arguments): <outcome>
 
 ## Alternative paths
 
@@ -36,7 +36,7 @@ Write `None` when the uncertainty ledger is empty. Omit **Alternative paths** wh
 
 - One line represents one frame; indentation represents caller/callee nesting, and siblings remain in execution order.
 - Put exactly one spacer line between all callstack lines, including frame lines and indented note lines. On the spacer, render `│` at each indentation column whose branch continues below and spaces where a branch has ended.
-- `→` gives that frame's outcome: return value, throw, blocked reason, or truncation limit.
+- `:` gives that frame's outcome: return value, throw, blocked reason, or truncation limit.
 - Identify frames by operation name and nesting; do not generate or display numeric frame IDs. Distinguish repeated calls by their arguments or call path when needed.
 - Use one indented note only for a material branch, state change, intended side effect, or uncertainty.
 - Link unsupported behavior with `[assumption U<n>]` or `[unknown U<n>]`; source-defined behavior needs no marker in compact mode.
