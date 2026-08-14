@@ -1,6 +1,6 @@
 # Simulation Report Template
 
-Use this compact structure by default. Replace placeholders, omit optional sections when empty, and put every frame's expected happy-path outcome on the immediately following indented line beneath its call. An outcome contains only the expected successful result; keep exceptions, blockers, and truncation in conditional notes. Do not insert a spacer inside a call/outcome pair. Put exactly one spacer line between every other callstack line, including notes, and fill each spacer with `│` guides wherever a call branch continues below.
+Use this compact structure by default. Replace placeholders and omit optional sections when empty. Render each frame as one call line without an appended or separate outcome annotation. Put exactly one spacer line between every callstack line, including notes, and fill each spacer with `│` guides wherever a call branch continues below.
 
 ```markdown
 # Simulation: <target or entry point>
@@ -12,10 +12,8 @@ Use this compact structure by default. Replace placeholders, omit optional secti
 ## Callstack
 
 **entry-point**(arguments)
-├─ **outcome**: <expected successful result>
 │
 ├─ **first-callee**(arguments)
-│  ├─ **outcome**: <expected successful result>
 │  │
 │  ├─ if (first pattern): <first case>
 │  │
@@ -24,10 +22,8 @@ Use this compact structure by default. Replace placeholders, omit optional secti
 │  └─ else: <fallback case>
 │
 └─ **second-callee**(arguments)
-   ├─ **outcome**: <expected successful result>
    │
    └─ **nested-callee**(arguments)
-      ├─ **outcome**: <expected successful result>
       │
       └─ if (failure condition): throws <error>
 ```
@@ -37,12 +33,10 @@ Write each finite alternative directly in the relevant conditional block. Do not
 ## Trace notation
 
 - A bold operation line represents one frame; indentation represents caller/callee nesting, and siblings remain in execution order.
-- The line immediately beneath each operation is its outcome annotation, formatted as `**outcome**: <expected successful result>`. It describes only the frame's expected happy-path result rather than representing an executable statement or claiming that the result was reached.
-- Never put a throw, error, blocker, truncation, or alternative failure result in the outcome annotation; show a material exceptional path in a conditional note.
-- Never append an outcome to an operation line with a colon.
-- Do not put a spacer between an operation line and its outcome line. Put exactly one spacer line between every other callstack line, including outcome-to-note and note-to-note transitions. On the spacer, render `│` at each indentation column whose call branch continues below and spaces where a branch has ended.
+- Render no `outcome:` line and do not append an outcome to an operation line.
+- Put exactly one spacer line between every callstack line, including frame-to-note and note-to-note transitions. On the spacer, render `│` at each indentation column whose call branch continues below and spaces where a branch has ended.
 - Identify frames by their operation names and nesting; do not generate or display numeric frame IDs. Distinguish repeated calls by their arguments or call path when needed.
-- Use one indented note or conditional block only for a material condition, state change, or intended side effect. A conditional block may contain multiple `if`/`else if`/`else` clause lines.
+- Use one indented note or conditional block only for a material condition, state change, intended side effect, blocker, truncation, or error. A conditional block may contain multiple `if`/`else if`/`else` clause lines.
 - Render spawned concurrent work as a separate operation-named root and show a join only when the target guarantees one.
 
-For `expanded` detail, add concise `enter`, `step`, or `state` notes beneath the relevant frame. Do not duplicate routine information or add generated frame IDs, and do not change outcomes.
+For `expanded` detail, add concise `enter`, `step`, or `state` notes beneath the relevant frame. Do not duplicate routine information, add outcome annotations, or add generated frame IDs.
