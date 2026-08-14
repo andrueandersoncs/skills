@@ -30,7 +30,7 @@ Required repository context: the commands, paths, conventions, and existing reco
 
 ### A. Workflow skill
 
-A created or revised Markdown workflow skill at `.agents/skills/<name>/SKILL.md`. Its frontmatter name matches `<name>`, its description explicitly routes relevant requests, and its procedure can be executed by another agent without inventing policy.
+A created or revised Markdown workflow skill at `.agents/skills/<name>/SKILL.md`. Its frontmatter name matches `<name>`, its description explicitly routes relevant requests, and its three required sections use parallel `###` item subheadings: alphabetical for inputs and outputs, numbered for procedure steps. Another agent can execute the resulting procedure without inventing policy.
 
 ## Procedure
 
@@ -49,9 +49,10 @@ Replace the placeholders with the contract gathered above, then supply these req
 - Keep `SKILL.md` short. Its YAML frontmatter name matches the directory, and its description states both the outcome and concrete request triggers.
 - Start with one sentence that names the workflow's scope and its boundary.
 - Use the exact second-level sections `## Inputs`, `## Outputs`, and `## Procedure`, in that order. Treat inputs and outputs as the workflow's declarative contract; keep instructions and state-changing actions in the procedure.
-- Under `## Inputs`, give each input a third-level subheading with an uppercase alphabetical index (`### A.`, `### B.`, `### C.`, and so on) because inputs are not ordered. Describe what it is, where it comes from, its expected shape, and whether it is optional. Include exact path patterns, naming rules, and ownership boundaries when they matter.
-- Under `## Outputs`, give each output a third-level subheading with an uppercase alphabetical index because outputs are not ordered. Describe what it is, where it belongs, its expected shape, and the state that makes it complete.
-- Under `## Procedure`, write the process as an ordered, numbered sequence. Each step performs one observable transition and ends with a checkable completion criterion.
+- Give all three sections the same item structure: every direct input, output, or procedure step has its own `###` subheading followed by the text that defines that item. Do not leave a top-level item as unheaded prose or only a list item.
+- Under `## Inputs`, format each item as `### A. <Input name>`, `### B. <Input name>`, and so on. Use contiguous uppercase alphabetical indices because inputs are an unordered contract. Describe what each input is, where it comes from, its expected shape, and whether it is optional. Include exact path patterns, naming rules, and ownership boundaries when they matter.
+- Under `## Outputs`, format each item as `### A. <Output name>`, `### B. <Output name>`, and so on. Use contiguous uppercase alphabetical indices because outputs are an unordered contract. Describe what each output is, where it belongs, its expected shape, and the state that makes it complete.
+- Under `## Procedure`, format each item as `### 1. <Step title>`, `### 2. <Step title>`, and so on. Use contiguous numeric indices because procedure steps are ordered by execution. Never express a procedure step only as a numbered list item. Each step performs one observable transition and ends with a checkable completion criterion.
 - Put every decision branch beside the step that reaches it. State the condition, action, and result for each branch.
 - Preserve important invariants explicitly: source preservation, idempotency, non-overwrite rules, authority boundaries, or required handoffs.
 - Finish with the exact result to report and the condition that makes the workflow complete.
@@ -61,6 +62,6 @@ If the runtime cannot invoke `skill-creator`, stop without editing and report th
 
 ### 3. Verify and report the result
 
-Re-read the resulting `SKILL.md` and confirm that it contains `## Inputs`, `## Outputs`, and `## Procedure` in that order, with uppercase alphabetically indexed `###` input and output subheadings and numbered procedure steps. Confirm that inputs and outputs declaratively define the contract while instructions and state-changing actions appear in the procedure. Confirm that an agent can determine its trigger, inputs, output, every action, branch behavior, invariants, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty and routes concrete requests.
+Re-read the resulting `SKILL.md` and confirm that it contains `## Inputs`, `## Outputs`, and `## Procedure` in that order. Confirm their parallel item structure: every direct item uses a `###` subheading, inputs and outputs have contiguous uppercase alphabetical indices, and procedure steps have contiguous numeric indices; reject top-level items expressed only as unheaded prose or list items. Confirm that inputs and outputs declaratively define the contract while instructions and state-changing actions appear in the procedure. Confirm that an agent can determine its trigger, inputs, output, every action, branch behavior, invariants, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty and routes concrete requests.
 
 Report exactly `Workflow skill: .agents/skills/<name>/SKILL.md` and `Change: <created|updated>`, followed by `Assumptions: <items|None>`; if verification failed, report `Verification failed: <checks>` instead and do not claim completion. The workflow is complete only when every check passes and the exact path and applicable change state are reported.
