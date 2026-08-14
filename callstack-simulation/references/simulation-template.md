@@ -12,9 +12,9 @@ Use the following structure and replace its placeholders:
 
 ## Callstack
 
-**entry-point**(arguments)
+**Entry Point**(arguments)
 │
-├─ **first-callee**(arguments)
+├─ **First Callee**(arguments)
 │  │
 │  ├─ if (first pattern): <first case>
 │  │
@@ -22,16 +22,16 @@ Use the following structure and replace its placeholders:
 │  │
 │  └─ else: <fallback case>
 │
-└─ **second-callee**(arguments)
+└─ **Second Callee**(arguments)
    │
-   └─ **nested-callee**(arguments)
+   └─ **Nested Callee**(arguments)
       │
       └─ if (failure condition): throws <error>
 ```
 
 ## Rendering rules
 
-- In compact detail, represent a frame as `**operation**(arguments)`. Indentation shows caller/callee nesting; sibling order shows execution order. Distinguish repeated calls by arguments or call path. Do not add numeric frame IDs, routine return values, outcome annotations, or routine enter, exit, step, resume, unchanged-state, and source-marker text.
+- In compact detail, represent a frame as `**Operation Name**(arguments)`. Convert every operation name to bold Capital Case: capitalize each word and separate words with spaces, never hyphens. Indentation shows caller/callee nesting; sibling order shows execution order. Distinguish repeated calls by arguments or call path. Do not add numeric frame IDs, routine return values, outcome annotations, or routine enter, exit, step, resume, unchanged-state, and source-marker text.
 - Do not enclose the complete caller string in backticks or retain placeholder angle brackets around operation names or arguments.
 - Put exactly one spacer line between all rendered callstack lines, including notes and conditional clauses. On that spacer, place `│` at each indentation column whose call branch continues below and spaces where it has ended.
 - Beneath a frame, include at most one short note or conditional block, limited to a material condition, state change, intended side effect, blocker, truncation, or error.
