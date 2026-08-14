@@ -4,7 +4,7 @@ The output is one source-grounded, event-driven state-machine app, not a generic
 
 ## Canonical template
 
-[`../assets/state-machine-app.html`](../assets/state-machine-app.html) is the authoritative implementation and visual reference. Every artifact must be a copy of that file with only the embedded `machine` value between `// MACHINE_DATA_START` and `// MACHINE_DATA_END` replaced. The template's remaining HTML, CSS, DOM order, graph renderer, event dock, controls, tooltips, accessibility behavior, and runtime logic must remain byte-for-byte unchanged. Do not reproduce the design from prose, create an approximation, or improve the template while generating an artifact.
+[`../assets/app-template.html`](../assets/app-template.html) is the authoritative implementation and visual reference. Every artifact must be a copy of that file with only the embedded `machine` value between `// MACHINE_DATA_START` and `// MACHINE_DATA_END` replaced. The template's remaining HTML, CSS, DOM order, graph renderer, event dock, controls, tooltips, accessibility behavior, and runtime logic must remain byte-for-byte unchanged. Do not reproduce the design from prose, create an approximation, or improve the template while generating an artifact.
 
 ## Delivery
 
