@@ -90,3 +90,53 @@ Preserve these invariants: do not alter extraction reports, transcript sources, 
 Return **Created:** every created ticket path, or `none`; **Excluded/deferred:** every omitted item and reason, including human decisions and bug verification, or `none`; **Boundary:** confirmation that extraction reports, transcript sources, canonical records, product code, and existing tickets were not modified; and **Stopped:** `none` or the exact missing input, authority decision, approval, collision, or empty-candidate condition.
 
 - Completion evidence: this report accompanies a verified approved ticket set with **Stopped: none**, or records a permitted stopping condition and confirms that no unauthorized write occurred.
+
+## Callstack Simulation
+
+**Extract To Tickets**(extraction sources, optional effort slug, publication approval, repository context)
+│
+├─ **Resolve Sources And Governing Context**(repository-relative sources, governing records, existing work)
+│  │
+│  ├─ if (a source is invalid or required context is unavailable): record the missing input and route to the exact result without creating files
+│  │
+│  └─ else: deduplicate the sources and build a complete provenance-bearing source map
+│
+├─ **Classify Every In Scope Item**(source map, canonical records, code, existing work)
+│  │
+│  └─ **Classify Each In Scope Item**(claim, certainty, reconciliation, transcript source, evidence)
+│     │
+│     ├─ if (the item is context-only, verified-current, resolved, historical, implemented, duplicate, unverifiable, or underspecified): exclude it with its reason and provenance
+│     │
+│     ├─ else if (the item has a conflict, required record promotion, or unresolved decision): defer it behind the human authority gate
+│     │
+│     └─ else if (the item is a settled requirement, elected specific change, or current reported or verified bug): retain one candidate with required bug-verification handling
+│
+├─ **Slice And Present The Proposal**(classification ledger, active to-tickets rules)
+│  │
+│  ├─ **Build The Candidate Breakdown**(independently verifiable slices, genuine blockers, dependency order)
+│  │
+│  └─ **Request Explicit Approval**(currently displayed numbered breakdown)
+│     │
+│     ├─ if (no candidates remain): record no candidates and route to the exact result without creating files
+│     │
+│     ├─ else if (scope, grouping, granularity, blockers, or a proposed change changes): revise and re-present the breakdown; prior approval does not carry forward
+│     │
+│     ├─ else if (approval is withheld or unavailable): record approval not granted and route to the exact result without creating files
+│     │
+│     └─ else: retain the explicitly approved breakdown for publication
+│
+├─ **Validate The Publication Destination**(approved breakdown, effort slug, planned filenames)
+│  │
+│  ├─ if (the slug is absent or invalid): request a valid lowercase kebab-case slug before continuing
+│  │
+│  ├─ else if (the destination or a planned filename collides): record the collision and route to the exact result without writing
+│  │
+│  └─ else: fix an unused dependency-ordered filename plan
+│
+├─ **Publish And Verify The Approved Tickets**(approved breakdown, validated destination, active template)
+│  │
+│  └─ create and re-read exactly the approved provenance-bearing tickets without altering protected sources or existing files
+│
+└─ **Report The Exact Result**(created tickets, exclusions and deferrals, protected boundary, stopping condition)
+   │
+   └─ if (publication succeeded): report the verified ticket set with Stopped none; else: report the permitted stopping condition and confirm no unauthorized write

@@ -57,3 +57,75 @@ Create a missing `extract.md` or revise the existing one in place from the bundl
 ### 6. Report completion
 
 Report exactly `Extraction: <path> (created|updated)` for each output, then `Promote:`, `Verify:`, `Conflicts:`, `Open:`, and `Boundary: Only the listed extract.md files changed.` List only the corresponding decided items needing promotion, reported bugs needing verification, conflicts, and open questions; write `None` after any empty label. The workflow is complete only when every validated source has one adjacent, template-conformant report whose relevant claims are classified, evidence-linked, reconciled, and represented once, all preservation boundaries hold, and this exact completion report has been returned.
+
+## Callstack Simulation
+
+**Transcript Extraction**(transcript sources, current repository record, report template)
+│
+├─ **Resolve And Read The Sources**(supplied paths, repository root)
+│  │
+│  ├─ if (a path is missing, a file is not transcript.txt, or a directory lacks exactly one transcript source): stop and identify the invalid input
+│  │
+│  └─ else: resolve and deduplicate the sources, then read every transcript end to end without changing it
+│
+├─ **Build The Evidence And Current Record Map**(validated transcripts, repository records)
+│  │
+│  ├─ **Identify Candidate Assertions**(each complete transcript)
+│  │  │
+│  │  └─ attach a short verbatim quote to every candidate
+│  │
+│  ├─ **Select Relevant Context**(candidate assertions, repository root)
+│  │  │
+│  │  ├─ if (CONTEXT-MAP.md is present): read the selected relevant context files
+│  │  │
+│  │  ├─ else if (CONTEXT.md is present): read CONTEXT.md
+│  │  │
+│  │  └─ else: continue without either context index
+│  │
+│  ├─ **Read Current Records**(initial idea when present, every candidate-relevant ADR)
+│  │
+│  └─ **Verify Reported Product Behavior**(bug reports and existing-feature claims)
+│     │
+│     ├─ if (relevant behavior is verified): link it to the candidate
+│     │
+│     └─ else: retain the uncertainty rather than infer behavior
+│
+├─ **Atomize And Classify The Claims**(candidate assertions, report categories, certainty classes)
+│  │
+│  ├─ **Retain And Categorize Atomic Claims**(candidate assertions, six report categories)
+│  │  │
+│  │  └─ represent every relevant assertion once and omit non-claim content and repetition
+│  │
+│  └─ **Preserve Certainty And Evidence**(Decided, Observed, Proposed, Open)
+│     │
+│     └─ keep bug causes unverified and unclear intent Open rather than manufacture details
+│
+├─ **Reconcile Without Replacing Authority**(atomic claims, current record)
+│  │
+│  ├─ if (a claim differs from an accepted record or verified behavior): preserve both, cite the current record, and mark Conflicts
+│  │
+│  └─ else: assign exactly one supported status from New, Confirms, or Refines
+│
+├─ **Materialize And Validate Each Extraction**(each transcript, adjacent extract.md, report template)
+│  │
+│  ├─ **Materialize Each Extraction**(transcript claims, adjacent report)
+│  │  │
+│  │  ├─ if (extract.md is missing): create it from the bundled template
+│  │  │
+│  │  └─ else: revise it in place, merging duplicates and preserving still-supported claims
+│  │
+│  ├─ **Populate The Report Template**(reconciled claims, required sections)
+│  │  │
+│  │  └─ if (a section has no claims): write None.
+│  │
+│  ├─ **Validate Each Extraction**(full transcript, current-record map, report)
+│  │  │
+│  │  └─ correct omissions, unsupported certainty, missing evidence, duplicates, and undisclosed conflicts
+│  │
+│  └─ **Enforce The Preservation Boundary**(repository changes)
+│     │
+│     └─ change only the intended extract.md files
+│
+└─ **Report Completion**(extraction paths and states, promotions, verifications, conflicts, open questions, preservation boundary)
+   │
+   └─ return the required Extraction, Promote, Verify, Conflicts, Open, and Boundary labels; use None for every empty category

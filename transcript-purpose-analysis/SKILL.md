@@ -73,3 +73,43 @@ Compare all boundaries, anchors, quotes, and labels against the complete source.
 ### 7. Publish and report completion
 
 Write the validated report to the resolved unused or authorized destination, or return it inline. Report exactly: `Result: <path|inline>`, `Sections: <count>`, `Low confidence: <section numbers|None>`, and `Source unchanged: yes`. The workflow is complete only when that report accompanies a published, fully validated purpose analysis and the transcript remains unchanged; otherwise it ends only with the applicable input or overwrite blocker explicitly reported.
+
+## Callstack Simulation
+
+**Transcript Purpose Analysis**(transcript, purpose taxonomy, output destination)
+│
+├─ **Establish The Source And Destination**(supplied path or complete inline text)
+│  │
+│  ├─ if (the path is missing, unreadable, or not a text file): stop, request a valid transcript, and make no file change
+│  │
+│  └─ else: record the read-only source, usable anchors, and resolved destination
+│
+├─ **Fix The Allowed Taxonomy**(user-supplied taxonomy or default taxonomy)
+│  │
+│  ├─ if (a user-supplied taxonomy is present): adopt it exactly; use Other/unclear and record a mismatch for any uncovered passage
+│  │
+│  └─ else: adopt the default taxonomy
+│
+├─ **Mark Purpose Transitions**(complete transcript, fixed taxonomy)
+│
+├─ **Classify The Sections**(ordered boundary list)
+│  │
+│  └─ if (no purpose is supportable): assign Other/unclear with Low confidence and add an ambiguity note
+│
+├─ **Construct The Report**(classified sections, source anchors, resolved destination)
+│  │
+│  ├─ if (the destination exists and revision was explicitly requested): revise that report only
+│  │
+│  ├─ else if (the destination exists without revision authority): stop, request authority, and leave the source and report unchanged
+│  │
+│  └─ else: build the report with every required field and ambiguity note
+│
+├─ **Validate Coverage And Fidelity**(complete source, report boundaries, anchors, quotes, labels)
+│  │
+│  └─ if (a fidelity or coverage defect exists): correct it before publication
+│
+└─ **Publish And Report Completion**(validated report, resolved destination)
+   │
+   ├─ if (the destination is a file): write the report to the unused or authorized path and report the required result fields
+   │
+   └─ else: return the report inline and report the required result fields

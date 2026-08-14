@@ -64,3 +64,53 @@ Apply `transcript-extraction` to the filed `transcript.txt`; do not interpret cl
 ### 7. Report the result
 
 Report exactly `Filed: <path>`, `Topic: <topic>`, `Bytes preserved: yes`, and `Extraction: <extract.md path|blocker: reason>`. The workflow is fully complete when the transcript is verified at its canonical destination, absent from its old path unless it was already canonically filed, extraction completed at the reported path, and this exact report is returned. When extraction is blocked, report the same verified filing fields and blocker, and state that filing completed but the extraction handoff remains incomplete.
+
+## Callstack Simulation
+
+**Transcript Filing**(raw transcript, transcript archive, extraction workflow)
+│
+├─ **Validate And Record The Source**(repository-relative transcript path)
+│  │
+│  ├─ if (the path is missing, unreadable, or not a file): stop without repository changes and report the invalid input
+│  │
+│  ├─ else if (the path is already canonical): verify its path components and continue at the extraction handoff
+│  │
+│  └─ else: record the source path, byte count, and content hash
+│
+├─ **Select The Topic**(validated transcript contents)
+│  │
+│  └─ if (a concise topic-specific lowercase kebab-case slug cannot be formed): the topic-selection criterion remains unmet
+│
+├─ **Allocate The Dated Sequence**(local date, existing dated archive)
+│  │
+│  ├─ if (the next sequence exceeds 99): stop before changes and ask how to continue
+│  │
+│  └─ else: reserve one unused two-digit sequence without changing the archive
+│
+├─ **Reserve An Unused Destination**(date, sequence, topic)
+│  │
+│  ├─ if (the sequence prefix appeared after allocation): recompute the sequence from the archive
+│  │
+│  └─ else: create exactly one empty topic directory at the canonical destination
+│
+├─ **Move And Verify The Transcript**(source, reserved destination, recorded byte count and hash)
+│  │
+│  ├─ if (the move fails): preserve whichever complete copy remains and report the exact state
+│  │
+│  ├─ else if (byte or old-path verification fails): preserve recoverable bytes, stop, and do not invoke extraction
+│  │
+│  └─ else: retain the exact bytes at the destination with the old path absent
+│
+├─ **Hand Off Extraction**(filed transcript path)
+│  │
+│  └─ **Transcript Extraction**(filed transcript.txt)
+│     │
+│     ├─ if (extraction completes): retain its reported extract.md path
+│     │
+│     └─ else: keep the filed transcript in place and record the precise blocker
+│
+└─ **Report The Result**(final path, topic, preservation result, extraction result)
+   │
+   ├─ if (extraction completed): report the fully completed filing and extraction
+   │
+   └─ else: report that filing completed while the extraction handoff remains incomplete

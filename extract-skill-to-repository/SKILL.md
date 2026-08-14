@@ -77,3 +77,71 @@ Only after the target commit exists, delete the complete source directory and ap
 ### 7. Report the result
 
 Confirm both worktrees are clean and verify each commit against the source manifest and approved change plan. If the user explicitly requested pushing, push only after both commits exist and record each result; otherwise do not push. Report exactly `Moved: <old path> -> <new path>`, `Portability: <approved changes|None>`, `Target commit: <hash>`, `Source commit: <hash>`, `Validation: <checks>`, `Push: <not requested|results>`, and `Status: <complete|incomplete: unmet condition>`. **Completion condition:** both worktrees are clean, the target commit contains every moved file, the source commit removes exactly the selected skill and approved references, and any requested pushes succeeded; otherwise use the same report schema to name the unmet condition and mark the workflow incomplete.
+
+## Callstack Simulation
+
+**Extract Skill To Repository**(source skill selector, repository context, scope authorizations)
+│
+├─ **Establish Safe Repository Baselines**(active repository, sibling skills repository)
+│  │
+│  ├─ if (either repository is missing, dirty, or cannot update cleanly): stop without changing files and report the condition
+│  │
+│  └─ else: record two clean, up-to-date worktrees and their starting commits
+│
+├─ **Resolve The Skill And Reserve The Destination**(source selector, source repository, target repository)
+│  │
+│  ├─ if (the source does not resolve to one valid direct child): stop without reserving a destination
+│  │
+│  ├─ else if (the destination path or frontmatter name already exists): stop without overwriting, merging, or renaming
+│  │
+│  └─ else: record the source manifest and reserve `../skills/<name>/`
+│
+├─ **Produce An Approved Dependency Plan**(complete skill directory, both repositories, scope authorizations)
+│  │
+│  ├─ **Classify And Resolve Dependencies**(relative links, repository paths, sibling skills, runtime capabilities)
+│  │  │
+│  │  ├─ if (a dependency is internal): keep its link relative to the skill directory
+│  │  │
+│  │  ├─ else if (it belongs to active-repository configuration): express it from the consumer root and declare the requirement
+│  │  │
+│  │  └─ else: retain the sibling-skill or runtime dependency only when consumers will have it, and declare it
+│  │
+│  ├─ **Resolve Incoming References**(source references to the departing skill)
+│  │  │
+│  │  └─ if (a source file points to the departing skill): obtain approval for a concrete rewrite or stop
+│  │
+│  └─ **Enforce Scope Boundaries**(proposed resolutions, scope authorizations)
+│     │
+│     └─ if (a resolution moves another skill, changes behavior, or expands scope): obtain explicit approval or stop
+│
+├─ **Create And Review The Target Copy**(source manifest, unused destination, approved plan)
+│  │
+│  ├─ if (the initial copied manifest, hashes, or modes differ): remove the incomplete target and stop without touching the source
+│  │
+│  └─ else: apply only approved portability changes and update the target README
+│
+├─ **Validate And Commit The Destination**(target copy, target README changes)
+│  │
+│  ├─ if (validation, staging scope, or commit fails): leave the source untouched and report the failure
+│  │
+│  └─ else: create a scoped target commit containing the complete skill and intended README changes
+│
+├─ **Remove And Commit The Source**(target commit, approved incoming-reference updates)
+│  │
+│  ├─ if (validation, staging scope, or commit fails): preserve the committed target and report incomplete source cleanup
+│  │
+│  └─ else: create a scoped source commit removing the skill and only approved references
+│
+└─ **Report The Result**(source manifest, approved plan, target commit, source commit)
+   │
+   ├─ **Handle Pushes**(push authorization, both commits)
+   │  │
+   │  ├─ if (pushing was explicitly requested): push only after both commits exist and record each result
+   │  │
+   │  └─ else: do not push
+   │
+   └─ **Render The Completion Report**(paths, portability changes, commits, validations, push status)
+      │
+      ├─ if (both worktrees are clean, both commits match the manifest and plan, and requested pushes succeeded): report `Status: complete`
+      │
+      └─ else: name the unmet condition and report `Status: incomplete: unmet condition`

@@ -61,3 +61,63 @@ Compare the trace with every input and correct omissions, reordering, impossible
 ### 5. Publish the callstack
 
 Render the validated trace according to the output contract, then return it inline or write it at the resolved destination. Output the callstack directly: do not add a simulation title, `## Callstack` heading, scenario, status, execution, limits, wrapper, or separate completion message. The workflow is complete when that callstack exists at the resolved location.
+
+## Callstack Simulation
+
+**Callstack Simulation**(target, scenario, supporting context, controls)
+│
+├─ **Resolve The Contract**(inputs, entry point, authority order, limits, output location)
+│  │
+│  ├─ if (the target or entry point is missing, unreadable, or ambiguous): stop and name the blocker
+│  │
+│  ├─ else if (the destination exists without revision authority): stop and name the blocker
+│  │
+│  └─ else: fix the contract; target behavior remains authoritative over conflicting context
+│
+├─ **Build The Execution Model**(fixed contract)
+│  │
+│  └─ **Map Reachable Transitions**(operations, calls, conditions, state, side effects, returns, errors)
+│     │
+│     └─ if (a dependency is missing): keep its behavior symbolic rather than inventing rules
+│
+├─ **Simulate The Model**(execution model, concrete and symbolic bindings)
+│  │
+│  ├─ **Enter The Root Frame**(root operation, initial bindings)
+│  │
+│  └─ **Trace The Model Depth First**(reachable paths)
+│     │
+│     ├─ **Expand A Local Call**(callee bindings)
+│     │
+│     ├─ **Select A Condition**(scenario data or authorized control)
+│     │  │
+│     │  ├─ if (a branch is selected): follow that branch
+│     │  │
+│     │  ├─ else if (finite feasible cases remain): fork cases from the shared pre-condition state
+│     │  │
+│     │  └─ else: block the dependent path
+│     │
+│     ├─ **Resolve An External Callee**(supplied or symbolic response)
+│     │  │
+│     │  ├─ if (a response is supplied): apply it
+│     │  │
+│     │  └─ else: preserve a symbolic result while concrete-independent tracing remains possible
+│     │
+│     ├─ **Record A Material State Change**(before and after values, source or scenario basis)
+│     │
+│     ├─ **Propagate An Error**(target-defined error behavior)
+│     │
+│     ├─ **Bound Repetition**(loop or recursion limit)
+│     │  │
+│     │  └─ if (the limit is reached): mark the remainder truncated or summarize modeled iterations
+│     │
+│     └─ **Retain Source Guaranteed Ordering**(asynchronous or concurrent work)
+│
+├─ **Validate The Trace**(trace, target, scenario, context, controls)
+│  │
+│  └─ if (an omission, impossible combination, fabrication, hidden truncation, or boundary violation exists): correct it before publication
+│
+└─ **Publish The Callstack**(validated trace, resolved output location)
+   │
+   ├─ if (the output is inline): return the raw callstack
+   │
+   └─ else: write the raw callstack to the authorized destination
