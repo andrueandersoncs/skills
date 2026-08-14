@@ -16,11 +16,13 @@ The user supplies a repeatable task, its intended skill name when known, and any
 
 Create or revise `.agents/skills/<name>/SKILL.md`. The result is a Markdown workflow skill with a valid frontmatter name matching `<name>`, an explicit routing description, and a procedure that another agent can execute without inventing policy.
 
-## Gather the contract
+## Procedure
+
+### 1. Gather the contract
 
 Identify the workflow's trigger, supplied inputs, output location and shape, required repository context, state-changing actions, branches, and completion evidence. Ask only for a missing decision that prevents a concrete procedure. Use the repository as the source of truth for commands, paths, and conventions.
 
-## Delegate creation
+### 2. Delegate creation
 
 Call the `/skill-creator` skill with this input (use `/skill:skill-creator` if the runtime requires the colon form):
 
@@ -37,6 +39,6 @@ Replace the placeholders with the contract gathered above, then supply these req
 - Finish with the exact result to report and the condition that makes the workflow complete.
 - Prefer repository lookups over duplicating facts that package configuration, commands, or directory layout already provides. Put conditional or exhaustive material in a linked reference file.
 
-## Verify the result
+### 3. Verify the result
 
 Re-read the created `SKILL.md` and confirm that an agent can determine its trigger, inputs, output, every ordered action, branch behavior, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty. Report the skill path and any assumptions made.
