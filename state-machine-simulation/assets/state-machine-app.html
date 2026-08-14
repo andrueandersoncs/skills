@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State Machine Simulation</title>
+<style>
+:root {
+  --canvas: #101312; --grid: #1b211f; --node: #171c1a; --node-2: #1d2321;
+  --line: #3b4541; --line-soft: #29312e; --text: #e9edea; --muted: #8f9b96;
+  --active: #eee6a8; --active-ink: #151714; --enabled: #88c8b9;
+  --blocked: #dc887d; --success: #92c990; --focus: #eeb96f;
+}
+* { box-sizing: border-box; }
+html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--canvas); }
+body { color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+button, select { font: inherit; }
+button:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+#app { position: relative; }
+#graph { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; background-color: var(--canvas); background-image: radial-gradient(circle, var(--grid) 1px, transparent 1px); background-size: 24px 24px; }
+#graph.dragging { cursor: grabbing; }
+.edge-path { fill: none; stroke: var(--line-soft); stroke-width: 2; marker-end: url(#arrow); vector-effect: non-scaling-stroke; }
+.edge-hit { fill: none; stroke: transparent; stroke-width: 18; cursor: help; vector-effect: non-scaling-stroke; }
+.edge-label-bg { fill: var(--canvas); stroke: var(--line-soft); stroke-width: 1; opacity: .92; }
+.edge-label { fill: #68736f; font: 650 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .035em; text-anchor: middle; }
+.edge.enabled .edge-path { stroke: var(--enabled); stroke-width: 3; stroke-dasharray: 8 6; }
+.edge.enabled .edge-label { fill: var(--enabled); }
+.edge.enabled .edge-label-bg { stroke: var(--enabled); }
+.edge.traversed .edge-path { stroke: var(--active); stroke-width: 4; stroke-dasharray: none; }
+.edge.traversed .edge-label { fill: var(--active); }
+.edge.traversed .edge-label-bg { stroke: var(--active); }
+.node { cursor: help; }
+.node-body { fill: var(--node); stroke: var(--line); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.node-kind { fill: var(--muted); font: 650 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .13em; text-anchor: middle; }
+.node-label { fill: var(--text); font-size: 14px; font-weight: 680; text-anchor: middle; }
+.node-context { fill: var(--active-ink); font: 650 9px ui-monospace, SFMono-Regular, Menlo, monospace; text-anchor: middle; }
+.node[data-kind="decision"] .node-body { stroke: #b69b62; stroke-dasharray: 5 4; }
+.node[data-kind="blocked"] .node-body { stroke: var(--blocked); stroke-width: 2.5; }
+.node[data-kind="success"] .node-body { stroke: var(--success); stroke-width: 2.5; }
+.node[data-kind="start"] .node-body { stroke: #9d91c4; }
+.node.active .node-body { fill: var(--active); stroke: var(--active); stroke-width: 4; }
+.node.active .node-label, .node.active .node-kind { fill: var(--active-ink); }
+.node.active .node-kind { opacity: .72; }
+.node.active { filter: drop-shadow(0 8px 18px rgba(0,0,0,.35)); }
+.node.rejected .node-body { stroke: var(--blocked); stroke-width: 5; }
+.graph-controls { position: fixed; z-index: 10; top: 16px; right: 16px; display: flex; gap: 6px; padding: 5px; background: rgba(19,23,22,.88); border: 1px solid var(--line); border-radius: 8px; backdrop-filter: blur(10px); }
+.graph-control { width: 44px; height: 44px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); cursor: pointer; font-size: 18px; font-weight: 700; }
+.graph-control:hover { color: var(--text); background: var(--node-2); }
+.event-dock { position: fixed; z-index: 12; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(760px, calc(100vw - 28px)); display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; background: rgba(19,23,22,.93); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 36px rgba(0,0,0,.35); backdrop-filter: blur(14px); }
+.dock-state { min-width: 0; max-width: 170px; }
+.dock-kicker { color: var(--muted); font: 650 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+.dock-name { margin-top: 3px; overflow: hidden; color: var(--text); font-size: 13px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+.event-list { min-width: 0; display: flex; gap: 7px; overflow-x: auto; scrollbar-width: thin; padding: 2px; }
+.event-button, .reset-button { min-height: 44px; border: 1px solid var(--line); border-radius: 5px; background: var(--node-2); color: var(--text); cursor: pointer; white-space: nowrap; }
+.event-button { padding: 7px 11px; display: grid; gap: 2px; text-align: left; }
+.event-button:hover { border-color: var(--enabled); background: #222a27; }
+.event-prefix { color: var(--muted); font: 600 8px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; }
+.event-type { color: var(--enabled); font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.reset-button { padding: 0 13px; color: var(--muted); background: transparent; }
+.reset-button:hover { color: var(--text); border-color: var(--text); }
+.terminal-message { align-self: center; color: var(--muted); font: 650 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.dock-status { grid-column: 1 / -1; min-height: 14px; margin-top: -7px; color: var(--muted); font: 600 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center; }
+.dock-status.accepted { color: var(--enabled); }
+.dock-status.rejected { color: var(--blocked); }
+.tooltip { position: fixed; z-index: 20; width: min(310px, calc(100vw - 24px)); pointer-events: none; padding: 10px 12px; color: var(--text); background: #202624; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.45); opacity: 0; transform: translateY(4px); transition: opacity 100ms ease, transform 100ms ease; }
+.tooltip.visible { opacity: 1; transform: translateY(0); }
+.tooltip-type { color: var(--enabled); font: 650 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; }
+.tooltip-title { margin-top: 4px; font-size: 13px; font-weight: 700; }
+.tooltip-copy, .tooltip-source { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.tooltip-source { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (max-width: 620px) {
+  .graph-controls { top: 10px; right: 10px; }
+  .event-dock { bottom: 10px; width: calc(100vw - 20px); grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+  .dock-state { grid-column: 1 / -1; max-width: none; display: flex; align-items: baseline; gap: 8px; }
+  .dock-name { margin-top: 0; }
+  .event-list { grid-column: 1; }
+  .reset-button { grid-column: 2; grid-row: 2; }
+  .dock-status { grid-row: 3; }
+}
+@media (prefers-reduced-motion: reduce) { .tooltip { transition: none; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <svg id="graph" aria-label="Interactive state machine graph" role="application"></svg>
+  <nav class="graph-controls" aria-label="Graph controls">
+    <button class="graph-control" id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+    <button class="graph-control" id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+    <button class="graph-control" id="fit" type="button" aria-label="Fit graph to view" title="Fit graph to view">⌗</button>
+    <button class="graph-control" id="focusActive" type="button" aria-label="Focus active state" title="Focus active state">◎</button>
+  </nav>
+  <div class="event-dock" id="eventDock" tabindex="-1" aria-label="State machine event emitter">
+    <div class="dock-state"><div class="dock-kicker">Active state</div><div class="dock-name" id="activeName"></div></div>
+    <div class="event-list" id="eventList"></div>
+    <button class="reset-button" id="reset" type="button">Reset</button>
+    <div class="dock-status" id="dockStatus" aria-hidden="true"></div>
+  </div>
+  <div class="tooltip" id="tooltip" role="tooltip"></div>
+  <div class="sr-only" id="announcer" aria-live="polite"></div>
+</div>
+<script>
+// MACHINE_DATA_START
+const machine = {"metadata":{"title":"Transcript Purpose Analysis · State Machine","subtitle":"An interactive source-grounded workflow explorer","target":"transcript-purpose-analysis/SKILL.md","entryPoint":"Procedure 1 — Establish the source and destination","boundary":"Visualization only — the target is not being executed.","terminalOutcomes":["Success: a validated purpose analysis is published","Blocked: invalid transcript input","Blocked: existing destination lacks revision authority"],"scopeNotice":"Visualization only — target side effects never run."},"initialStateId":"start","initialContext":{"sourceStatus":"symbolic","taxonomy":"unresolved","taxonomyMismatchPolicy":"not applicable","coverage":"not marked","classification":"not started","uncertainty":"unresolved","lowConfidence":"None","reportStatus":"not built","destinationStatus":"symbolic","validation":"not run","publicationMode":"unresolved","publication":"not published","sourceUnchanged":true},"states":[{"id":"start","label":"Inputs received","kind":"start","description":"The workflow has a transcript, an optional purpose taxonomy, and an optional output destination to resolve.","source":["Inputs A–C","Procedure 1"],"x":140,"y":560,"relevantContextKey":null},{"id":"establish","label":"Establish source & destination","kind":"operation","description":"Resolve a repository-relative transcript path or capture complete inline text; read it end to end and record anchors and the output destination.","source":["Procedure 1"],"x":470,"y":560,"relevantContextKey":"sourceStatus"},{"id":"source-check","label":"Is the transcript valid?","kind":"decision","description":"A file source must exist, be readable, and be a text file. Inline input must contain the complete transcript.","source":["Procedure 1, branch"],"x":800,"y":560,"relevantContextKey":"sourceStatus"},{"id":"invalid-source","label":"Input blocker","kind":"blocked","description":"Stop, request a valid transcript, and make no file change.","source":["Procedure 1, invalid-source branch"],"x":800,"y":160,"relevantContextKey":"sourceStatus"},{"id":"taxonomy-choice","label":"Which taxonomy applies?","kind":"decision","description":"Choose the user-supplied taxonomy when present; otherwise use the workflow default taxonomy.","source":["Input B","Procedure 2"],"x":1130,"y":560,"relevantContextKey":"taxonomy"},{"id":"custom-taxonomy","label":"Adopt supplied taxonomy","kind":"operation","description":"Adopt the user’s labels and definitions exactly. Uncovered passages later use Other/unclear and produce a mismatch note.","source":["Procedure 2, supplied branch"],"x":1460,"y":360,"relevantContextKey":"taxonomy"},{"id":"default-taxonomy","label":"Adopt default taxonomy","kind":"operation","description":"Use the thirteen purpose labels defined in Input B, from Opening/rapport through Other/unclear.","source":["Input B","Procedure 2, default branch"],"x":1460,"y":760,"relevantContextKey":"taxonomy"},{"id":"mark-transitions","label":"Mark purpose transitions","kind":"operation","description":"Partition the complete transcript at changes in communicative function, preserving contiguous, gap-free, non-overlapping coverage.","source":["Procedure 3"],"x":1790,"y":560,"relevantContextKey":"coverage"},{"id":"classify","label":"Classify sections","kind":"operation","description":"Assign one supported primary purpose, an optional distinct secondary purpose, and a High, Medium, or Low confidence rating to each section.","source":["Procedure 4"],"x":2120,"y":560,"relevantContextKey":"classification"},{"id":"support-check","label":"Is every purpose supportable?","kind":"decision","description":"Check whether explicit language and conversational role support each classification without inferring hidden intent.","source":["Procedure 4, branch"],"x":2450,"y":560,"relevantContextKey":"uncertainty"},{"id":"fallback","label":"Record uncertainty","kind":"operation","description":"For an unsupported purpose, assign Other/unclear with Low confidence and add an ambiguity note.","source":["Procedure 4, unsupported branch"],"x":2780,"y":260,"relevantContextKey":"lowConfidence"},{"id":"construct","label":"Construct the report","kind":"operation","description":"Build the ordered report table with source spans, labels, summary, verbatim evidence, confidence, and ambiguity notes.","source":["Outputs A–B","Procedure 5"],"x":3110,"y":560,"relevantContextKey":"reportStatus"},{"id":"destination-check","label":"Can the destination be used?","kind":"decision","description":"An existing report may be revised only with explicit user authority. An unused path or inline result is available.","source":["Input C","Procedure 5, branches"],"x":3440,"y":560,"relevantContextKey":"destinationStatus"},{"id":"overwrite-blocker","label":"Overwrite blocker","kind":"blocked","description":"Stop and ask whether to revise the existing report; leave both transcript and report unchanged.","source":["Procedure 5, unauthorized branch"],"x":3440,"y":960,"relevantContextKey":"destinationStatus"},{"id":"revise-report","label":"Prepare authorized revision","kind":"operation","description":"Revise that existing report only; preserve the transcript and every unrelated file.","source":["Procedure 5, authorized revision branch"],"x":3770,"y":360,"relevantContextKey":"destinationStatus"},{"id":"prepare-new-report","label":"Prepare new or inline report","kind":"operation","description":"Finalize the report for an unused path or inline publication.","source":["Procedure 5, unused or inline branch"],"x":3770,"y":760,"relevantContextKey":"destinationStatus"},{"id":"validate","label":"Validate coverage & fidelity","kind":"operation","description":"Compare every boundary, anchor, quote, and label with the complete source; confirm the transcript remains unchanged.","source":["Procedure 6"],"x":4100,"y":560,"relevantContextKey":"validation"},{"id":"defect-check","label":"Did validation find a defect?","kind":"decision","description":"Detect gaps, overlaps, duplicate coverage, altered quotes, unsupported or topic-only labels, and hidden uncertainty.","source":["Procedure 6, branch"],"x":4430,"y":560,"relevantContextKey":"validation"},{"id":"correct","label":"Correct the report","kind":"operation","description":"Correct every fidelity or coverage defect before validating again.","source":["Procedure 6, correction branch"],"x":4430,"y":200,"relevantContextKey":"validation"},{"id":"publish-choice","label":"How is the result published?","kind":"decision","description":"Publish to the resolved file destination or return the validated report inline.","source":["Procedure 7"],"x":4760,"y":560,"relevantContextKey":"publicationMode"},{"id":"write-file","label":"Write report file","kind":"operation","description":"Write only to the unused or explicitly authorized Markdown destination.","source":["Procedure 7, file branch"],"x":5090,"y":360,"relevantContextKey":"publicationMode"},{"id":"return-inline","label":"Return report inline","kind":"operation","description":"Return the validated report in the response without writing an output file.","source":["Procedure 7, inline branch"],"x":5090,"y":760,"relevantContextKey":"publicationMode"},{"id":"complete","label":"Purpose analysis complete","kind":"success","description":"Report Result, Sections, Low confidence, and Source unchanged: yes. The transcript remains unchanged.","source":["Outputs A–B","Procedure 7"],"x":5420,"y":560,"relevantContextKey":"publication"}],"events":[{"type":"BEGIN_ANALYSIS","label":"Begin analysis","description":"Advance from start when this source-defined outcome occurs."},{"type":"RESOLVE_SOURCE","label":"Source and destination resolved","description":"Advance from establish when this source-defined outcome occurs."},{"type":"REJECT_SOURCE","label":"Invalid or unreadable source","description":"Path missing, unreadable, or not text"},{"type":"ACCEPT_SOURCE","label":"Valid complete transcript","description":"Readable text file or complete inline text"},{"type":"USE_CUSTOM_TAXONOMY","label":"User taxonomy supplied","description":"A custom taxonomy is present"},{"type":"USE_DEFAULT_TAXONOMY","label":"No custom taxonomy","description":"Purpose taxonomy omitted"},{"type":"FIX_TAXONOMY","label":"Taxonomy fixed","description":"Advance from custom-taxonomy when this source-defined outcome occurs."},{"type":"MARK_BOUNDARIES","label":"Boundaries cover source once","description":"Advance from mark-transitions when this source-defined outcome occurs."},{"type":"CLASSIFY_SECTIONS","label":"Sections labeled","description":"Advance from classify when this source-defined outcome occurs."},{"type":"RECORD_UNCERTAINTY","label":"Unsupported purpose exists","description":"No communicative purpose is supportable for at least one section"},{"type":"CONFIRM_SUPPORTED","label":"All purposes supported","description":"Every classification is auditable"},{"type":"APPLY_FALLBACK","label":"Fallback recorded","description":"Advance from fallback when this source-defined outcome occurs."},{"type":"BUILD_REPORT","label":"In-memory report complete","description":"Advance from construct when this source-defined outcome occurs."},{"type":"BLOCK_OVERWRITE","label":"Existing report; no authority","description":"Destination exists and revision was not explicitly requested"},{"type":"AUTHORIZE_REVISION","label":"Existing report; revision authorized","description":"Destination exists and update was explicitly requested"},{"type":"USE_AVAILABLE_DESTINATION","label":"Unused path or inline result","description":"Destination is unused, or output is inline"},{"type":"PREPARE_REVISION","label":"Authorized revision ready","description":"Advance from revise-report when this source-defined outcome occurs."},{"type":"VALIDATE_REPORT","label":"Coverage and fidelity checked","description":"Advance from validate when this source-defined outcome occurs."},{"type":"FIND_DEFECT","label":"Defect found","description":"A gap, overlap, quote alteration, unsupported label, or hidden uncertainty exists"},{"type":"PASS_VALIDATION","label":"No defects","description":"Every validation invariant passes"},{"type":"APPLY_CORRECTION","label":"Corrections applied; revalidate","description":"Advance from correct when this source-defined outcome occurs."},{"type":"PUBLISH_FILE","label":"File destination","description":"A file output path was resolved"},{"type":"PUBLISH_INLINE","label":"Inline destination","description":"The result is inline"},{"type":"CONFIRM_FILE_WRITTEN","label":"File written and result reported","description":"Advance from write-file when this source-defined outcome occurs."},{"type":"CONFIRM_INLINE_RETURNED","label":"Inline report returned","description":"Advance from return-inline when this source-defined outcome occurs."},{"type":"PREPARE_NEW_REPORT","label":"New or inline report ready","description":"Advance from prepare-new-report when this source-defined outcome occurs."}],"transitions":[{"id":"t01","to":"establish","guard":"","updates":[],"effects":[],"source":["Procedure 1"],"from":"start","eventType":"BEGIN_ANALYSIS","eventLabel":"Begin analysis"},{"id":"t02","to":"source-check","guard":"","updates":[],"effects":[],"source":["Procedure 1"],"from":"establish","eventType":"RESOLVE_SOURCE","eventLabel":"Source and destination resolved"},{"id":"t03","to":"invalid-source","guard":"Path missing, unreadable, or not text","updates":[{"key":"sourceStatus","op":"set","value":"invalid"}],"effects":[],"source":["Procedure 1, invalid-source branch"],"from":"source-check","eventType":"REJECT_SOURCE","eventLabel":"Invalid or unreadable source"},{"id":"t04","to":"taxonomy-choice","guard":"Readable text file or complete inline text","updates":[{"key":"sourceStatus","op":"set","value":"valid; read end to end"}],"effects":[],"source":["Procedure 1"],"from":"source-check","eventType":"ACCEPT_SOURCE","eventLabel":"Valid complete transcript"},{"id":"t05","to":"custom-taxonomy","guard":"A custom taxonomy is present","updates":[{"key":"taxonomy","op":"set","value":"user-supplied; adopted exactly"}],"effects":[],"source":["Procedure 2"],"from":"taxonomy-choice","eventType":"USE_CUSTOM_TAXONOMY","eventLabel":"User taxonomy supplied"},{"id":"t06","to":"default-taxonomy","guard":"Purpose taxonomy omitted","updates":[{"key":"taxonomy","op":"set","value":"workflow default"}],"effects":[],"source":["Procedure 2"],"from":"taxonomy-choice","eventType":"USE_DEFAULT_TAXONOMY","eventLabel":"No custom taxonomy"},{"id":"t07","to":"mark-transitions","guard":"","updates":[{"key":"taxonomyMismatchPolicy","op":"set","value":"Use Other/unclear and record mismatch"}],"effects":[],"source":["Procedure 2"],"from":"custom-taxonomy","eventType":"FIX_TAXONOMY","eventLabel":"Taxonomy fixed"},{"id":"t08","to":"mark-transitions","guard":"","updates":[],"effects":[],"source":["Procedure 2"],"from":"default-taxonomy","eventType":"FIX_TAXONOMY","eventLabel":"Taxonomy fixed"},{"id":"t09","to":"classify","guard":"","updates":[{"key":"coverage","op":"set","value":"contiguous sections; no gaps or overlap"}],"effects":[],"source":["Procedure 3"],"from":"mark-transitions","eventType":"MARK_BOUNDARIES","eventLabel":"Boundaries cover source once"},{"id":"t10","to":"support-check","guard":"","updates":[{"key":"classification","op":"set","value":"primary, optional secondary, and confidence assigned"}],"effects":[],"source":["Procedure 4"],"from":"classify","eventType":"CLASSIFY_SECTIONS","eventLabel":"Sections labeled"},{"id":"t11","to":"fallback","guard":"No communicative purpose is supportable for at least one section","updates":[{"key":"uncertainty","op":"set","value":"unsupported passage found"}],"effects":[],"source":["Procedure 4, fallback"],"from":"support-check","eventType":"RECORD_UNCERTAINTY","eventLabel":"Unsupported purpose exists"},{"id":"t12","to":"construct","guard":"Every classification is auditable","updates":[{"key":"uncertainty","op":"set","value":"no unsupported classifications"}],"effects":[],"source":["Procedure 4"],"from":"support-check","eventType":"CONFIRM_SUPPORTED","eventLabel":"All purposes supported"},{"id":"t13","to":"construct","guard":"","updates":[{"key":"lowConfidence","op":"set","value":"Other/unclear section(s) listed in ambiguity notes"}],"effects":[],"source":["Procedure 4"],"from":"fallback","eventType":"APPLY_FALLBACK","eventLabel":"Fallback recorded"},{"id":"t14","to":"destination-check","guard":"","updates":[{"key":"reportStatus","op":"set","value":"in-memory report complete"}],"effects":[],"source":["Procedure 5"],"from":"construct","eventType":"BUILD_REPORT","eventLabel":"In-memory report complete"},{"id":"t15","to":"overwrite-blocker","guard":"Destination exists and revision was not explicitly requested","updates":[{"key":"destinationStatus","op":"set","value":"overwrite blocked"}],"effects":[],"source":["Procedure 5, overwrite blocker"],"from":"destination-check","eventType":"BLOCK_OVERWRITE","eventLabel":"Existing report; no authority"},{"id":"t16","to":"revise-report","guard":"Destination exists and update was explicitly requested","updates":[{"key":"destinationStatus","op":"set","value":"authorized revision"}],"effects":[],"source":["Procedure 5"],"from":"destination-check","eventType":"AUTHORIZE_REVISION","eventLabel":"Existing report; revision authorized"},{"id":"t17","to":"prepare-new-report","guard":"Destination is unused, or output is inline","updates":[{"key":"destinationStatus","op":"set","value":"available"}],"effects":[],"source":["Procedure 5"],"from":"destination-check","eventType":"USE_AVAILABLE_DESTINATION","eventLabel":"Unused path or inline result"},{"id":"t18a","to":"validate","guard":"","updates":[],"effects":[],"source":["Procedure 5–6"],"from":"revise-report","eventType":"PREPARE_REVISION","eventLabel":"Authorized revision ready"},{"id":"t19","to":"defect-check","guard":"","updates":[{"key":"validation","op":"set","value":"check complete"}],"effects":[],"source":["Procedure 6"],"from":"validate","eventType":"VALIDATE_REPORT","eventLabel":"Coverage and fidelity checked"},{"id":"t20","to":"correct","guard":"A gap, overlap, quote alteration, unsupported label, or hidden uncertainty exists","updates":[{"key":"validation","op":"set","value":"defect found"}],"effects":[],"source":["Procedure 6, correction branch"],"from":"defect-check","eventType":"FIND_DEFECT","eventLabel":"Defect found"},{"id":"t21","to":"publish-choice","guard":"Every validation invariant passes","updates":[{"key":"validation","op":"set","value":"passed"}],"effects":[],"source":["Procedure 6"],"from":"defect-check","eventType":"PASS_VALIDATION","eventLabel":"No defects"},{"id":"t22","to":"validate","guard":"","updates":[{"key":"validation","op":"set","value":"corrected; recheck pending"}],"effects":["Revise only the in-memory or authorized report; never alter the transcript."],"source":["Procedure 6"],"from":"correct","eventType":"APPLY_CORRECTION","eventLabel":"Corrections applied; revalidate"},{"id":"t23","to":"write-file","guard":"A file output path was resolved","updates":[{"key":"publicationMode","op":"set","value":"file"}],"effects":[],"source":["Procedure 7"],"from":"publish-choice","eventType":"PUBLISH_FILE","eventLabel":"File destination"},{"id":"t24","to":"return-inline","guard":"The result is inline","updates":[{"key":"publicationMode","op":"set","value":"inline"}],"effects":[],"source":["Procedure 7"],"from":"publish-choice","eventType":"PUBLISH_INLINE","eventLabel":"Inline destination"},{"id":"t25","to":"complete","guard":"","updates":[{"key":"publication","op":"set","value":"published to authorized path"}],"effects":["Write the validated Markdown report to the resolved unused or authorized destination."],"source":["Procedure 7"],"from":"write-file","eventType":"CONFIRM_FILE_WRITTEN","eventLabel":"File written and result reported"},{"id":"t26","to":"complete","guard":"","updates":[{"key":"publication","op":"set","value":"returned inline"}],"effects":[],"source":["Procedure 7"],"from":"return-inline","eventType":"CONFIRM_INLINE_RETURNED","eventLabel":"Inline report returned"},{"id":"t18b","from":"prepare-new-report","to":"validate","guard":"","updates":[],"effects":[],"source":["Procedure 5–6"],"eventType":"PREPARE_NEW_REPORT","eventLabel":"New or inline report ready"}],"disclosures":{"assumptions":["No transcript scenario was supplied; source-dependent decisions remain interactive choices."],"conflicts":["None"],"symbolic":["Transcript validity, taxonomy selection, classification support, destination status, validation result, and publication mode are user-selectable outcomes."],"truncation":["The per-section classification loop is collapsed into one operation; no workflow branch is omitted."],"omitted":["Exact transcript content, section count, evidence quotes, and report body are intentionally symbolic."]}};
+// MACHINE_DATA_END
+
+const NS = "http://www.w3.org/2000/svg";
+const NODE_W = 246, NODE_H = 96;
+function deriveBounds(states) {
+  const xs = states.map(state => state.x), ys = states.map(state => state.y);
+  const minX = Math.min(...xs) - NODE_W / 2, maxX = Math.max(...xs) + NODE_W / 2;
+  const minY = Math.min(...ys) - NODE_H / 2, maxY = Math.max(...ys) + NODE_H / 2;
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+const BOUNDS = deriveBounds(machine.states);
+const stateById = new Map(machine.states.map(state => [state.id, state]));
+const eventByType = new Map(machine.events.map(event => [event.type, event]));
+const transitionById = new Map(machine.transitions.map(transition => [transition.id, transition]));
+const outgoing = new Map(machine.states.map(state => [state.id, []]));
+machine.transitions.forEach(transition => outgoing.get(transition.from).push(transition));
+const clone = value => JSON.parse(JSON.stringify(value));
+let runtime = { stateId: machine.initialStateId, context: clone(machine.initialContext), lastTransitionId: null };
+let statusTimer = null;
+
+const graph = document.getElementById("graph");
+document.title = machine.metadata.title || "State Machine Simulation";
+graph.setAttribute("aria-label", `${machine.metadata.title || "State machine"} interactive state graph`);
+const eventDock = document.getElementById("eventDock");
+const eventList = document.getElementById("eventList");
+const activeName = document.getElementById("activeName");
+const dockStatus = document.getElementById("dockStatus");
+const resetButton = document.getElementById("reset");
+const tooltip = document.getElementById("tooltip");
+const announcer = document.getElementById("announcer");
+
+function htmlElement(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+function svgElement(tag, attributes = {}) {
+  const node = document.createElementNS(NS, tag);
+  for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, String(value));
+  return node;
+}
+function announce(message) {
+  announcer.textContent = "";
+  requestAnimationFrame(() => { announcer.textContent = message; });
+}
+function terminalKind(kind) { return ["success", "error", "blocked", "truncated"].includes(kind); }
+function wrapLabel(text, max = 24) {
+  const words = text.split(/\s+/); const lines = []; let line = "";
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (candidate.length > max && line) { lines.push(line); line = word; } else line = candidate;
+  }
+  if (line) lines.push(line);
+  if (lines.length > 2) return [lines[0], `${lines.slice(1).join(" ").slice(0, max - 1)}…`];
+  return lines;
+}
+function edgeGeometry(transition) {
+  const a = stateById.get(transition.from), b = stateById.get(transition.to);
+  let path, lx, ly;
+  if (b.x > a.x + 50) {
+    const sx = a.x + NODE_W / 2, sy = a.y;
+    const tx = b.x - NODE_W / 2, ty = b.y;
+    const mx = (sx + tx) / 2;
+    path = `M ${sx} ${sy} C ${mx} ${sy}, ${mx} ${ty}, ${tx} ${ty}`;
+    lx = mx; ly = (sy + ty) / 2 - 10;
+  } else if (Math.abs(b.x - a.x) <= 50) {
+    const direction = b.y < a.y ? -1 : 1;
+    const sx = a.x, sy = a.y + direction * NODE_H / 2;
+    const tx = b.x, ty = b.y - direction * NODE_H / 2;
+    const routeX = a.x + 175;
+    path = `M ${sx} ${sy} C ${routeX} ${sy}, ${routeX} ${ty}, ${tx} ${ty}`;
+    lx = routeX; ly = (sy + ty) / 2 - 9;
+  } else {
+    const sx = a.x - NODE_W / 2, sy = a.y;
+    const tx = b.x + NODE_W / 2, ty = b.y;
+    const routeY = Math.min(a.y, b.y) - 120;
+    path = `M ${sx} ${sy} C ${sx - 100} ${routeY}, ${tx + 100} ${routeY}, ${tx} ${ty}`;
+    lx = (sx + tx) / 2; ly = routeY - 10;
+  }
+  return { path, lx, ly };
+}
+function tooltipContent(type, item) {
+  tooltip.replaceChildren();
+  if (type === "state") {
+    tooltip.append(htmlElement("div", "tooltip-type", `${item.kind.toUpperCase()} · ${item.id}`));
+    tooltip.append(htmlElement("div", "tooltip-title", item.label));
+    tooltip.append(htmlElement("div", "tooltip-copy", item.description));
+    tooltip.append(htmlElement("div", "tooltip-source", item.source.length ? item.source.join(" · ") : "No source reference"));
+  } else {
+    const event = eventByType.get(item.eventType);
+    tooltip.append(htmlElement("div", "tooltip-type", `EVENT · ${item.eventType}`));
+    tooltip.append(htmlElement("div", "tooltip-title", event.label));
+    const detail = [item.guard ? `Guard: ${item.guard}` : "No guard", item.effects.length ? `Effect label: ${item.effects.join("; ")}` : "No target side effect"].join(" · ");
+    tooltip.append(htmlElement("div", "tooltip-copy", detail));
+    tooltip.append(htmlElement("div", "tooltip-source", item.source.length ? item.source.join(" · ") : "No source reference"));
+  }
+}
+function positionTooltip(clientX, clientY) {
+  const pad = 12, width = Math.min(310, window.innerWidth - 24), height = tooltip.offsetHeight || 110;
+  let left = clientX + 14, top = clientY + 14;
+  if (left + width > window.innerWidth - pad) left = clientX - width - 14;
+  if (top + height > window.innerHeight - pad) top = clientY - height - 14;
+  tooltip.style.left = `${Math.max(pad, left)}px`; tooltip.style.top = `${Math.max(pad, top)}px`;
+}
+function showTooltip(type, item, event) {
+  tooltipContent(type, item);
+  const point = event && "clientX" in event ? { x: event.clientX, y: event.clientY } : { x: window.innerWidth / 2, y: 80 };
+  positionTooltip(point.x, point.y); tooltip.classList.add("visible");
+}
+function hideTooltip() { tooltip.classList.remove("visible"); }
+function attachTooltip(target, type, item) {
+  target.addEventListener("pointerenter", event => showTooltip(type, item, event));
+  target.addEventListener("pointermove", event => positionTooltip(event.clientX, event.clientY));
+  target.addEventListener("pointerleave", hideTooltip);
+  target.addEventListener("focus", () => {
+    const rect = target.getBoundingClientRect(); showTooltip(type, item, { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
+  });
+  target.addEventListener("blur", hideTooltip);
+  target.addEventListener("keydown", event => { if (event.key === "Escape") hideTooltip(); });
+}
+function renderGraph() {
+  graph.replaceChildren();
+  const defs = svgElement("defs");
+  const marker = svgElement("marker", { id: "arrow", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" });
+  marker.append(svgElement("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "#59645f" })); defs.append(marker); graph.append(defs);
+  const edgeLayer = svgElement("g", { "aria-label": "Event transitions" });
+  for (const transition of machine.transitions) {
+    const geo = edgeGeometry(transition); const event = eventByType.get(transition.eventType);
+    const group = svgElement("g", { class: "edge", "data-id": transition.id });
+    const line = svgElement("path", { class: "edge-path", d: geo.path });
+    const hit = svgElement("path", { class: "edge-hit", d: geo.path, tabindex: 0, role: "button", "aria-label": `${transition.eventType}: ${event.label}. From ${stateById.get(transition.from).label} to ${stateById.get(transition.to).label}. ${transition.guard || "No guard"}. Source ${transition.source.join(", ")}` });
+    const shown = transition.eventType.length > 26 ? `${transition.eventType.slice(0, 25)}…` : transition.eventType;
+    const width = Math.max(54, shown.length * 5.8 + 16);
+    const bg = svgElement("rect", { class: "edge-label-bg", x: geo.lx - width / 2, y: geo.ly - 11, width, height: 19, rx: 3 });
+    const label = svgElement("text", { class: "edge-label", x: geo.lx, y: geo.ly + 2 }); label.textContent = shown;
+    attachTooltip(hit, "transition", transition); group.append(line, hit, bg, label); edgeLayer.append(group);
+  }
+  graph.append(edgeLayer);
+  const nodeLayer = svgElement("g", { "aria-label": "States" });
+  for (const state of machine.states) {
+    const group = svgElement("g", { class: "node", "data-id": state.id, "data-kind": state.kind, transform: `translate(${state.x - NODE_W / 2} ${state.y - NODE_H / 2})`, tabindex: 0, role: "button", "aria-label": `${state.kind} state: ${state.label}. ${state.description}. Source ${state.source.join(", ")}` });
+    const body = svgElement("rect", { class: "node-body", x: 0, y: 0, width: NODE_W, height: NODE_H, rx: terminalKind(state.kind) || state.kind === "start" ? 48 : 7 });
+    const kind = svgElement("text", { class: "node-kind", x: NODE_W / 2, y: 21 }); kind.textContent = state.kind.toUpperCase();
+    const label = svgElement("text", { class: "node-label", x: NODE_W / 2, y: 48 });
+    wrapLabel(state.label).forEach((line, index) => { const span = svgElement("tspan", { x: NODE_W / 2, dy: index ? 17 : 0 }); span.textContent = line; label.append(span); });
+    const context = svgElement("text", { class: "node-context", "data-context-for": state.id, x: NODE_W / 2, y: 82 });
+    attachTooltip(group, "state", state); group.append(body, kind, label, context); nodeLayer.append(group);
+  }
+  graph.append(nodeLayer);
+}
+function applyUpdate(update) {
+  if (update.op === "set") runtime.context[update.key] = clone(update.value);
+  else if (update.op === "increment") runtime.context[update.key] = Number(runtime.context[update.key] || 0) + Number(update.value || 1);
+  else if (update.op === "decrement") runtime.context[update.key] = Number(runtime.context[update.key] || 0) - Number(update.value || 1);
+  else if (update.op === "append") { const value = Array.isArray(runtime.context[update.key]) ? runtime.context[update.key] : []; runtime.context[update.key] = [...value, clone(update.value)]; }
+  else if (update.op === "remove-last") { const value = Array.isArray(runtime.context[update.key]) ? runtime.context[update.key] : []; runtime.context[update.key] = value.slice(0, -1); }
+  else throw new Error(`Unsupported declarative update: ${update.op}`);
+}
+function acceptedTransitions() { return outgoing.get(runtime.stateId) || []; }
+function showStatus(message, kind = "") {
+  clearTimeout(statusTimer); dockStatus.textContent = message; dockStatus.className = `dock-status ${kind}`.trim();
+}
+function updateGraphState() {
+  const enabled = new Set(acceptedTransitions().map(transition => transition.id));
+  graph.querySelectorAll(".edge").forEach(edge => {
+    edge.classList.toggle("enabled", enabled.has(edge.dataset.id));
+    edge.classList.toggle("traversed", edge.dataset.id === runtime.lastTransitionId);
+  });
+  graph.querySelectorAll(".node").forEach(node => {
+    const active = node.dataset.id === runtime.stateId; node.classList.toggle("active", active);
+    if (active) node.setAttribute("aria-current", "step"); else node.removeAttribute("aria-current");
+    const contextText = node.querySelector(".node-context"); const state = stateById.get(node.dataset.id);
+    if (active && state.relevantContextKey) {
+      const value = String(runtime.context[state.relevantContextKey]);
+      contextText.textContent = `${state.relevantContextKey}: ${value.length > 25 ? `${value.slice(0, 24)}…` : value}`;
+    } else contextText.textContent = "";
+  });
+}
+function renderEmitter() {
+  const state = stateById.get(runtime.stateId); activeName.textContent = state.label; eventList.replaceChildren();
+  const transitions = acceptedTransitions();
+  if (!transitions.length) eventList.append(htmlElement("div", "terminal-message", `${state.kind.toUpperCase()} · no target events accepted`));
+  for (const transition of transitions) {
+    const event = eventByType.get(transition.eventType); const button = htmlElement("button", "event-button"); button.type = "button";
+    button.setAttribute("aria-label", `Emit ${event.type}: ${event.label}`); button.title = event.description;
+    button.append(htmlElement("span", "event-prefix", "EMIT"), htmlElement("span", "event-type", event.type));
+    button.addEventListener("click", () => emit(event.type, undefined, true)); eventList.append(button);
+  }
+}
+function render() { updateGraphState(); renderEmitter(); }
+function emit(type, payload, fromControl = false) {
+  const transition = acceptedTransitions().find(item => item.eventType === type);
+  if (!transition) {
+    const activeNode = graph.querySelector(`.node[data-id="${runtime.stateId}"]`); activeNode.classList.add("rejected");
+    setTimeout(() => activeNode.classList.remove("rejected"), 550);
+    showStatus(`${type} rejected by ${stateById.get(runtime.stateId).label}`, "rejected"); announce(`Event ${type} rejected. State unchanged.`); return false;
+  }
+  transition.updates.forEach(applyUpdate); runtime.lastTransitionId = transition.id; runtime.stateId = transition.to;
+  const destination = stateById.get(runtime.stateId); render(); showStatus(`${type} → ${destination.label}`, "accepted"); announce(`Event ${type} accepted. Active state: ${destination.label}.`);
+  focusState(destination, false); if (fromControl) eventDock.focus({ preventScroll: true }); return true;
+}
+function reset() {
+  runtime = { stateId: machine.initialStateId, context: clone(machine.initialContext), lastTransitionId: null };
+  render(); showStatus("Machine reset", "accepted"); announce(`Machine reset. Active state: ${stateById.get(runtime.stateId).label}.`); focusState(stateById.get(runtime.stateId), false);
+}
+window.stateMachine = Object.freeze({ emit: (type, payload) => emit(String(type), payload, false), reset, getSnapshot: () => clone(runtime) });
+resetButton.addEventListener("click", reset);
+
+let view = { x: 0, y: 200, w: 1250, h: 700 };
+function viewportAspect() { return Math.max(.4, graph.clientWidth / Math.max(1, graph.clientHeight)); }
+function applyView() { graph.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`); }
+function focusState(state, preserveScale = true) {
+  const aspect = viewportAspect(); const width = preserveScale ? view.w : Math.min(1320, Math.max(760, window.innerWidth * 1.05)); const height = width / aspect;
+  view = { x: state.x - width / 2, y: state.y - height / 2, w: width, h: height }; applyView();
+}
+function fitGraph() {
+  const aspect = viewportAspect(), paddedW = BOUNDS.w + 180, paddedH = BOUNDS.h + 180;
+  let width = paddedW, height = width / aspect;
+  if (height < paddedH) { height = paddedH; width = height * aspect; }
+  view = { x: BOUNDS.x + BOUNDS.w / 2 - width / 2, y: BOUNDS.y + BOUNDS.h / 2 - height / 2, w: width, h: height }; applyView();
+}
+function zoom(factor) { const cx = view.x + view.w / 2, cy = view.y + view.h / 2; view.w *= factor; view.h *= factor; view.x = cx - view.w / 2; view.y = cy - view.h / 2; applyView(); }
+document.getElementById("zoomIn").addEventListener("click", () => zoom(.82));
+document.getElementById("zoomOut").addEventListener("click", () => zoom(1.22));
+document.getElementById("fit").addEventListener("click", fitGraph);
+document.getElementById("focusActive").addEventListener("click", () => focusState(stateById.get(runtime.stateId), false));
+graph.addEventListener("wheel", event => { event.preventDefault(); zoom(event.deltaY > 0 ? 1.1 : .9); }, { passive: false });
+let drag = null;
+graph.addEventListener("pointerdown", event => {
+  if (event.target.closest(".node") || event.target.closest(".edge-hit")) return;
+  drag = { x: event.clientX, y: event.clientY, view: { ...view } }; graph.setPointerCapture(event.pointerId); graph.classList.add("dragging"); hideTooltip();
+});
+graph.addEventListener("pointermove", event => {
+  if (!drag) return; const rect = graph.getBoundingClientRect();
+  view.x = drag.view.x - (event.clientX - drag.x) * drag.view.w / rect.width; view.y = drag.view.y - (event.clientY - drag.y) * drag.view.h / rect.height; applyView();
+});
+function endDrag(event) { drag = null; graph.classList.remove("dragging"); if (event && graph.hasPointerCapture(event.pointerId)) graph.releasePointerCapture(event.pointerId); }
+graph.addEventListener("pointerup", endDrag); graph.addEventListener("pointercancel", endDrag);
+window.addEventListener("resize", () => focusState(stateById.get(runtime.stateId), false));
+
+renderGraph(); render(); requestAnimationFrame(() => focusState(stateById.get(runtime.stateId), false));
+</script>
+</body>
+</html>

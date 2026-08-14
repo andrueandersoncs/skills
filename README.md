@@ -13,6 +13,7 @@ npx skills add andrueandersoncs/skills
 ## Included skills
 
 - `callstack-simulation` — dry-runs workflows, procedures, algorithms, and functions as source-grounded callstack traces.
+- `state-machine-simulation` — turns workflows, procedures, algorithms, and functions into event-driven, graph-only browser apps.
 - `extract-skill-to-repository` — moves project skills into this shared repository with dependency and Git safety checks.
 - `extract-to-tickets` — turns transcript extraction reports into approved local tickets.
 - `transcript-extraction` — captures evidence-linked claims from transcripts.
