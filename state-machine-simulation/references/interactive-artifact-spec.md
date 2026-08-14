@@ -1,12 +1,14 @@
 # Interactive Artifact Specification
 
-The output is one source-grounded, event-driven state-machine app, not a generic flowchart, website, dashboard, report, or claim that the target ran. The graph is the interface and the status display; users drive the machine by emitting modeled events from a minimal overlay on that graph.
+When explicitly requested, the optional HTML output is one source-grounded, event-driven state-machine app, not a generic flowchart, website, dashboard, report, or claim that the target ran. The graph is the interface and the status display; users drive the machine by emitting modeled events from a minimal overlay on that graph. When HTML is not requested, do not create, modify, or validate an `.html` artifact.
 
 ## Canonical template
 
-[`../assets/app-template.html`](../assets/app-template.html) is the authoritative implementation and visual reference. Every artifact must be a copy of that file with only the embedded `machine` value between `// MACHINE_DATA_START` and `// MACHINE_DATA_END` replaced. The template's remaining HTML, CSS, DOM order, graph renderer, event dock, controls, tooltips, accessibility behavior, and runtime logic must remain byte-for-byte unchanged. Do not reproduce the design from prose, create an approximation, or improve the template while generating an artifact.
+[`../assets/app-template.html`](../assets/app-template.html) is the authoritative implementation and visual reference for selected HTML output. Every generated HTML artifact must be a copy of that file with only the embedded `machine` value between `// MACHINE_DATA_START` and `// MACHINE_DATA_END` replaced. The template's remaining HTML, CSS, DOM order, graph renderer, event dock, controls, tooltips, accessibility behavior, and runtime logic must remain byte-for-byte unchanged. Do not reproduce the design from prose, create an approximation, or improve the template while generating an artifact.
 
 ## Delivery
+
+These requirements apply only when the user explicitly requests HTML.
 
 - Copy the canonical template to the resolved destination and replace exactly one machine data block. Do not generate the document shell, stylesheet, or runtime from scratch.
 - Use only browser-native HTML, CSS, SVG, and JavaScript. Do not require a package install, build step, server, external font, remote asset, network request, or additional file.

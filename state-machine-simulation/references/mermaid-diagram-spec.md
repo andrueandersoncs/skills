@@ -1,6 +1,6 @@
 # Mermaid Diagram Specification
 
-The Mermaid output is a static projection of the same declarative machine embedded in the canonical HTML app. It documents topology and event names; it does not emit events, evaluate guards, mutate context, animate runtime state, or execute target side effects.
+The required default Mermaid output is a static projection generated directly from the shared declarative machine model. It documents topology and event names; it does not emit events, evaluate guards, mutate context, animate runtime state, or execute target side effects. When optional HTML is selected, both projections use the same model, but Mermaid must never be scraped or reverse-engineered from the app.
 
 ## Delivery
 
@@ -59,7 +59,7 @@ The blank line between declarations and transitions is required. Indent declarat
 
 ## Bundled reference
 
-[`state-machine-simulation.mmd`](state-machine-simulation.mmd) is the generated static projection of the `state-machine-simulation` workflow itself. Use it as the canonical formatting and topology example; this specification remains authoritative when another target requires different states, events, branches, cycles, or terminals.
+[`state-machine-simulation.mmd`](state-machine-simulation.mmd) is the generated default static projection of the `state-machine-simulation` workflow itself. Use it as the canonical formatting and topology example; this specification remains authoritative when another target requires different states, events, branches, cycles, or terminals.
 
 ## Validation
 
@@ -68,3 +68,4 @@ The blank line between declarations and transitions is required. Indent declarat
 - Compare every non-pseudostate Mermaid arrow as `(from state ID, event type and payload match, to state ID)` and require exact ordered equality with model transitions.
 - Require exactly one initial pseudostate arrow to `initialStateId` and exactly one final pseudostate arrow from each modeled terminal.
 - Reject undeclared aliases, duplicate declarations, duplicate transition lines, fabricated transitions, missing cycles, malformed labels, Markdown fences, prose wrappers, and HTML-only runtime behavior.
+- When optional HTML exists, also require its embedded machine data to equal the same shared model without changing the Mermaid projection.

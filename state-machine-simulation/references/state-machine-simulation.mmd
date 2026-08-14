@@ -11,23 +11,24 @@ stateDiagram-v2
     state "Define event semantics" as s_define_events
     state "Is every dispatch deterministic?" as s_dispatch_check
     state "Repair ambiguous events" as s_repair_events
-    state "Copy canonical app template" as s_copy_template
+    state "Create Mermaid diagram" as s_create_mermaid
+    state "Was HTML requested?" as s_output_choice
+    state "Copy optional app template" as s_copy_template
     state "Replace machine data block" as s_replace_data
-    state "Create Mermaid companion" as s_render_mermaid
-    state "Begin cross-output validation" as s_validate_model
-    state "Is browser automation available?" as s_browser_check
-    state "Validate HTML live" as s_validate_html_live
-    state "Validate HTML statically" as s_validate_html_static
-    state "HTML validation complete" as s_html_ready
+    state "Begin required Mermaid validation" as s_validate_model
     state "Is a Mermaid renderer available?" as s_mermaid_check
     state "Render and validate Mermaid" as s_validate_mermaid_render
     state "Validate Mermaid statically" as s_validate_mermaid_static
     state "Mermaid validation complete" as s_mermaid_ready
-    state "Check projection parity" as s_parity_check
-    state "Did both projections pass?" as s_validation_check
+    state "Is browser automation available?" as s_browser_check
+    state "Validate optional HTML live" as s_validate_html_live
+    state "Validate optional HTML statically" as s_validate_html_static
+    state "HTML validation complete" as s_html_ready
+    state "Check selected projection parity" as s_parity_check
+    state "Did selected outputs pass?" as s_validation_check
     state "Correct applicable output" as s_correct_outputs
     state "Validation blocker [blocked]" as s_validation_blocker
-    state "Publish both outputs" as s_publish
+    state "Publish selected outputs" as s_publish
     state "Simulation complete [success]" as s_complete
 
     [*] --> s_request
@@ -43,22 +44,25 @@ stateDiagram-v2
     s_model_ready --> s_define_events : FINALIZE_MODEL
     s_define_events --> s_dispatch_check : CHECK_DISPATCH_DETERMINISM
     s_dispatch_check --> s_repair_events : REPAIR_AMBIGUITY
-    s_dispatch_check --> s_copy_template : CONFIRM_DETERMINISM
+    s_dispatch_check --> s_create_mermaid : CONFIRM_DETERMINISM
     s_repair_events --> s_define_events : RECHECK_EVENT_SEMANTICS
+    s_create_mermaid --> s_output_choice : MERMAID_WRITTEN
+    s_output_choice --> s_validate_model : USE_MERMAID_ONLY
+    s_output_choice --> s_copy_template : SELECT_HTML
     s_copy_template --> s_replace_data : COPY_TEMPLATE_COMPLETE
-    s_replace_data --> s_render_mermaid : MACHINE_DATA_EMBEDDED
-    s_render_mermaid --> s_validate_model : MERMAID_WRITTEN
-    s_validate_model --> s_browser_check : CHECK_HTML_PROJECTION
-    s_browser_check --> s_validate_html_live : USE_BROWSER_VALIDATION
-    s_browser_check --> s_validate_html_static : USE_STATIC_HTML_VALIDATION
-    s_validate_html_live --> s_html_ready : COMPLETE_HTML_VALIDATION
-    s_validate_html_static --> s_html_ready : COMPLETE_HTML_VALIDATION
-    s_html_ready --> s_mermaid_check : CHECK_MERMAID_PROJECTION
+    s_replace_data --> s_validate_model : MACHINE_DATA_EMBEDDED
+    s_validate_model --> s_mermaid_check : CHECK_MERMAID_PROJECTION
     s_mermaid_check --> s_validate_mermaid_render : USE_MERMAID_RENDERER
     s_mermaid_check --> s_validate_mermaid_static : USE_STATIC_MERMAID_VALIDATION
     s_validate_mermaid_render --> s_mermaid_ready : COMPLETE_MERMAID_VALIDATION
     s_validate_mermaid_static --> s_mermaid_ready : COMPLETE_MERMAID_VALIDATION
-    s_mermaid_ready --> s_parity_check : CHECK_PROJECTION_PARITY
+    s_mermaid_ready --> s_validation_check : COMPLETE_MERMAID_ONLY_VALIDATION
+    s_mermaid_ready --> s_browser_check : CHECK_HTML_PROJECTION
+    s_browser_check --> s_validate_html_live : USE_BROWSER_VALIDATION
+    s_browser_check --> s_validate_html_static : USE_STATIC_HTML_VALIDATION
+    s_validate_html_live --> s_html_ready : COMPLETE_HTML_VALIDATION
+    s_validate_html_static --> s_html_ready : COMPLETE_HTML_VALIDATION
+    s_html_ready --> s_parity_check : CHECK_PROJECTION_PARITY
     s_parity_check --> s_validation_check : REVIEW_VALIDATION
     s_validation_check --> s_correct_outputs : CORRECT_FAILURES
     s_validation_check --> s_validation_blocker : REPORT_VALIDATION_BLOCKER
