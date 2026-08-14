@@ -2,6 +2,14 @@
 
 Reusable workflow skills following the [Agent Skills](https://agentskills.io/) format.
 
+## Install
+
+Copy and run this [skills.sh](https://skills.sh/andrueandersoncs/skills) command to install the skills:
+
+```sh
+npx skills add andrueandersoncs/skills
+```
+
 ## Included skills
 
 - `extract-to-tickets` — turns transcript extraction reports into approved local tickets.
