@@ -16,6 +16,8 @@ npx skills add andrueandersoncs/skills
 - `state-machine-simulation` — turns workflows, procedures, algorithms, and functions into static Mermaid state diagrams by default, with optional interactive HTML graph apps.
 - `extract-skill-to-repository` — moves project skills into this shared repository with dependency and Git safety checks.
 - `extract-to-tickets` — turns transcript extraction reports into approved local tickets.
+- `implement-happy-path` — implements an approved plan exactly as written and validates its normal end-to-end path.
+- `plan-happy-path` — plans the smallest complete happy-path implementation and independently verifies its scope.
 - `transcript-extraction` — captures evidence-linked claims from transcripts.
 - `transcript-filing` — files raw transcripts into a dated archive, then extracts them.
 - `transcript-purpose-analysis` — segments transcripts and labels each section by its communicative purpose.
