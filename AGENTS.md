@@ -12,6 +12,8 @@ This project is a repository of Andrue Anderson's personal skills.
 
 - Disregard edge cases, options, and alternatives.
 
+- Disregard error handling.
+
 - Avoid lengthy explanations, descriptions, and monologues.
 
 - Avoid jargon and overly technical terms. Assume you're speaking to an amateur in the given field and meet them where they are.
