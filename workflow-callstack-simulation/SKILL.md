@@ -1,9 +1,9 @@
 ---
-name: callstack-simulation
+name: workflow-callstack-simulation
 description: Generate a source-grounded, callstack-style dry-run simulation of a workflow, procedure, algorithm, or function for a supplied scenario, showing nested frames, branches, and state changes. Use when asked to simulate, dry-run, walk through, or trace execution step by step without running it.
 ---
 
-# Callstack Simulation
+# Workflow Callstack Simulation
 
 Model supplied behavior as a source-grounded trace for inspection without executing the target, modifying target or context sources, performing described side effects, or claiming observed runtime or timing.
 
@@ -64,7 +64,7 @@ Render the validated trace according to the output contract, then return it inli
 
 ## Callstack Simulation
 
-**Callstack Simulation**(target, scenario, supporting context, controls)
+**Workflow Callstack Simulation**(target, scenario, supporting context, controls)
 │
 ├─ **Resolve The Contract**(inputs, entry point, authority order, limits, output location)
 │  │

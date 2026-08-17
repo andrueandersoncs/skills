@@ -1,10 +1,10 @@
 ---
-name: state-machine-simulation
+name: workflow-state-machine-simulation
 description: Generate a source-grounded event-driven state-machine simulation as a static Mermaid state diagram by default, with an optional canonical graph-only web app. Use when asked to visualize, explore, teach, or export a workflow, procedure, algorithm, or function as Mermaid, and optionally when asked to emit modeled events through a browser graph.
 compatibility: Produces a Mermaid stateDiagram-v2 source file and, when requested, a standalone HTML app for a modern JavaScript-enabled browser.
 ---
 
-# State Machine Simulation
+# Workflow State Machine Simulation
 
 Model supplied behavior as a static Mermaid state diagram for inspection and learning by default, with an optional graph-only, event-driven browser app in which users emit modeled events and watch the active state and transition update live. Neither output executes the target, performs its side effects, modifies its sources, or presents inferred behavior as observed runtime behavior.
 
@@ -24,7 +24,7 @@ Optional available definitions for callees, procedures, data shapes, invariants,
 
 ### D. Controls
 
-Optional entry-point override, abstraction level, expanded or collapsed operations, focus area, initial scenario, event-name or payload overrides, repository-relative `.mmd` destination, interactive HTML companion request, and repository-relative `.html` destination. The default output is only `state-machine-simulation.mmd` at the active repository root. Generate HTML only when the user explicitly requests it; when requested without a destination, use the Mermaid basename with an `.html` extension at the same location. Revising the Mermaid destination, or the HTML destination when selected, requires explicit user authority.
+Optional entry-point override, abstraction level, expanded or collapsed operations, focus area, initial scenario, event-name or payload overrides, repository-relative `.mmd` destination, interactive HTML companion request, and repository-relative `.html` destination. The default output is only `workflow-state-machine-simulation.mmd` at the active repository root. Generate HTML only when the user explicitly requests it; when requested without a destination, use the Mermaid basename with an `.html` extension at the same location. Revising the Mermaid destination, or the HTML destination when selected, requires explicit user authority.
 
 ### E. Optional canonical app template
 
@@ -34,7 +34,7 @@ When HTML is requested, the bundled [`assets/app-template.html`](assets/app-temp
 
 ### A. Mermaid state diagram
 
-One Mermaid source file at the resolved `.mmd` destination, generated directly from the shared machine model and conforming to [`references/mermaid-diagram-spec.md`](references/mermaid-diagram-spec.md); the bundled [`references/state-machine-simulation.mmd`](references/state-machine-simulation.mmd) is the generated self-simulation reference. It is complete when a Mermaid renderer can display every modeled state, event-labeled transition, cycle, initial state, and terminal outcome without introducing a path absent from the shared model. It is static and does not claim to emit events or update live.
+One Mermaid source file at the resolved `.mmd` destination, generated directly from the shared machine model and conforming to [`references/mermaid-diagram-spec.md`](references/mermaid-diagram-spec.md); the bundled [`references/workflow-state-machine-simulation.mmd`](references/workflow-state-machine-simulation.mmd) is the generated self-simulation reference. It is complete when a Mermaid renderer can display every modeled state, event-labeled transition, cycle, initial state, and terminal outcome without introducing a path absent from the shared model. It is static and does not claim to emit events or update live.
 
 ### B. Optional interactive state-machine artifact
 
@@ -76,7 +76,7 @@ Leave the validated Mermaid diagram and any requested HTML app at their resolved
 
 ## Callstack Simulation
 
-**State Machine Simulation**(target, scenario, supporting context, controls)
+**Workflow State Machine Simulation**(target, scenario, supporting context, controls)
 │
 ├─ **Resolve The Simulation Contract**(inputs, entry point, authority order, abstraction boundary, Mermaid path, HTML option and optional path)
 │  │

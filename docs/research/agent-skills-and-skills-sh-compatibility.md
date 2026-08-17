@@ -11,8 +11,8 @@ Keep this repository's current flat layout:
 skills/
 ├── README.md
 ├── AGENTS.md
-├── callstack-simulation/SKILL.md
-├── create-workflow-skill/SKILL.md
+├── workflow-callstack-simulation/SKILL.md
+├── workflow-to-skill/SKILL.md
 ├── ...one directory per skill...
 └── docs/research/...
 ```
@@ -71,7 +71,7 @@ Using the pinned skills CLI against the local repository with `add <path> --list
   "groupings": [
     {
       "title": "Skill authoring",
-      "skills": ["create-workflow-skill", "decompose-skill", "extract-skill-to-repository"]
+      "skills": ["workflow-to-skill", "decompose-skill", "extract-skill-to-repository"]
     },
     {
       "title": "Planning and delivery",
@@ -79,7 +79,7 @@ Using the pinned skills CLI against the local repository with `add <path> --list
     },
     {
       "title": "Simulation",
-      "skills": ["callstack-simulation", "state-machine-simulation"]
+      "skills": ["workflow-callstack-simulation", "workflow-state-machine-simulation"]
     },
     {
       "title": "Transcripts",

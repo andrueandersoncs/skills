@@ -59,7 +59,7 @@ The blank line between declarations and transitions is required. Indent declarat
 
 ## Bundled reference
 
-[`state-machine-simulation.mmd`](state-machine-simulation.mmd) is the generated default static projection of the `state-machine-simulation` workflow itself. Use it as the canonical formatting and topology example; this specification remains authoritative when another target requires different states, events, branches, cycles, or terminals.
+[`workflow-state-machine-simulation.mmd`](workflow-state-machine-simulation.mmd) is the generated default static projection of the `workflow-state-machine-simulation` workflow itself. Use it as the canonical formatting and topology example; this specification remains authoritative when another target requires different states, events, branches, cycles, or terminals.
 
 ## Validation
 

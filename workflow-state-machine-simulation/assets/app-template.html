@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>State Machine Simulation</title>
+<title>Workflow State Machine Simulation</title>
 <style>
 :root {
   --canvas: #101312; --grid: #1b211f; --node: #171c1a; --node-2: #1d2321;
@@ -123,7 +123,7 @@ let runtime = { stateId: machine.initialStateId, context: clone(machine.initialC
 let statusTimer = null;
 
 const graph = document.getElementById("graph");
-document.title = machine.metadata.title || "State Machine Simulation";
+document.title = machine.metadata.title || "Workflow State Machine Simulation";
 graph.setAttribute("aria-label", `${machine.metadata.title || "State machine"} interactive state graph`);
 const eventDock = document.getElementById("eventDock");
 const eventList = document.getElementById("eventList");
