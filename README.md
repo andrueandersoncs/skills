@@ -13,6 +13,7 @@ npx skills add andrueandersoncs/skills
 ## Included skills
 
 - `callstack-simulation` — dry-runs workflows, procedures, algorithms, and functions as source-grounded callstack traces.
+- `decompose-skill` — splits skills into reusable workflow skills and identifies useful agent or subagent boundaries.
 - `state-machine-simulation` — turns workflows, procedures, algorithms, and functions into static Mermaid state diagrams by default, with optional interactive HTML graph apps.
 - `extract-skill-to-repository` — moves project skills into this shared repository with dependency and Git safety checks.
 - `extract-to-tickets` — turns transcript extraction reports into approved local tickets.
