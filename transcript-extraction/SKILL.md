@@ -52,7 +52,7 @@ Compare each claim with the current record and mark it **New**, **Confirms**, **
 
 ### 5. Materialize and validate each extraction
 
-Create a missing `extract.md` or revise the existing one in place from the bundled template, keeping each report scoped to its adjacent transcript. Re-running is an update, not an append: merge duplicates and preserve still-supported claims so each appears once. Fill every template section or write `None.`, then compare the report back to the full transcript and current-record map to correct omissions, unsupported certainty, missing evidence, duplicate claims, and undisclosed conflicts. Do not create tickets or modify transcripts, `CONTEXT.md`, context-map targets, ADRs, product documentation, or application code. This step is complete when every report satisfies Output A and the only repository files changed by this workflow are the intended `extract.md` files.
+Create a missing `extract.md` or revise the existing one in place from the bundled template, keeping each report scoped to its adjacent transcript. Re-running is an update, not an append: merge duplicates and preserve still-supported claims so each appears once. Fill every template section or write `None.`, then compare the report back to the full transcript and current-record map to correct omissions, unsupported certainty, missing evidence, duplicate claims, and undisclosed conflicts. Do not create tasks or modify transcripts, `CONTEXT.md`, context-map targets, ADRs, product documentation, or application code. This step is complete when every report satisfies Output A and the only repository files changed by this workflow are the intended `extract.md` files.
 
 ### 6. Report completion
 
