@@ -1,10 +1,10 @@
 ---
-name: workflow-skill
+name: create-workflow-skill
 description: "Create a repository workflow skill: a concise, ordered, completion-checked procedure for a repeatable agent task. Use when the user asks to create, design, document, or improve a workflow skill."
 compatibility: Requires a runtime that provides the skill-creator and callstack-simulation skills.
 ---
 
-# Workflow Skill
+# Create Workflow Skill
 
 Create a **workflow skill** for the user's repeatable task; this skill governs documenting that task, not carrying it out.
 
@@ -42,7 +42,7 @@ Identify the workflow's trigger, supplied inputs, output location and shape, req
 
 Call the `/skill-creator` skill with this input (use `/skill:skill-creator` if the runtime requires the colon form):
 
-> Create or revise the Markdown skill named `<name>` in `.agents/skills/<name>/`. It is a workflow skill for `<task>`. Follow the workflow-skill contract below, using the user's requirements and the repository's existing conventions. Preserve existing behavior when revising. Do not add helper files unless the main skill needs a reusable template or detailed reference.
+> Create or revise the Markdown skill named `<name>` in `.agents/skills/<name>/`. It is a workflow skill for `<task>`. Follow the create-workflow-skill contract below, using the user's requirements and the repository's existing conventions. Preserve existing behavior when revising. Do not add helper files unless the main skill needs a reusable template or detailed reference.
 
 Replace the placeholders with the contract gathered above, then supply these requirements to that skill:
 
@@ -76,7 +76,7 @@ Report exactly `Workflow skill: .agents/skills/<name>/SKILL.md` and `Change: <cr
 
 ## Callstack Simulation
 
-**Workflow Skill**(repeatable task, intended skill name, task-specific requirements, repository context)
+**Create Workflow Skill**(repeatable task, intended skill name, task-specific requirements, repository context)
 │
 ├─ **Gather The Contract**(workflow request, repository context, and runtime dependencies)
 │  │
