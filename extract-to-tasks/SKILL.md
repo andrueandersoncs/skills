@@ -2,7 +2,6 @@
 name: extract-to-tasks
 description: Convert transcript-extraction `extract.md` reports into an approved, deduplicated set of local tracer-bullet tasks. Use when asked to triage transcript extracts, propose task slices from transcript findings, or create local task files from `extract.md` reports.
 compatibility: Requires the active repository to provide a to-tasks skill plus task-tracker and triage-label documentation under docs/agents/.
-disable-model-invocation: true
 ---
 
 # Extract to Tasks

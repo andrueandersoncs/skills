@@ -1,7 +1,6 @@
 ---
 name: transcript-extraction
 description: Create or update evidence-linked extract.md reports that capture decision-ready product, business, domain, constraint, change, and bug claims. Use when the user asks to process a conversation transcript, capture what a transcript says, or extract decisions, requirements, bugs, or domain knowledge from transcript.txt.
-disable-model-invocation: true
 ---
 
 # Transcript Extraction
