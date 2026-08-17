@@ -12,7 +12,7 @@ This project is a repository of Andrue Anderson's personal skills.
 
 - Disregard edge cases, options, and alternatives.
 
-- Disregard error handling.
+- Disregard error handling and input validation.
 
 - Avoid lengthy explanations, descriptions, and monologues.
 
