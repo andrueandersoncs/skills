@@ -21,34 +21,235 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
 ## Procedure
 
-### 1. Gather the contract
+1. Gather the workflow contract from the request and repository.
 
-Identify the workflow's trigger, available inputs, output, relevant repository context, state-changing actions, decision branches, invariants, and completion evidence. Follow Postel's Law: accept useful input in any workable form, infer safely from the user request and repository, and add an input constraint only when it is essential for correct execution. Define one precise, predictable output. Use the repository as the source of truth for commands, paths, and conventions. If a missing decision prevents a concrete procedure, ask one explicit blocking question and stop until the user answers; do not invoke a dependency with an unresolved contract. Confirm that the runtime can invoke `skill-creator` before any edit; if it is unavailable, stop without editing and report that dependency as the blocker. This step is complete when the essential contract is known and the dependency is available.
+    **Inputs:**
+    - Repeatable task.
+    - Intended skill name, when supplied.
+    - Task-specific requirements.
+    - Repository context.
 
-### 2. Delegate creation
+    **Constraints:**
+    - Cover the trigger, accepted inputs, one output, state changes, branches, invariants, and completion evidence.
+    - Treat repository commands, paths, and conventions as authoritative.
 
-Call the `/skill-creator` skill with this input (use `/skill:skill-creator` if the runtime requires the colon form):
+    **Outputs:**
+    - Draft workflow contract.
 
-> Create or revise the Markdown skill named `<name>` in `.agents/skills/<name>/`. It is a workflow skill for `<task>`. Follow the workflow-to-skill contract below, using the user's requirements and the repository's existing conventions. Preserve existing behavior when revising. Do not add helper files unless the main skill needs a reusable template or detailed reference.
+2. Resolve only gaps that block a concrete procedure.
 
-Replace the placeholders with the contract gathered above, then supply these requirements to that skill:
+    **Inputs:**
+    - Draft workflow contract.
+    - User request.
+    - Repository facts.
 
-- Keep `SKILL.md` short. Its YAML frontmatter name matches the directory, and its description states both the outcome and concrete request triggers.
-- Start with one sentence that names the workflow's scope and its boundary.
-- Use the exact second-level sections `## Inputs`, `## Outputs`, and `## Procedure`, in that order. Treat inputs and outputs as the workflow's declarative contract; keep instructions and state-changing actions in the procedure. Make `## Procedure` the final section.
-- Follow Postel's Law: "Be conservative in what you produce as output, be liberal in what you accept as input." Accept useful variations in input and describe a constraint only when it is absolutely necessary for correct execution. Produce one precise, predictable result.
-- Under `## Inputs`, use a simple numbered list formatted as `1. **<Input name>:** <description>`. Describe accepted information without requiring a source, shape, naming scheme, order, or completeness unless that constraint is essential.
-- Under `## Outputs`, use a simple numbered list formatted as `1. **<Output name>:** <description>`. State the stable result, its location when applicable, and the condition that makes it complete. Include only essential constraints.
-- Under `## Procedure`, format each item as `### 1. <Step title>`, `### 2. <Step title>`, and so on. Use contiguous numeric indices because procedure steps are ordered by execution. Each step performs one observable transition and ends with a checkable completion criterion.
-- Put every decision branch beside the step that reaches it. State the condition, action, and result for each branch.
-- Preserve only necessary invariants, such as source preservation, idempotency, non-overwrite rules, authority boundaries, or required handoffs.
-- Finish with the exact result to report and the condition that makes the workflow complete.
-- Prefer repository lookups over duplicating facts that package configuration, commands, or directory layout already provides. Put conditional or exhaustive material in a linked reference file.
+    **Constraints:**
+    - Accept useful input in any workable form.
+    - Infer safely from the request and repository when possible.
+    - Ask one explicit blocking question only when required.
+    - Do not invoke a dependency with an unresolved contract.
 
-If `skill-creator` returns an unresolved error, stop and report it without claiming completion. Otherwise, this step is complete when it has created or revised `.agents/skills/<name>/SKILL.md` with `## Procedure` as the final section.
+    **Outputs:**
+    - Actionable workflow contract when complete.
+    - One blocking question when incomplete.
 
-### 3. Verify and report the result
+3. Confirm the runtime can invoke `skill-creator`.
 
-Re-read the resulting `SKILL.md` and confirm that it contains `## Inputs`, `## Outputs`, and `## Procedure` in that order, with `## Procedure` as the final second-level section. Confirm that inputs and outputs are simple numbered lists without item subheadings, and that procedure steps use contiguous numbered `###` subheadings. Confirm that inputs accept workable variations, every stated constraint is absolutely necessary, and outputs are precise and predictable. Confirm that inputs and outputs declaratively define the contract while instructions and state-changing actions appear in the procedure. Confirm that an agent can determine its trigger, inputs, output, every action, branch behavior, invariant, and completion state without inventing policy. Check the frontmatter name against the directory name and confirm the description is non-empty and routes concrete requests.
+    **Inputs:**
+    - Actionable workflow contract.
+    - Runtime skill registry.
 
-Report exactly `Workflow skill: .agents/skills/<name>/SKILL.md` and `Change: <created|updated>`, followed by `Assumptions: <items|None>`; if verification failed, report `Verification failed: <checks>` instead and do not claim completion. The workflow is complete only when every check passes and the exact path and applicable change state are reported.
+    **Constraints:**
+    - Stop before editing and report the missing dependency when unavailable.
+    - Continue only when the contract and dependency are ready.
+
+    **Outputs:**
+    - Dependency readiness decision.
+
+4. Set the target skill's creation boundaries.
+
+    **Inputs:**
+    - Actionable workflow contract.
+    - Existing target skill, when revising.
+
+    **Constraints:**
+    - Target `.agents/skills/<name>/SKILL.md` for `<task>`.
+    - Preserve existing behavior when revising.
+    - Add helper files only for reusable templates or detailed references.
+
+    **Outputs:**
+    - Target skill boundaries.
+
+5. Define the target skill's shell.
+
+    **Inputs:**
+    - Target skill boundaries.
+    - Actionable workflow contract.
+
+    **Constraints:**
+    - Keep `SKILL.md` short.
+    - Match the frontmatter name to the directory.
+    - State the outcome and concrete request triggers in the description.
+    - Open with one sentence naming the workflow's scope and boundary.
+    - Order `## Inputs`, `## Outputs`, and final `## Procedure` exactly.
+    - Keep contract declarations outside the procedure.
+    - Keep instructions and state changes inside the procedure.
+
+    **Outputs:**
+    - Skill shell requirements.
+
+6. Define a liberal input contract and one predictable output.
+
+    **Inputs:**
+    - Actionable workflow contract.
+
+    **Constraints:**
+    - Apply Postel's Law by accepting useful input variations and producing one precise result.
+    - Format each input as `1. **<Input name>:** <description>`.
+    - Constrain input source, shape, naming, order, or completeness only when essential.
+    - Format each output as `1. **<Output name>:** <description>`.
+    - State the output's stable result, applicable location, and completion condition.
+
+    **Outputs:**
+    - Target input requirements.
+    - Target output requirements.
+
+7. Define the procedure as concise ordered actions.
+
+    **Inputs:**
+    - Actionable workflow contract.
+
+    **Constraints:**
+    - Number every independent action or sub-step with contiguous indices in execution order.
+    - Give each step one observable transition and a checkable completion criterion.
+    - Give each step single-indented `Inputs`, `Constraints`, and `Outputs` labels in that order.
+    - Keep every input, constraint, and output as one concise unordered list item.
+    - Keep category labels and their list items at the same single indentation level.
+
+    **Outputs:**
+    - Target procedure requirements.
+
+8. Define branches, invariants, and supporting detail where they apply.
+
+    **Inputs:**
+    - Actionable workflow contract.
+    - Target procedure requirements.
+    - Repository context.
+
+    **Constraints:**
+    - Keep each branch beside the step that reaches it.
+    - State each branch's condition, action, and result.
+    - Preserve only necessary invariants.
+    - Necessary invariants may include source preservation, idempotency, non-overwrite rules, authority boundaries, or required handoffs.
+    - Prefer repository lookups over duplicated facts.
+    - Move conditional or exhaustive material into linked references.
+
+    **Outputs:**
+    - Branch requirements.
+    - Invariant requirements.
+    - Supporting-detail requirements.
+
+9. Define the target workflow's final result.
+
+    **Inputs:**
+    - Target output requirements.
+    - Target procedure requirements.
+
+    **Constraints:**
+    - End with the exact result to report.
+    - End with the condition that makes the workflow complete.
+
+    **Outputs:**
+    - Final result requirement.
+    - Workflow completion condition.
+
+10. Invoke `/skill-creator` with the contract and requirements.
+
+    **Inputs:**
+    - Actionable workflow contract.
+    - Target skill requirements.
+    - User requirements.
+    - Repository conventions.
+
+    **Constraints:**
+    - Use `/skill:skill-creator` when the runtime requires the colon form.
+    - Include the resolved name and task.
+
+    **Outputs:**
+    - `skill-creator` result.
+
+11. Handle the `skill-creator` result.
+
+    **Inputs:**
+    - `skill-creator` result.
+
+    **Constraints:**
+    - Stop and report unresolved errors without claiming completion.
+    - Continue only when the target skill exists with `## Procedure` last.
+
+    **Outputs:**
+    - Created or revised target skill on success.
+    - Error report on unresolved failure.
+
+12. Verify the frontmatter and section structure.
+
+    **Inputs:**
+    - Resulting `SKILL.md`.
+
+    **Constraints:**
+    - Match the frontmatter name to the directory.
+    - Require a non-empty description that states the outcome and routes concrete requests.
+    - Keep `## Inputs`, `## Outputs`, and `## Procedure` in order with `## Procedure` last.
+
+    **Outputs:**
+    - Frontmatter verification result.
+    - Section structure verification result.
+
+13. Verify the contract and list formats.
+
+    **Inputs:**
+    - Resulting `SKILL.md`.
+
+    **Constraints:**
+    - Keep inputs and outputs as simple numbered lists without item subheadings.
+    - Accept workable inputs and require only essential constraints.
+    - Produce one precise, predictable output.
+    - Number every procedure action or sub-step contiguously.
+    - Give every step single-indented `Inputs`, `Constraints`, and `Outputs` labels in order.
+    - Keep every listed input, constraint, and output concise.
+
+    **Outputs:**
+    - Contract verification result.
+    - List format verification result.
+
+14. Verify the procedure is executable without invented policy.
+
+    **Inputs:**
+    - Resulting `SKILL.md`.
+
+    **Constraints:**
+    - Keep inputs and outputs declarative.
+    - Place instructions and state changes in the procedure.
+    - Make the trigger, inputs, output, actions, branch behavior, invariants, and completion state explicit.
+
+    **Outputs:**
+    - Procedure executability result.
+
+15. Report the verified result.
+
+    **Inputs:**
+    - Verification results.
+    - Target skill path.
+    - Change state.
+    - Assumptions.
+
+    **Constraints:**
+    - Report `Workflow skill: .agents/skills/<name>/SKILL.md` after success.
+    - Report `Change: <created|updated>` after success.
+    - Report `Assumptions: <items|None>` after success.
+    - Report `Verification failed: <checks>` instead after failure.
+    - Claim completion only when every check passes and the exact path and change state are reported.
+
+    **Outputs:**
+    - Completion report when verification passes.
+    - Verification failure report when verification fails.
