@@ -4,9 +4,11 @@ This project is a repository of Andrue Anderson's personal skills.
 
 ## Rules
 
-### Golden Rule
+### Golden Rules
 
 - Always produce the **simplest**, most **direct**, most **concise**, most **correct**, and most **complete** output possible, regardless of the task.
+
+- Always check your output for "common sense". Use a clean context (subagent, secondary session, whatever means you have available) to avoid context pollution and enable first-principles thinking by the subagent.
 
 ### Standard Rules
 
