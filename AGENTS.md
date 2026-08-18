@@ -8,7 +8,9 @@ This project is a repository of Andrue Anderson's personal skills.
 
 - Always produce the **simplest**, most **direct**, most **concise**, most **correct**, and most **complete** output possible, regardless of the task.
 
-- Always check your output for "common sense". Use a clean context (subagent, secondary session, whatever means you have available) to avoid context pollution and enable first-principles thinking by the subagent.
+- Always check your output for "common sense". Use a clean context (subagent, secondary session, whatever means you have available) to avoid context pollution and enable first-principles thinking by the subagent. Use this exact prompt:
+
+> Review this from first principles against the user’s intended outcome. Do not assume the current implementation is appropriate. Find redundancy, unnecessary structure, and repeated rules that could be expressed once globally. Ask what can be deleted without changing behavior. Prefer the simplest **complete** design. Use your common sense. If you're unsure about a change, set up a benchmark to find proof.
 
 ### Standard Rules
 
