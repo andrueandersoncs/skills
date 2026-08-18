@@ -1,209 +1,278 @@
 ---
 name: decompose-skill
-description: Decompose a skill into independently useful workflow skills and identify fresh-context agent or subagent handoffs while retaining a behavior-preserving orchestrator. Use when asked to split, extract, modularize, or find reusable workflow skills or agent boundaries within an existing skill.
+description: Decompose an existing skill into independently useful workflow skills and a behavior-preserving orchestrator, including deliberate same-agent or fresh-context handoffs. Use when asked to split, extract, modularize, or identify reusable workflows or agent boundaries within a skill.
 compatibility: Requires workflow-to-skill and workflow-callstack-simulation, plus agent or subagent delegation when an approved boundary requires fresh context.
 ---
 
 # Decompose Skill
 
-Decompose reusable responsibilities from one skill into independently invocable workflow skills and deliberate fresh-context handoffs; do not extract source-private steps, incidental helpers, or orchestration that has no credible use on its own.
+Decompose one skill into reusable workflow skills while keeping its public behavior intact and retaining source-private sequencing, incidental helpers, and source-only responsibilities in the orchestrator.
 
 ## Inputs
 
-### A. Target skill
-
-A required repository-relative skill directory or `SKILL.md` path. Read the complete skill directory and identify the behavioral entry point to analyze. The target remains the public orchestrator unless the approved plan explicitly replaces it.
-
-### B. Decomposition controls
-
-Optional user-supplied focus areas, proposed child names, naming constraints, configuration preferences, agent or subagent boundary preferences, or exclusions. In their absence, analyze the whole target, derive Agent Skills-compliant kebab-case names, and place child skills under the active repository's `.agents/skills/` root through `workflow-to-skill`.
-
-### C. Repository context
-
-Required repository instructions, skill-root conventions, relevant sibling skills, references, scripts, consumers, tests, validation commands, and available agent or subagent delegation mechanisms. This context is authoritative for local paths and behavior and supplies evidence for or against independent use.
-
-### D. Decomposition approval
-
-The user's explicit approval of the exact candidate ledger, child contracts, configuration splits, agent or subagent execution boundaries, handoff packets, names, destinations, and source refactor. It is absent during analysis and required before any file is created or changed.
+1. **Target skill:** A repository-relative skill directory or `SKILL.md` path in any unambiguous form.
+2. **Decomposition controls:** Optional focus areas, proposed names, exclusions, configuration preferences, and agent or subagent boundary preferences.
+3. **Repository context:** Relevant instructions, skill roots, sibling skills, consumers, tests, commands, and delegation mechanisms supplied by the user or discovered from the repository.
+4. **Decomposition approval:** The user's explicit approval of the presented candidates, contracts, names, destinations, execution boundaries, handoffs, and source refactor; this may be supplied after analysis.
 
 ## Outputs
 
-### A. Candidate ledger
-
-A conversational ledger covering every callstack-derived candidate exactly once. Each entry gives its source frames and transitions, cohesive responsibility, proposed contract and name, dependency boundary, a credible invocation outside the target, independent-use decision, fresh-context benefit and `same agent` or `fresh-context agent/subagent` execution decision, required handoff packet, and—when not selected—the result of the configuration-split test and final reason for keeping it in the target.
-
-### B. Extracted workflow skills
-
-For every approved selected candidate, a complete `.agents/skills/<name>/SKILL.md` created by `workflow-to-skill`, including its generated final `## Callstack Simulation`. Each child has a public trigger and complete outcome, can be invoked without the source skill's private control state, accepts any source-specific variation as explicit configuration rather than depending on the source, and declares enough bounded input context for a fresh receiving agent to execute it when that boundary is selected.
-
-### C. Revised source skill
-
-The target skill revised in place as a behavior-preserving orchestrator. It retains its public contract and source-specific policy, delegates each extracted responsibility through the child's declared contract and approved same-agent or fresh-context boundary, passes a self-contained handoff packet to any receiving agent or subagent, contains no duplicate implementation of that responsibility, and has a regenerated source-grounded callstack.
-
-### D. Completion report
-
-A report listing the target, created child paths, source changes, selected execution boundaries and handoffs, kept candidates with reasons and configuration-split results, validation performed, and status. It is complete when the approved decomposition is fully accounted for, or when a permitted no-change or stopping condition is named without claiming files were created.
+1. **Decomposition result:** A candidate ledger and exact report with one status: `complete` with approved children at `.agents/skills/<name>/SKILL.md` and a validated source orchestrator, `no change` with its reason, or `incomplete` with changed paths and unmet conditions.
 
 ## Procedure
 
-### 1. Resolve the target and protect the baseline
+### 1. Resolve the target and baseline.
 
-Resolve Input A from the repository root; read the complete skill directory, Input C, and every repository reference needed to understand its behavior and consumers. Record the target's public contract, behavioral entry point, file manifest or source fingerprint, current call edges, configured skill names, existing destinations, and pre-existing worktree changes. Confirm that both `workflow-to-skill` and `workflow-callstack-simulation` are available before editing, and record the runtime's available same-agent and fresh-context agent or subagent delegation mechanisms. If the target or entry point is missing or ambiguous, a dependency is unavailable, or a proposed destination already exists, stop before writing and report the blocker; never overwrite a child skill or alter unrelated pre-existing changes. This step is complete when the analysis baseline and protected paths are explicit.
+**Inputs:**
 
-### 2. Obtain a source-grounded callstack
+    a. Target skill.
+    b. Decomposition controls.
+    c. Repository context.
 
-Inspect the target's exact `## Callstack Simulation` section when present and compare it with the current entry point, ordered operations, branches, local calls, state changes, side effects, returns, and errors. Use it only when it is the sole final section, structurally valid, source-grounded in the current target and behavior-bearing references, and covers current operations and feasible branches without scenario-specific or unexplained frames. If it is absent, malformed, truncated, scenario-specific, or stale, call `workflow-callstack-simulation` for the current target and entry point with compact detail, symbolic inputs and external responses, and inline output; do not edit the target merely to store this analysis trace. If simulation is blocked or unresolved, stop without changing files. Re-read the target after obtaining the trace; if its fingerprint changed, discard the trace and repeat this step. Record whether the trace was reused or generated. This step is complete when one validated callstack is fixed as decomposition evidence.
+**Constraints:**
 
-### 3. Enumerate cohesive candidate and context boundaries
+    a. Read the complete target, applicable repository instructions, references, consumers, tests, skill roots, and delegation mechanisms.
+    b. Record the public contract, entry point, file manifest or fingerprint, call edges, configured names, destinations, and pre-existing worktree changes.
+    c. Confirm `workflow-to-skill` and `workflow-callstack-simulation` are available before editing.
+    d. When the target or entry point is ambiguous, a dependency is unavailable, or a protected destination exists, set an incomplete result and continue to Step 12 before writing.
+    e. Preserve unrelated and pre-existing changes.
 
-Walk the validated callstack together with the target source and map each distinct frame or cohesive subtree that could own a repeatable outcome. Merge adjacent frames that only become meaningful as one end-to-end result; separate branches only when each has its own stable contract. At every callstack transition, also record the minimum state the receiver needs and whether upstream history is relevant or incidental. Include candidates even when they initially appear source-specific so later tests can assess them. Do not treat callstack depth alone as proof of reuse or a fresh-context boundary, and do not invent behavior absent from the target or repository. This step is complete when every plausible workflow and context boundary is represented once and its source frames, transitions, dependencies, and required context are traceable.
+**Outputs:**
 
-### 4. Evaluate fresh-context execution boundaries
+    a. Protected analysis baseline.
+    b. Blocking report when resolution fails.
 
-For every candidate transition, compare same-agent execution with a receiving agent or subagent that starts from a bounded handoff packet. Select a fresh-context boundary only when isolation from unrelated history, independent verification, specialization, parallel work, or context-budget relief materially improves the task and the sender can provide the complete goal, inputs, authoritative sources, constraints, expected output, and return contract. Keep same-agent execution when the work needs shared mutable state, tight iterative coordination, atomic sequencing, or a handoff would reproduce most of the sender's context. Record the evidence and decision in the ledger. A helpful fresh context is a placement decision, not proof that the candidate is independently useful or deserves its own workflow skill. This step is complete when every candidate has a supported `same agent` or `fresh-context agent/subagent` decision and every selected handoff is self-contained.
+### 2. Fix a source-grounded callstack as evidence.
 
-### 5. Apply the independent-use gate
+**Inputs:**
 
-For each candidate, identify a concrete trigger, complete observable outcome, inputs, outputs, completion evidence, authority boundary, and at least one concrete second caller or scenario outside the target. Select it provisionally only when it is cohesive, independently invocable without target-private setup or control state, useful outside the target rather than merely theoretically generic, and leaves the source able to preserve its behavior through a clear handoff. Reject mere sequencing, one-off source policy, tiny incidental checks, formatting fragments, and candidates whose only consumer would still be the source. Resolve overlaps by selecting the smallest non-overlapping boundaries that remain complete and independently useful. Treat the Step 4 execution decision only as evidence: a candidate still must pass this independent-use gate before decomposition. This step is complete when every candidate has a supported provisional select-or-keep decision.
+    a. Protected analysis baseline.
+    b. Complete target source.
 
-### 6. Test configuration extraction for every kept candidate
+**Constraints:**
 
-For every candidate not provisionally selected, attempt to split it into (a) a fixed reusable workflow and (b) declarative source-specific configuration. Define the proposed configuration fields, ownership, validation, and a sensible default when one is justified; a required explicit configuration is acceptable when no honest default exists. Retest the split against the current source configuration and one materially different concrete caller or configuration; the current configuration or default must reproduce the original behavior. Promote the transformed candidate only if the fixed workflow and completion contract stay stable, the configuration contains values or bounded policy rather than executable source-private behavior, and the second caller would use the outcome independently. Keep it in the target if configuration would encode most of the algorithm, expose private orchestration or mutable state, provide no stable boundary, or still leave no independent use. Record this test even when its result is `not reusable through configuration`. If the split promotes a candidate, repeat the Step 4 placement test against its new bounded contract. This step is complete when every non-selected candidate has a documented split attempt and final decision plus an execution-boundary decision for any promoted form.
+    a. Reuse the target's `## Callstack Simulation` only when it is the sole final section, current, structurally valid, source-grounded, and complete across feasible branches.
+    b. Otherwise invoke `workflow-callstack-simulation` on the current entry point with compact detail, symbolic missing values, and inline output.
+    c. Do not edit the target merely to store the analysis trace.
+    d. When simulation is blocked, set an incomplete result and continue to Step 12 without writing.
+    e. Re-read the target and repeat this step when its fingerprint changed during analysis.
 
-### 7. Present and approve the decomposition plan
+**Outputs:**
 
-Present Output A with proposed child names, exact contracts, configuration and defaults, callstack evidence, same-agent or fresh-context execution decisions, complete handoff packets, source-to-child handoffs, planned target changes, destinations, and validation. Check the names against all configured skill roots and reject collisions before asking for approval. If no candidate passes either reuse test, record `no independently useful candidates` and skip to Step 11 without writing. Otherwise ask for explicit approval of the whole current plan; if the user changes any candidate, contract, name, configuration, or source refactor, revise and re-present it because prior approval does not carry forward. If approval is withheld, record that result and skip to Step 11 without writing. No file may change before approval. This step is complete when the exact plan is approved or a no-change or withheld-approval result is recorded.
+    a. Validated callstack marked `reused` or `generated`.
+    b. Freshness evidence or blocking report.
 
-### 8. Create the approved child skills
+### 3. Enumerate every cohesive candidate.
 
-For each approved candidate, call `workflow-to-skill` with its repeatable task, intended name, complete contract, configuration schema and defaults, repository context, the requirement that it be independently invocable, and the bounded input context a fresh receiving agent needs when that placement was approved. Do not hand-author a substitute child or add unapproved behavior. After each call, verify its frontmatter, trigger, inputs, outputs, completion criteria, dependency boundary, configuration, fresh-context handoff contract when applicable, and final generated callstack against the approved ledger. If any creation or verification fails, leave the source unchanged, skip to Step 11, and report every child already created plus the failure; do not claim the decomposition complete. This step is complete when all and only the approved child skills exist and match their contracts.
+**Inputs:**
 
-### 9. Refactor the target into the orchestrator
+    a. Validated callstack.
+    b. Complete target source.
 
-Only after every child validates, revise the target so its existing public trigger and outcome remain intact while extracted frames become explicit child calls or handoffs. For a selected fresh-context boundary, direct the orchestrator to delegate the child workflow to a new receiving agent or subagent with only the approved handoff packet and to bind its declared result before resuming; otherwise retain same-agent execution. Keep source-specific configuration and defaults in the source unless the approved child contract owns them, pass them explicitly, and remove the duplicated extracted instructions. A child may depend on declared runtime or repository context but never call back into target-private behavior; the orchestrator, not the child, owns agent creation, handoff, and result integration. Preserve unselected candidates, authority boundaries, error behavior, ordering guarantees, and source files unrelated to the approved plan. This step is complete when the target expresses orchestration rather than duplicate child implementation and its public behavior remains traceable.
+**Constraints:**
 
-### 10. Regenerate callstacks and verify the decomposition
+    a. Map each distinct frame or cohesive subtree that could own a repeatable outcome.
+    b. Record its source frames, transitions, dependencies, minimum receiver state, and proposed contract.
+    c. Merge adjacent frames that are meaningful only as one result.
+    d. Separate branches only when each has a stable contract.
+    e. Include source-specific candidates for later testing without treating call depth as proof of reuse.
+    f. Do not invent behavior absent from the target or repository.
 
-Call `workflow-callstack-simulation` on the revised target entry point and replace its prior final `## Callstack Simulation` content with the raw regenerated trace, leaving exactly one such final section. Re-read the target and every child; verify all local links, configured repository checks, and whitespace checks. Compare the new call graph with the baseline to confirm that each extracted frame routes through exactly one child at its approved same-agent or fresh-context boundary, every receiving agent gets a sufficient but bounded handoff, every kept frame remains in the target, configuration ownership is explicit, no child requires target-private state, no behavior was lost or duplicated, and no unrelated file changed. If any check fails, report the incomplete state without claiming success. This step is complete when the approved graph and filesystem changes are valid and source-grounded.
+**Outputs:**
 
-### 11. Report the exact result
+    a. Complete non-overlapping candidate set.
 
-Report `Target: <path>@<fingerprint>`, `Callstack: <reused|generated> (<freshness evidence>)`, `Created: <paths|none>`, `Execution boundaries: <candidate — same agent|fresh-context agent/subagent — handoff summary|none>`, `Source changes: <summary|none>`, `Kept: <candidate — reason — configuration result|none>`, `Validation: <checks>`, and `Status: <complete|no change: reason|incomplete: unmet condition>`. Use `complete` only when every approved child and the revised source satisfy Outputs B and C; use `no change` only when analysis or withheld approval caused no writes, and list partial creations under `Created` when a later failure prevented completion. The workflow is complete when this report accounts for every ledger entry and every changed path without overstating the result.
+### 4. Apply the independent-use gate.
 
-## Callstack Simulation
+**Inputs:**
 
-**Decompose Skill**(symbolic target skill, symbolic decomposition controls, symbolic repository context, symbolic decomposition approval)
-│
-├─ **Resolve The Target And Protect The Baseline**(target skill, controls, repository context)
-│  │
-│  ├─ **Read Complete Skill And Repository Evidence**(resolved skill directory, instructions, conventions, siblings, consumers, tests, validation, delegation mechanisms)
-│  │
-│  ├─ **Record The Analysis Baseline And Protected Paths**(public contract, behavioral entry point, fingerprint, call edges, configured names, destinations, worktree changes)
-│  │
-│  ├─ if (the target or entry point is missing or ambiguous, a dependency is unavailable, or a proposed destination exists): stop before writing and report the blocker
-│  │
-│  └─ else: protect the baseline, existing children, and unrelated pre-existing changes
-│
-├─ **Obtain A Source Grounded Callstack**(resolved target skill, behavioral entry point, baseline fingerprint)
-│  │
-│  ├─ **Inspect The Existing Callstack Simulation**(exact final section, current source, behavior-bearing references)
-│  │  │
-│  │  ├─ if (the section is sole-final, valid, current, complete, and non-scenario-specific): reuse it
-│  │  │
-│  │  └─ else: require a generated trace
-│  │
-│  ├─ **Callstack Simulation**(resolved target, behavioral entry point, compact detail, symbolic inputs and external responses, inline output)
-│  │  │
-│  │  └─ if (generation is blocked or unresolved): stop without changing files
-│  │
-│  ├─ if (the re-read fingerprint changed): discard the trace and repeat this frame
-│  │
-│  └─ else: fix the reused or generated trace as decomposition evidence
-│
-├─ **Enumerate Cohesive Candidate And Context Boundaries**(validated callstack, target source)
-│  │
-│  └─ **Map Each Candidate Boundary**(cohesive frames or subtree, transitions, dependencies, minimum receiver state)
-│     │
-│     ├─ if (adjacent frames only produce a meaningful end-to-end result together): merge them
-│     │
-│     ├─ else if (branches have independent stable contracts): separate them
-│     │
-│     └─ else: retain each plausible workflow or context boundary once without inferring reuse from depth
-│
-├─ **Evaluate Fresh Context Execution Boundaries**(every candidate transition, bounded handoff packet)
-│  │
-│  └─ **Compare Execution Placement**(context relevance, verification, specialization, parallelism, context budget, coordination needs)
-│     │
-│     ├─ if (fresh isolation materially improves the task and goal, inputs, sources, constraints, expected output, and return contract are complete): record fresh-context agent/subagent
-│     │
-│     └─ else: record same agent, including shared mutable state, tight iteration, atomic sequencing, or handoffs that reproduce most sender context
-│
-├─ **Apply The Independent Use Gate**(each candidate, Step 4 placement evidence)
-│  │
-│  └─ **Assess Independent Use**(trigger, observable outcome, inputs, outputs, completion evidence, authority, second caller)
-│     │
-│     ├─ if (the boundary is cohesive, independently invocable, concretely useful outside the target, and behavior-preserving): provisionally select the smallest complete non-overlapping candidate
-│     │
-│     └─ else: keep the sequencing, source policy, incidental check, fragment, private-state dependency, or source-only responsibility in the target
-│
-├─ **Test Configuration Extraction For Every Kept Candidate**(fixed workflow, proposed declarative configuration, current source, materially different caller)
-│  │
-│  ├─ **Retest The Configuration Split**(fields, ownership, validation, default or required values, two concrete configurations)
-│  │  │
-│  │  ├─ if (workflow and completion contract stay stable, configuration is bounded policy, and the second caller independently uses the outcome): promote the transformed candidate
-│  │  │
-│  │  └─ else: record not reusable through configuration and keep it in the target
-│  │
-│  └─ **Evaluate Fresh Context Execution Boundaries**(each promoted bounded contract, complete handoff packet)
-│     │
-│     ├─ if (fresh-context benefit is material and the packet is complete): record fresh-context agent/subagent
-│     │
-│     └─ else: record same agent
-│
-├─ **Present And Approve The Decomposition Plan**(complete candidate ledger, contracts, names, configurations, placements, handoffs, target changes, destinations, validation)
-│  │
-│  ├─ **Check Proposed Names**(all configured skill roots)
-│  │  │
-│  │  └─ if (a collision exists): reject it before requesting approval
-│  │
-│  ├─ if (no candidate passes either reuse test): record no independently useful candidates and skip to Step 11 without writing
-│  │
-│  ├─ else if (approval is withheld): record withheld approval and skip to Step 11 without writing
-│  │
-│  ├─ else if (the user changes the plan): revise and re-present it; after three modeled presentations, mark further repetitions truncated
-│  │
-│  └─ else: bind exact approval and permit only the approved writes
-│
-├─ **Create The Approved Child Skills**(each approved candidate and contract)
-│  │
-│  ├─ **Workflow Skill**(repeatable task, intended name, complete contract, configuration, repository context, independent invocation, bounded fresh-context input)
-│  │
-│  ├─ if (any creation or verification fails): leave the source unchanged, retain and report children already created, and skip to Step 11
-│  │
-│  └─ else: continue only after all approved children validate against the ledger
-│
-├─ **Refactor The Target Into The Orchestrator**(validated children, approved source refactor, protected baseline)
-│  │
-│  └─ **Route Each Extracted Responsibility**(child contract, explicit configuration, approved placement, approved handoff packet)
-│     │
-│     ├─ if (placement is fresh-context agent/subagent): create a new receiver with only the packet, delegate the child, and bind its declared result
-│     │
-│     └─ else: invoke the child in the same agent and bind its declared result
-│
-├─ **Regenerate Callstacks And Verify The Decomposition**(revised target, children, baseline, approved graph)
-│  │
-│  ├─ **Callstack Simulation**(revised target entry point, compact detail, symbolic inputs and external responses, inline output)
-│  │
-│  ├─ **Replace The Final Callstack Simulation**(raw regenerated trace, exactly one final section)
-│  │
-│  └─ **Verify The Approved Graph And Filesystem Changes**(links, repository checks, whitespace, handoffs, configuration ownership, behavior preservation, duplication, unrelated files)
-│     │
-│     └─ if (any check fails): retain the incomplete state and do not claim success
-│
-└─ **Report The Exact Result**(target and fingerprint, callstack freshness, created paths, execution boundaries and handoffs, source changes, kept candidates and configuration results, validation)
-   │
-   ├─ if (every approved child and revised source satisfy their contracts): report complete
-   │
-   ├─ else if (analysis or withheld approval caused no writes): report no change with the reason
-   │
-   └─ else: report incomplete with every unmet condition and partial creation
+    a. Complete candidate set.
+    b. Repository context.
+
+**Constraints:**
+
+    a. Identify each candidate's trigger, observable outcome, inputs, outputs, completion evidence, authority boundary, and one credible caller or scenario outside the target.
+    b. Provisionally select only cohesive candidates that work without target-private setup or control state and preserve source behavior through a clear handoff.
+    c. Keep source-only policy, sequencing, incidental checks, formatting fragments, and candidates whose only consumer is the target.
+    d. Resolve overlap by selecting the smallest complete independently useful boundaries.
+
+**Outputs:**
+
+    a. Provisional select-or-keep decision for every candidate.
+
+### 5. Test configuration extraction for every kept candidate.
+
+**Inputs:**
+
+    a. Every provisionally kept candidate.
+    b. Current source configuration.
+
+**Constraints:**
+
+    a. Attempt to separate a fixed workflow from declarative source-specific configuration.
+    b. Define the configuration fields, ownership, validation, and a sensible default or required explicit value.
+    c. Test the split against the current source and one materially different concrete caller or configuration.
+    d. Promote only when the workflow and completion contract remain stable, configuration is bounded data or policy, and the second caller uses the outcome independently.
+    e. Keep the candidate when configuration would encode most of the algorithm, expose private state, remove a stable boundary, or still provide no independent use.
+    f. Record `not reusable through configuration` when no honest split works.
+
+**Outputs:**
+
+    a. Final select-or-keep decision for every candidate.
+    b. Configuration result for every kept candidate.
+    c. Configuration contract for every promoted candidate.
+
+### 6. Choose each execution boundary and handoff.
+
+**Inputs:**
+
+    a. Every candidate and final decision.
+    b. Minimum receiver state.
+    c. Available delegation mechanisms.
+
+**Constraints:**
+
+    a. Compare same-agent execution with a receiving agent or subagent for every candidate transition.
+    b. Choose fresh context only when isolation, independent verification, specialization, parallel work, or context relief materially helps.
+    c. Require each fresh-context packet to contain the goal, inputs, authoritative sources, constraints, expected output, and return contract.
+    d. Choose the same agent when work needs shared mutable state, tight iteration, atomic sequencing, or most sender context.
+    e. Treat execution placement as independent from the decision to extract a skill.
+
+**Outputs:**
+
+    a. Supported `same agent` or `fresh-context agent/subagent` decision for every candidate.
+    b. Self-contained handoff packet for every fresh-context decision.
+
+### 7. Present the complete plan and obtain approval.
+
+**Inputs:**
+
+    a. Candidate decisions.
+    b. Configuration results.
+    c. Execution boundaries and handoffs.
+    d. Protected analysis baseline.
+
+**Constraints:**
+
+    a. Cover every candidate exactly once in a ledger with its evidence, contract and name, dependencies, second caller, select-or-keep reason, configuration result, execution boundary, handoff, destination, and planned source change.
+    b. Check proposed names across every configured skill root and reject collisions before requesting approval.
+    c. Present the exact child contracts, source-to-child handoffs, source refactor, and validation plan.
+    d. Make no file changes before explicit approval of the whole current plan.
+    e. Re-present the plan when the user changes any approved detail.
+    f. When no candidate is independently useful or approval is withheld, set a no-change result and continue to Step 12 without writing.
+
+**Outputs:**
+
+    a. Exact approved decomposition plan when approval is granted.
+    b. No-change decision when selection or approval does not permit writing.
+
+### 8. Create every approved child through `workflow-to-skill`.
+
+**Inputs:**
+
+    a. Exact approved decomposition plan.
+    b. Repository context.
+
+**Constraints:**
+
+    a. Invoke `workflow-to-skill` for each approved candidate with its name, repeatable task, complete contract, configuration, repository conventions, independent trigger, and bounded fresh-context input when applicable.
+    b. Create each child only at `.agents/skills/<name>/SKILL.md` and never hand-author substitutes or overwrite existing skills.
+    c. Verify each child's frontmatter, trigger, inputs, one predictable output, completion criteria, dependency boundary, configuration, handoff contract, and final `## Procedure` against the approved ledger.
+    d. When creation or verification fails, leave the source unchanged, record any created children and the unmet condition, and continue to Step 12.
+
+**Outputs:**
+
+    a. All and only approved, verified child skills.
+    b. Incomplete result when child creation or verification fails.
+
+### 9. Refactor the source into the orchestrator.
+
+**Inputs:**
+
+    a. Verified child skills.
+    b. Exact approved decomposition plan.
+    c. Protected analysis baseline.
+
+**Constraints:**
+
+    a. Preserve the source's public trigger, outcome, ordering, authority, error behavior, and kept responsibilities.
+    b. Replace each extracted implementation with one explicit child invocation and bind its declared result before resuming.
+    c. For a fresh-context boundary, make the orchestrator create the receiver, send only the approved packet, and integrate the returned result.
+    d. Pass source-specific configuration explicitly and keep ownership where the approved plan places it.
+    e. Prevent children from calling target-private behavior and remove duplicate extracted instructions.
+    f. Do not alter unrelated source files or pre-existing changes.
+    g. When the refactor cannot satisfy these constraints, record the unmet condition and continue to Step 12.
+
+**Outputs:**
+
+    a. Behavior-preserving source orchestrator on success.
+    b. Incomplete result when refactoring fails.
+
+### 10. Validate the revised call graph.
+
+**Inputs:**
+
+    a. Behavior-preserving source orchestrator.
+    b. Verified child skills.
+    c. Validated baseline callstack.
+    d. Exact approved decomposition plan.
+
+**Constraints:**
+
+    a. Invoke `workflow-callstack-simulation` on the revised source entry point with compact detail, symbolic inputs, and inline output.
+    b. Keep the generated trace as verification evidence without appending it to the source or children.
+    c. Compare it with the baseline and approved plan to confirm that extracted frames route through their children and kept behavior remains reachable.
+    d. When simulation fails or the revised graph diverges, record the unmet condition and continue to Step 12 without claiming success.
+
+**Outputs:**
+
+    a. Validated revised call graph.
+    b. Incomplete result when simulation or comparison fails.
+
+### 11. Verify the approved decomposition.
+
+**Inputs:**
+
+    a. Revised source.
+    b. Verified child skills.
+    c. Validated revised call graph.
+    d. Exact approved decomposition plan.
+    e. Protected analysis baseline.
+
+**Constraints:**
+
+    a. Run applicable repository checks, link checks, and whitespace checks.
+    b. Confirm every extracted frame routes through exactly one child at its approved execution boundary.
+    c. Confirm every kept frame remains, every fresh receiver gets the bounded packet, and configuration ownership is explicit.
+    d. Confirm no child needs target-private state, no behavior is lost or duplicated, and no unrelated file changed.
+    e. When any check fails, record the unmet condition and continue to Step 12 without claiming success.
+
+**Outputs:**
+
+    a. Validation evidence.
+    b. Complete or incomplete status.
+
+### 12. Report the exact result.
+
+**Inputs:**
+
+    a. Available candidate ledger.
+    b. Changed paths or none.
+    c. Available validation evidence.
+    d. Complete, no-change, or incomplete status.
+
+**Constraints:**
+
+    a. Report `Target: <path>@<fingerprint>` or `Target: unresolved (<reason>)`.
+    b. Report `Callstack: <reused|generated> (<freshness evidence>)` or `Callstack: none (<reason>)`.
+    c. Report `Created: <paths|none>`.
+    d. Report `Execution boundaries: <candidate — placement — handoff summary|none>`.
+    e. Report `Source changes: <summary|none>`.
+    f. Report `Kept: <candidate — reason — configuration result|none>`.
+    g. Report `Validation: <checks>`.
+    h. Report `Status: <complete|no change: reason|incomplete: unmet condition>`.
+    i. Use `complete` only when every approved child and source change satisfy the approved plan.
+
+**Outputs:**
+
+    a. Decomposition result.
