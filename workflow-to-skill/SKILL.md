@@ -1,12 +1,14 @@
 ---
 name: workflow-to-skill
 description: "Create a repository workflow skill: a concise, ordered, completion-checked procedure for a repeatable agent task. Use when the user asks to create, design, document, or improve a workflow skill."
-compatibility: Requires a runtime that provides the skill-creator skill.
+compatibility: Requires a runtime that provides the skill-creator skill and fresh subagent delegation.
 ---
 
 # Workflow to Skill
 
 Create a **workflow skill** for the user's repeatable task; this skill governs documenting that task, not carrying it out.
+
+Run every numbered procedure step in this skill and the resulting workflow skill in a new, fresh subagent. Give each subagent only its step definition and declared inputs, including required prior-step outputs.
 
 ## Inputs
 
@@ -17,7 +19,7 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
 ## Outputs
 
-1. **Workflow skill:** A created or revised Markdown workflow skill at `.agents/skills/<name>/SKILL.md` with a predictable contract and executable procedure.
+1. **Workflow skill:** A created or revised Markdown workflow skill at `.agents/skills/<name>/SKILL.md` with a predictable contract, executable procedure, and explicit handoffs.
 
 ## Procedure
 
@@ -38,6 +40,8 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 **Outputs:**
 
     a. Draft workflow contract.
+    b. Repository facts.
+    c. Existing target skill, when revising.
 
 ### 2. Resolve only gaps that block a concrete procedure.
 
@@ -98,6 +102,7 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
     a. Target skill boundaries.
     b. Actionable workflow contract.
+    c. Fresh-subagent policy stated above.
 
 **Constraints:**
 
@@ -105,9 +110,11 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
     b. Match the frontmatter name to the directory.
     c. State the outcome and concrete request triggers in the description.
     d. Open with one sentence naming the workflow's scope and boundary.
-    e. Order `## Inputs`, `## Outputs`, and final `## Procedure` exactly.
-    f. Keep contract declarations outside the procedure.
-    g. Keep instructions and state changes inside the procedure.
+    e. Declare fresh subagent delegation in `compatibility`.
+    f. State the fresh-subagent policy once before `## Inputs`.
+    g. Order `## Inputs`, `## Outputs`, and final `## Procedure` exactly.
+    h. Keep contract declarations outside the procedure.
+    i. Keep instructions and state changes inside the procedure.
 
 **Outputs:**
 
@@ -143,12 +150,13 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
     a. Format every independent action or sub-step as a numbered `###` header.
     b. Keep header indices contiguous and ordered by execution.
     c. Give each step one observable transition and a checkable completion criterion.
-    d. Give each step `Inputs`, `Constraints`, and `Outputs` labels in that order.
-    e. Place one empty line between each label and its list.
-    f. Index each category's items as `a.`, `b.`, `c.`, and so on.
-    g. Indent each alphabetical item one level beneath its label.
-    h. Restart alphabetical indices at `a.` for every category.
-    i. Keep each item concise.
+    d. Declare all context needed by a step under its `Inputs` label, including required prior-step outputs.
+    e. Give each step `Inputs`, `Constraints`, and `Outputs` labels in that order.
+    f. Place one empty line between each label and its list.
+    g. Index each category's items as `a.`, `b.`, `c.`, and so on.
+    h. Indent each alphabetical item one level beneath its label.
+    i. Restart alphabetical indices at `a.` for every category.
+    j. Keep each item concise.
 
 **Outputs:**
 
@@ -160,7 +168,7 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
     a. Actionable workflow contract.
     b. Target procedure requirements.
-    c. Repository context.
+    c. Repository facts.
 
 **Constraints:**
 
@@ -199,9 +207,18 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 **Inputs:**
 
     a. Actionable workflow contract.
-    b. Target skill requirements.
-    c. User requirements.
-    d. Repository conventions.
+    b. Target skill boundaries.
+    c. Skill shell requirements.
+    d. Target input requirements.
+    e. Target output requirements.
+    f. Target procedure requirements.
+    g. Branch requirements.
+    h. Invariant requirements.
+    i. Supporting-detail requirements.
+    j. Final result requirement.
+    k. Workflow completion condition.
+    l. Task-specific requirements.
+    m. Repository facts.
 
 **Constraints:**
 
@@ -225,20 +242,28 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
 **Outputs:**
 
-    a. Created or revised target skill on success.
-    b. Error report on unresolved failure.
+    a. Resulting `SKILL.md` on success.
+    b. Target skill path on success.
+    c. Change state on success.
+    d. Assumptions on success.
+    e. Error report on unresolved failure.
 
 ### 12. Verify the frontmatter and section structure.
 
 **Inputs:**
 
     a. Resulting `SKILL.md`.
+    b. Target skill path.
+    c. Skill shell requirements.
+    d. Fresh-subagent policy stated above.
 
 **Constraints:**
 
     a. Match the frontmatter name to the directory.
     b. Require a non-empty description that states the outcome and routes concrete requests.
-    c. Keep `## Inputs`, `## Outputs`, and `## Procedure` in order with `## Procedure` last.
+    c. Require `compatibility` to declare fresh subagent delegation.
+    d. State the fresh-subagent policy once before `## Inputs`.
+    e. Keep `## Inputs`, `## Outputs`, and `## Procedure` in order with `## Procedure` last.
 
 **Outputs:**
 
@@ -250,6 +275,9 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 **Inputs:**
 
     a. Resulting `SKILL.md`.
+    b. Target input requirements.
+    c. Target output requirements.
+    d. Fresh-subagent policy stated above.
 
 **Constraints:**
 
@@ -257,11 +285,13 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
     b. Accept workable inputs and require only essential constraints.
     c. Produce one precise, predictable output.
     d. Format every procedure action or sub-step as a contiguous numbered `###` header.
-    e. Give every step `Inputs`, `Constraints`, and `Outputs` labels in order.
-    f. Require one empty line between each label and its list.
-    g. Use contiguous alphabetical list indices starting at `a.` for every category.
-    h. Indent each alphabetical item one level beneath its label.
-    i. Keep every listed input, constraint, and output concise.
+    e. Apply the global fresh-subagent policy without repeating per-step execution-context declarations.
+    f. Declare every needed handoff under the receiving step's `Inputs` label.
+    g. Give every step `Inputs`, `Constraints`, and `Outputs` labels in order.
+    h. Require one empty line between each label and its list.
+    i. Use contiguous alphabetical list indices starting at `a.` for every category.
+    j. Indent each alphabetical item one level beneath its label.
+    k. Keep every listed input, constraint, and output concise.
 
 **Outputs:**
 
@@ -273,12 +303,20 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 **Inputs:**
 
     a. Resulting `SKILL.md`.
+    b. Actionable workflow contract.
+    c. Branch requirements.
+    d. Invariant requirements.
+    e. Final result requirement.
+    f. Workflow completion condition.
+    g. Fresh-subagent policy stated above.
 
 **Constraints:**
 
     a. Keep inputs and outputs declarative.
     b. Place instructions and state changes in the procedure.
     c. Make the trigger, inputs, output, actions, branch behavior, invariants, and completion state explicit.
+    d. Confirm every step declares all context it needs, including required prior-step outputs.
+    e. Confirm no step relies on inherited context, prior reasoning, or undeclared state.
 
 **Outputs:**
 
@@ -288,10 +326,14 @@ Create a **workflow skill** for the user's repeatable task; this skill governs d
 
 **Inputs:**
 
-    a. Verification results.
-    b. Target skill path.
-    c. Change state.
-    d. Assumptions.
+    a. Frontmatter verification result.
+    b. Section structure verification result.
+    c. Contract verification result.
+    d. List format verification result.
+    e. Procedure executability result.
+    f. Target skill path.
+    g. Change state.
+    h. Assumptions.
 
 **Constraints:**
 
