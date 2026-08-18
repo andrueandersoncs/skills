@@ -15,19 +15,12 @@ npx skills add andrueandersoncs/skills
 - `workflow-callstack-simulation` — dry-runs workflows, procedures, algorithms, and functions as source-grounded callstack traces.
 - `decompose-skill` — splits skills into reusable workflow skills and identifies useful agent or subagent boundaries.
 - `workflow-state-machine-simulation` — turns workflows, procedures, algorithms, and functions into static Mermaid state diagrams by default, with optional interactive HTML graph apps.
-- `extract-skill-to-repository` — moves project skills into this shared repository with dependency and Git safety checks.
-- `extract-to-tasks` — turns transcript extraction reports into approved local tasks.
 - `implement-happy-path` — implements an approved plan exactly as written and validates its normal end-to-end path.
 - `plan-happy-path` — plans the smallest complete happy-path implementation and independently verifies its scope.
-- `transcript-extraction` — captures evidence-linked claims from transcripts.
-- `transcript-filing` — files raw transcripts into a dated archive, then extracts them.
-- `transcript-purpose-analysis` — segments transcripts and labels each section by its communicative purpose.
 - `workflow-to-skill` — creates completion-checked workflow skills.
 
 Each top-level skill directory can be added to an agent runtime's configured skill path independently. The workflows operate on the active repository rather than this collection.
 
 ## Consumer requirements
 
-- `extract-skill-to-repository` expects the active project and its sibling `../skills` directory to be Git repositories.
-- `extract-to-tasks` expects the active repository to provide a `to-tasks` skill, `docs/agents/task-tracker.md`, and `docs/agents/triage-labels.md`.
 - `workflow-to-skill` expects the runtime to provide `skill-creator` and `workflow-callstack-simulation`.

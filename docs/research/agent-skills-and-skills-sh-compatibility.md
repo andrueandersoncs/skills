@@ -47,16 +47,11 @@ The following are **recommendations/conventions**, not validity requirements:
 
 ## Findings for this repository
 
-The repository currently has 11 top-level skill directories. All 11 have exact `SKILL.md` filenames, matching directory/frontmatter names, descriptions within the limit, and fewer than 500 lines. Their existing `references/` and `assets/` folders use the standard conventions.
+The repository currently has 6 top-level skill directories. All 6 have exact `SKILL.md` filenames, matching directory/frontmatter names, descriptions within the limit, and fewer than 500 lines. Their existing `references/` and `assets/` folders use the standard conventions.
 
-Using the official `skills-ref` validator at the pinned Agent Skills commit:
+Using the official `skills-ref` validator at the pinned Agent Skills commit, **all 6 skills pass**.
 
-- **9 skills pass.**
-- **2 fail only because of the unknown top-level field `disable-model-invocation`:** `extract-to-tasks` and `transcript-extraction`.
-
-Using the pinned skills CLI against the local repository with `add <path> --list`, all 11 are discovered. This difference is expected because skills.sh requires string `name` and `description` but tolerates extra fields.
-
-`disable-model-invocation` is a documented Claude Code extension that prevents automatic model activation, but it is not an Agent Skills standard field. [Claude Code skills documentation](https://code.claude.com/docs/en/skills#control-who-invokes-a-skill)
+Using the pinned skills CLI against the local repository with `add <path> --list`, all 6 are discovered.
 
 ## Recommended actions
 
@@ -71,7 +66,7 @@ Using the pinned skills CLI against the local repository with `add <path> --list
   "groupings": [
     {
       "title": "Skill authoring",
-      "skills": ["workflow-to-skill", "decompose-skill", "extract-skill-to-repository"]
+      "skills": ["workflow-to-skill", "decompose-skill"]
     },
     {
       "title": "Planning and delivery",
@@ -80,17 +75,12 @@ Using the pinned skills CLI against the local repository with `add <path> --list
     {
       "title": "Simulation",
       "skills": ["workflow-callstack-simulation", "workflow-state-machine-simulation"]
-    },
-    {
-      "title": "Transcripts",
-      "skills": ["transcript-filing", "transcript-extraction", "transcript-purpose-analysis", "extract-to-tasks"]
     }
   ]
 }
 ```
 
-4. **For strict Agent Skills compliance, remove the two top-level `disable-model-invocation` keys or move their information into a namespaced string entry under `metadata`.** Moving it under `metadata` preserves descriptive metadata but not Claude Code's documented manual-only behavior, which expects the field at top level. If that behavior is essential, generate a Claude-specific installed variant rather than making the canonical skill non-standard.
-5. **Optionally add CI validation** for every top-level skill and a skills.sh discovery smoke test. Pinning revisions makes changes explicit:
+4. **Optionally add CI validation** for every top-level skill and a skills.sh discovery smoke test. Pinning revisions makes changes explicit:
 
 ```bash
 set -euo pipefail
