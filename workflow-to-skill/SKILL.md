@@ -1,6 +1,6 @@
 ---
 name: workflow-to-skill
-description: "Create a repository workflow skill: concise, ordered tasks with completion checks for a repeatable workflow. Use when the user asks to create, design, document, or improve a workflow skill."
+description: "Create a repository workflow skill as concise, ordered, subagent-ready tasks with completion checks for a repeatable workflow. Use when the user asks to create, design, document, or improve a workflow skill."
 compatibility: Requires a runtime that provides the skill-creator skill and fresh subagent delegation.
 ---
 
@@ -8,7 +8,7 @@ compatibility: Requires a runtime that provides the skill-creator skill and fres
 
 Create a **workflow skill** for the user's repeatable task; this skill governs documenting that task, not carrying it out.
 
-Run every numbered task in this skill and the resulting workflow skill in a new, fresh subagent. Give each subagent only its task definition and declared inputs, including required prior-task outputs. Within each task, place the work under `Instructions` and its limits under `Constraints`.
+Run every numbered task in this skill and the resulting workflow skill in a new, fresh subagent. Bind every declared `Input` to its value, including required prior-task outputs, replace each `$variable-name` in the task text, and pass the entire rendered task—title, task text, resolved `Inputs`, `Constraints`, and expected `Outputs`—to the subagent.
 
 ## Inputs
 
@@ -25,17 +25,14 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 1: Gather the workflow contract from the request and repository.
 
+Read the repeatable task: $repeatable-task. Use the intended skill name when helpful: $intended-skill-name. Preserve these requirements: $task-specific-requirements. Treat this repository context as authoritative: $repository-context. Draft a workflow contract that explicitly defines the trigger, accepted inputs, exactly one output, state changes, branches, invariants, and completion evidence. Also return the repository facts and, when revising, the existing target skill.
+
 **Inputs:**
 
-    a. Repeatable task.
-    b. Intended skill name, when supplied.
-    c. Task-specific requirements.
-    d. Repository context.
-
-**Instructions:**
-
-    a. Inspect the request, relevant repository context, and existing target skill when revising.
-    b. Draft a contract covering the trigger, accepted inputs, one output, state changes, branches, invariants, and completion evidence.
+- repeatable-task: The task the user provided.
+- intended-skill-name: The requested skill name, when supplied.
+- task-specific-requirements: Behavior and completion criteria the workflow must preserve.
+- repository-context: Relevant commands, paths, conventions, and existing records.
 
 **Constraints:**
 
@@ -49,16 +46,13 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 2: Resolve only gaps that block concrete tasks.
 
+Make this draft workflow contract executable: $draft-workflow-contract. Resolve gaps against the original request: $user-request. Use these repository facts: $repository-facts. Infer safe details whenever possible; if one gap truly blocks the work, return that single question instead of a completed contract.
+
 **Inputs:**
 
-    a. Draft workflow contract.
-    b. User request.
-    c. Repository facts.
-
-**Instructions:**
-
-    a. Infer missing details from the request and repository when possible.
-    b. Ask one explicit blocking question only when inference cannot produce concrete tasks.
+- draft-workflow-contract: The contract drafted from the request and repository.
+- user-request: The user’s original request.
+- repository-facts: Authoritative facts discovered in the repository.
 
 **Constraints:**
 
@@ -72,15 +66,12 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 3: Confirm the runtime can invoke `skill-creator`.
 
+Confirm this workflow contract is actionable: $actionable-workflow-contract. Then find `skill-creator` in this runtime registry: $runtime-skill-registry. Return whether the dependency is ready and its exact invocation form. If it is unavailable, report that and stop before editing.
+
 **Inputs:**
 
-    a. Actionable workflow contract.
-    b. Runtime skill registry.
-
-**Instructions:**
-
-    a. Check the runtime skill registry for `skill-creator`.
-    b. When it is unavailable, stop before editing and report the missing dependency.
+- actionable-workflow-contract: The resolved workflow contract.
+- runtime-skill-registry: The skills and invocation forms available in the runtime.
 
 **Constraints:**
 
@@ -88,19 +79,16 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 **Outputs:**
 
-    a. Dependency readiness decision.
+    a. Dependency readiness decision, including the supported invocation form.
 
 ### Task 4: Set the target skill's creation boundaries.
 
+Turn this workflow contract into clear creation boundaries: $actionable-workflow-contract. When revising, use this existing skill as the behavior-preserving baseline: $existing-target-skill. Set `.agents/skills/<name>/SKILL.md` as the target and identify every file `skill-creator` may create or revise.
+
 **Inputs:**
 
-    a. Actionable workflow contract.
-    b. Existing target skill, when revising.
-
-**Instructions:**
-
-    a. Set `.agents/skills/<name>/SKILL.md` as the target for `<task>`.
-    b. Define the files that `skill-creator` may create or revise.
+- actionable-workflow-contract: The resolved workflow contract.
+- existing-target-skill: The current target skill when revising, otherwise empty.
 
 **Constraints:**
 
@@ -113,23 +101,19 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 5: Define the target skill's shell.
 
+Design the skill shell within these boundaries: $target-skill-boundaries. Implement this workflow contract: $actionable-workflow-contract. Apply this execution policy: $fresh-subagent-policy. Require a frontmatter name that matches the directory, a description that states the outcome and concrete request triggers, and `compatibility` that declares fresh-subagent delegation. Open with one scope-and-boundary sentence, state the execution policy exactly once before `## Inputs`, and order `## Inputs`, `## Outputs`, and final `## Tasks` exactly.
+
 **Inputs:**
 
-    a. Target skill boundaries.
-    b. Actionable workflow contract.
-    c. Fresh-subagent policy stated above.
-
-**Instructions:**
-
-    a. Define frontmatter with the matching name, a description that states the outcome and concrete request triggers, and `compatibility` that declares fresh-subagent delegation.
-    b. Open the body with one sentence naming the workflow scope and boundary, then state the fresh-subagent policy once before `## Inputs`.
-    c. Order `## Inputs`, `## Outputs`, and final `## Tasks` exactly.
+- target-skill-boundaries: The allowed target path and supporting files.
+- actionable-workflow-contract: The resolved workflow contract.
+- fresh-subagent-policy: The task execution policy stated above.
 
 **Constraints:**
 
     a. Keep `SKILL.md` short.
     b. Keep contract declarations outside `## Tasks`.
-    c. Keep instructions and state changes inside `## Tasks`.
+    c. Keep task work and state changes inside `## Tasks`.
 
 **Outputs:**
 
@@ -137,14 +121,11 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 6: Define a liberal input contract and one predictable output.
 
+Derive a liberal input contract and exactly one predictable output from this workflow contract: $actionable-workflow-contract. Format each input as `1. **<Input name>:** <description>` and the output as `1. **<Output name>:** <description>`, including its stable result, location, and completion condition.
+
 **Inputs:**
 
-    a. Actionable workflow contract.
-
-**Instructions:**
-
-    a. Define each input as `1. **<Input name>:** <description>`.
-    b. Define one output as `1. **<Output name>:** <description>` with its stable result, applicable location, and completion condition.
+- actionable-workflow-contract: The resolved workflow contract.
 
 **Constraints:**
 
@@ -158,23 +139,22 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 7: Define concise ordered tasks.
 
+Turn this workflow contract into the smallest complete sequence of independent tasks: $actionable-workflow-contract. Give each task one observable transition, a completion check, and every input it needs, including explicit prior-task outputs. Return the task requirements in execution order.
+
 **Inputs:**
 
-    a. Actionable workflow contract.
-
-**Instructions:**
-
-    a. Split the workflow into concise independent tasks in execution order.
-    b. Give each task one observable transition and a checkable completion criterion.
-    c. Declare all context needed by each task, including required prior-task outputs.
+- actionable-workflow-contract: The resolved workflow contract.
 
 **Constraints:**
 
     a. Format each task as `### Task <n>: <task>` with contiguous indices.
-    b. Give each task `Inputs`, `Instructions`, `Constraints`, and `Outputs` labels in that order.
-    c. Place one empty line between each label and its list.
-    d. Keep task work under `Instructions` and reserve `Constraints` for limits, invariants, and acceptance boundaries.
-    e. Use concise, single-indented alphabetical items that restart at `a.` for every label.
+    b. Place exactly one concise task paragraph immediately below each task header.
+    c. Give each task `Inputs`, `Constraints`, and `Outputs` labels in that order after the task paragraph.
+    d. Format `Inputs` as an unordered list of `- <variable-name>: <context>` items with meaningful, unique kebab-case names and concise context explaining each value or source.
+    e. Inject every declared input into the task paragraph as `$<variable-name>` and use no undeclared variables.
+    f. Place one empty line between the task header, task paragraph, each label, and its content.
+    g. Format `Constraints` and `Outputs` as concise, single-indented alphabetical lists that restart at `a.`.
+    h. Keep work in the task paragraph and reserve `Constraints` for limits, invariants, and acceptance boundaries.
 
 **Outputs:**
 
@@ -182,17 +162,13 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 8: Define branches, invariants, and supporting detail where they apply.
 
+Use this workflow contract: $actionable-workflow-contract. Follow these task requirements: $target-task-requirements. Ground repository-specific details in these facts: $repository-facts. Define only necessary branches and invariants. Keep each branch beside the task that reaches it and state its condition, action, and result. Move conditional or exhaustive supporting detail into linked references.
+
 **Inputs:**
 
-    a. Actionable workflow contract.
-    b. Target task requirements.
-    c. Repository facts.
-
-**Instructions:**
-
-    a. Identify required branches, invariants, and supporting detail from the workflow contract.
-    b. Keep each branch beside the task that reaches it and state the branch's condition, action, and result.
-    c. Move conditional or exhaustive supporting detail into linked references.
+- actionable-workflow-contract: The resolved workflow contract.
+- target-task-requirements: The required task sequence and task format.
+- repository-facts: Authoritative facts discovered in the repository.
 
 **Constraints:**
 
@@ -207,15 +183,12 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 9: Define the target workflow's final result.
 
+Use this output contract: $target-output-requirements. Use these task requirements: $target-task-requirements. Define exactly what the final task reports and the condition that makes the workflow complete.
+
 **Inputs:**
 
-    a. Target output requirements.
-    b. Target task requirements.
-
-**Instructions:**
-
-    a. Define the exact result the final task reports.
-    b. Define the condition that makes the workflow complete.
+- target-output-requirements: The target skill’s output contract.
+- target-task-requirements: The required task sequence and task format.
 
 **Constraints:**
 
@@ -228,30 +201,28 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 10: Invoke `/skill-creator` with the contract and requirements.
 
+Create the target skill for this workflow contract: $actionable-workflow-contract. Stay within these boundaries: $target-skill-boundaries. Apply the shell, input, output, and task requirements: $skill-shell-requirements; $target-input-requirements; $target-output-requirements; $target-task-requirements. Integrate the branches, invariants, and supporting-detail rules: $branch-requirements; $invariant-requirements; $supporting-detail-requirements. End with $final-result-requirement and complete only when $workflow-completion-condition. Preserve $task-specific-requirements and treat $repository-facts as authoritative. Invoke `skill-creator` using $dependency-readiness-decision and return its result.
+
 **Inputs:**
 
-    a. Actionable workflow contract.
-    b. Target skill boundaries.
-    c. Skill shell requirements.
-    d. Target input requirements.
-    e. Target output requirements.
-    f. Target task requirements.
-    g. Branch requirements.
-    h. Invariant requirements.
-    i. Supporting-detail requirements.
-    j. Final result requirement.
-    k. Workflow completion condition.
-    l. Task-specific requirements.
-    m. Repository facts.
-
-**Instructions:**
-
-    a. Invoke `/skill-creator` with the complete contract and requirements.
-    b. Include the resolved skill name and repeatable task.
+- actionable-workflow-contract: The resolved workflow contract.
+- target-skill-boundaries: The allowed target path and supporting files.
+- skill-shell-requirements: The required frontmatter and section shell.
+- target-input-requirements: The target skill’s input contract.
+- target-output-requirements: The target skill’s output contract.
+- target-task-requirements: The required task sequence and task format.
+- branch-requirements: The required conditional behavior.
+- invariant-requirements: The behavior that must always hold.
+- supporting-detail-requirements: The detail that belongs in linked references.
+- final-result-requirement: The exact result the final task must report.
+- workflow-completion-condition: The condition that makes the workflow complete.
+- task-specific-requirements: Behavior and completion criteria supplied by the user.
+- repository-facts: Authoritative facts discovered in the repository.
+- dependency-readiness-decision: The confirmed `skill-creator` invocation form.
 
 **Constraints:**
 
-    a. Use `/skill:skill-creator` when the runtime requires the colon form.
+    a. The invocation form must match the dependency readiness decision.
 
 **Outputs:**
 
@@ -259,15 +230,11 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 11: Handle the `skill-creator` result.
 
+Inspect this `skill-creator` result: $skill-creator-result. On success, return the resulting `SKILL.md`, its path, the change state, and any assumptions. On unresolved failure, return the error and stop without claiming completion.
+
 **Inputs:**
 
-    a. `skill-creator` result.
-
-**Instructions:**
-
-    a. Inspect the `skill-creator` result and classify it as success or unresolved failure.
-    b. On success, collect the resulting skill, path, change state, and assumptions.
-    c. On unresolved failure, stop and collect the error report without claiming completion.
+- skill-creator-result: The result returned by `skill-creator`.
 
 **Constraints:**
 
@@ -283,18 +250,14 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 12: Verify the frontmatter and section structure.
 
+Verify this skill: $resulting-skill. Its target path is: $target-skill-path. Check it against these shell requirements: $skill-shell-requirements. Apply this fresh-subagent policy: $fresh-subagent-policy. Verify the frontmatter, routing description, compatibility, policy placement, and top-level section order, then return the frontmatter and structure results.
+
 **Inputs:**
 
-    a. Resulting `SKILL.md`.
-    b. Target skill path.
-    c. Skill shell requirements.
-    d. Fresh-subagent policy stated above.
-
-**Instructions:**
-
-    a. Check that the frontmatter name matches the directory and the non-empty description states the outcome and routes concrete requests.
-    b. Check that `compatibility` declares fresh-subagent delegation and the policy appears once before `## Inputs`.
-    c. Check that `## Inputs`, `## Outputs`, and `## Tasks` appear in that order with `## Tasks` last.
+- resulting-skill: The generated or revised `SKILL.md`.
+- target-skill-path: The resolved path to the target skill.
+- skill-shell-requirements: The required frontmatter and section shell.
+- fresh-subagent-policy: The task execution policy stated above.
 
 **Constraints:**
 
@@ -307,29 +270,28 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 13: Verify the contract and list formats.
 
+Verify this skill: $resulting-skill. Check its inputs against: $target-input-requirements. Check its output against: $target-output-requirements. Apply this fresh-subagent policy: $fresh-subagent-policy. Inspect every task header, handoff, task paragraph, label, constraint, and list. Confirm that each task paragraph contains the work and each constraint is only a limit, invariant, or acceptance boundary, then return the contract and format results.
+
 **Inputs:**
 
-    a. Resulting `SKILL.md`.
-    b. Target input requirements.
-    c. Target output requirements.
-    d. Fresh-subagent policy stated above.
-
-**Instructions:**
-
-    a. Compare the declared inputs and output with their requirements.
-    b. Inspect every task header, handoff, label, and list.
-    c. Reject task work placed under `Constraints` or limits placed under `Instructions`.
+- resulting-skill: The generated or revised `SKILL.md`.
+- target-input-requirements: The target skill’s input contract.
+- target-output-requirements: The target skill’s output contract.
+- fresh-subagent-policy: The task execution policy stated above.
 
 **Constraints:**
 
-    a. Keep inputs and outputs as simple numbered lists without item subheadings.
+    a. Keep the target skill’s top-level inputs and output as simple numbered lists without item subheadings.
     b. Accept workable inputs, require only essential constraints, and produce one precise output.
     c. Format every task as a contiguous `### Task <n>: <task>` header.
     d. Apply the global fresh-subagent policy without per-task execution-context declarations.
     e. Declare every needed handoff under the receiving task's `Inputs` label.
-    f. Give every task `Inputs`, `Instructions`, `Constraints`, and `Outputs` labels in order.
-    g. Place one empty line between each label and its list.
-    h. Use concise, single-indented alphabetical items that restart at `a.` for every label.
+    f. Require exactly one concise task paragraph immediately below each task header.
+    g. Give every task `Inputs`, `Constraints`, and `Outputs` labels in order after the task paragraph.
+    h. Require each task input to use `- <variable-name>: <context>` with a meaningful, unique kebab-case name and concise context explaining its value or source.
+    i. Require each task paragraph to inject every declared input as `$<variable-name>` and contain no undeclared variables.
+    j. Require one empty line between every task element and its content.
+    k. Use concise, single-indented alphabetical lists starting at `a.` under `Constraints` and `Outputs`.
 
 **Outputs:**
 
@@ -338,27 +300,22 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 14: Verify the tasks are executable without invented policy.
 
+Trace every task in this skill: $resulting-skill. Compare it with this workflow contract: $actionable-workflow-contract. Verify these branch requirements: $branch-requirements. Preserve these invariants: $invariant-requirements. Require this final result: $final-result-requirement. Use this completion condition: $workflow-completion-condition. Apply this fresh-subagent policy: $fresh-subagent-policy. Return whether the tasks are executable, self-contained, and free of invented policy.
+
 **Inputs:**
 
-    a. Resulting `SKILL.md`.
-    b. Actionable workflow contract.
-    c. Branch requirements.
-    d. Invariant requirements.
-    e. Final result requirement.
-    f. Workflow completion condition.
-    g. Fresh-subagent policy stated above.
-
-**Instructions:**
-
-    a. Trace each task from its declared inputs through its instructions to its outputs.
-    b. Confirm that each `Instructions` section states the work and each `Constraints` section contains only limits, invariants, or acceptance boundaries.
-    c. Confirm that every task declares all required context, including prior-task outputs.
-    d. Confirm that the trigger, inputs, output, tasks, branches, invariants, and completion state are explicit.
+- resulting-skill: The generated or revised `SKILL.md`.
+- actionable-workflow-contract: The resolved workflow contract.
+- branch-requirements: The required conditional behavior.
+- invariant-requirements: The behavior that must always hold.
+- final-result-requirement: The exact result the final task must report.
+- workflow-completion-condition: The condition that makes the workflow complete.
+- fresh-subagent-policy: The task execution policy stated above.
 
 **Constraints:**
 
     a. Keep inputs and outputs declarative.
-    b. Keep instructions and state changes inside `## Tasks`.
+    b. Keep task work and state changes inside `## Tasks`.
     c. Do not rely on inherited context, prior reasoning, or undeclared state.
 
 **Outputs:**
@@ -367,21 +324,18 @@ Run every numbered task in this skill and the resulting workflow skill in a new,
 
 ### Task 15: Report the verified result.
 
+Check the frontmatter result: $frontmatter-verification-result. Check the section-structure result: $section-structure-verification-result. Check the contract result: $contract-verification-result. Check the list-format result: $list-format-verification-result. Check the task-executability result: $task-executability-result. If any check failed, report `Verification failed: <checks>`. Otherwise report three lines: `Workflow skill: $target-skill-path`, `Change: $change-state`, and `Assumptions: $assumptions`.
+
 **Inputs:**
 
-    a. Frontmatter verification result.
-    b. Section structure verification result.
-    c. Contract verification result.
-    d. List format verification result.
-    e. Task executability result.
-    f. Target skill path.
-    g. Change state.
-    h. Assumptions.
-
-**Instructions:**
-
-    a. Report `Workflow skill: .agents/skills/<name>/SKILL.md`, `Change: <created|updated>`, and `Assumptions: <items|None>` after success.
-    b. Report `Verification failed: <checks>` after failure.
+- frontmatter-verification-result: The Task 12 frontmatter check.
+- section-structure-verification-result: The Task 12 section-order check.
+- contract-verification-result: The Task 13 contract check.
+- list-format-verification-result: The Task 13 format check.
+- task-executability-result: The Task 14 executability check.
+- target-skill-path: The resolved path to the target skill.
+- change-state: Whether the target skill was created or updated.
+- assumptions: Any assumptions made, otherwise `None`.
 
 **Constraints:**
 
