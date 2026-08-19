@@ -66,7 +66,7 @@ Using the pinned skills CLI against the local repository with `add <path> --list
   "groupings": [
     {
       "title": "Skill authoring",
-      "skills": ["workflow-to-skill", "decompose-skill"]
+      "skills": ["workflow-to-skill", "decompose-workflow-skill"]
     },
     {
       "title": "Planning and delivery",

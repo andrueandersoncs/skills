@@ -1,12 +1,12 @@
 ---
-name: decompose-skill
+name: decompose-workflow-skill
 description: Decompose a skill into independently useful workflow skills and a behavior-preserving orchestrator. Use when asked to split, extract, modularize, identify reusable workflows, or create agent boundaries in a skill.
 compatibility: Requires workflow-to-skill, workflow-callstack-simulation, repository delegation, and fresh-subagent execution for every numbered step.
 ---
 
 # Decompose Skill
 
-decompose-skill owns decomposition, approval, orchestration, validation, and reporting. `workflow-to-skill` creates children; `workflow-callstack-simulation` simulates.
+decompose-workflow-skill owns decomposition, approval, orchestration, validation, and reporting. `workflow-to-skill` creates children; `workflow-callstack-simulation` simulates.
 
 Run every numbered procedure step in this skill and the resulting workflow skill in a new, fresh subagent. Give each subagent only its step definition and declared inputs, including required prior-step outputs.
 

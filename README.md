@@ -13,7 +13,7 @@ npx skills add andrueandersoncs/skills
 ## Included skills
 
 - `workflow-callstack-simulation` — dry-runs workflows, procedures, algorithms, and functions as source-grounded callstack traces.
-- `decompose-skill` — splits skills into reusable workflow skills and identifies useful agent or subagent boundaries.
+- `decompose-workflow-skill` — splits skills into reusable workflow skills and identifies useful agent or subagent boundaries.
 - `workflow-state-machine-simulation` — turns workflows, procedures, algorithms, and functions into static Mermaid state diagrams by default, with optional interactive HTML graph apps.
 - `implement-happy-path` — implements an approved plan exactly as written and validates its normal end-to-end path.
 - `plan-happy-path` — plans the smallest complete happy-path implementation and independently verifies its scope.
