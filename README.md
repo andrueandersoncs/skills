@@ -12,6 +12,7 @@ npx skills add andrueandersoncs/skills
 
 ## Included skills
 
+- `define-task` — turns requests, goals, and commitments into executable AI-agent task records.
 - `workflow-callstack-simulation` — dry-runs workflows, procedures, algorithms, and functions as source-grounded callstack traces.
 - `decompose-workflow-skill` — splits skills into reusable workflow skills and identifies useful agent or subagent boundaries.
 - `workflow-state-machine-simulation` — turns workflows, procedures, algorithms, and functions into static Mermaid state diagrams by default, with optional interactive HTML graph apps.
