@@ -1,6 +1,6 @@
 # Task-management processes for AI agents
 
-This document reinterprets [Implied task-management processes](./implied-processes.md) for work performed by AI agents. It keeps the same fields and six-process lifecycle, while making tool access, persistent state, evidence, handoffs, and human escalation explicit.
+This document defines task-management processes for work performed by AI agents. It uses a six-process lifecycle that makes tool access, persistent state, evidence, handoffs, and human escalation explicit.
 
 ## Operating rules
 

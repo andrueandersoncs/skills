@@ -19,6 +19,7 @@ npx skills add andrueandersoncs/skills
 - `implement-happy-path` — implements an approved plan exactly as written and validates its normal end-to-end path.
 - `plan-happy-path` — plans the smallest complete happy-path implementation and independently verifies its scope.
 - `workflow-to-skill` — creates completion-checked workflow skills.
+- `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
 
 Each top-level skill directory can be added to an agent runtime's configured skill path independently. The workflows operate on the active repository rather than this collection.
