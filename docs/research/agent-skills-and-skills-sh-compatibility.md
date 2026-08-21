@@ -5,19 +5,24 @@
 
 ## Conclusion
 
-Keep this repository's current flat layout:
+Keep the installable skills at the repository's top level and group the workflow components inside the `workflows` skill:
 
 ```text
 skills/
 ├── README.md
 ├── AGENTS.md
-├── workflow-callstack-simulation/SKILL.md
-├── workflow-to-skill/SKILL.md
-├── ...one directory per skill...
+├── workflows/
+│   ├── SKILL.md
+│   └── references/
+│       ├── simulate-callstack/SKILL.md
+│       ├── simulate-state-machine/SKILL.md
+│       ├── convert-to-skill/SKILL.md
+│       └── decompose/SKILL.md
+├── ...other top-level skills...
 └── docs/research/...
 ```
 
-Top-level skill directories are valid. The Agent Skills specification deliberately does not prescribe where skill directories live; it specifies each skill's contents. The skills CLI explicitly scans immediate children of a repository root, so this project's layout is directly installable. Moving the folders under a new `skills/` container is unnecessary. Do **not** add a repository-root `SKILL.md`: the current skills CLI treats that as a single directly targeted skill and normally returns before scanning child skills. [Agent Skills client guide](https://github.com/agentskills/agentskills/blob/69ef37e9424c0a7ea9dd2293b559e43ec8176379/docs/client-implementation/adding-skills-support.mdx#L36-L62); [skills CLI discovery source](https://github.com/vercel-labs/skills/blob/c6f69c631292444cc541ac6d91e2226b0ff247da/src/skills.ts#L229-L263).
+Top-level skill directories are valid. The Agent Skills specification deliberately does not prescribe where skill directories live; it specifies each skill's contents. The skills CLI explicitly scans immediate children of a repository root, so this project's top-level skills—including the single `workflows` router—are directly installable. Its nested component skills are bundled references rather than separately discoverable skills. Moving the top-level folders under a new `skills/` container is unnecessary. Do **not** add a repository-root `SKILL.md`: the current skills CLI treats that as a single directly targeted skill and normally returns before scanning child skills. [Agent Skills client guide](https://github.com/agentskills/agentskills/blob/69ef37e9424c0a7ea9dd2293b559e43ec8176379/docs/client-implementation/adding-skills-support.mdx#L36-L62); [skills CLI discovery source](https://github.com/vercel-labs/skills/blob/c6f69c631292444cc541ac6d91e2226b0ff247da/src/skills.ts#L229-L263).
 
 ## Agent Skills requirements
 
@@ -47,17 +52,17 @@ The following are **recommendations/conventions**, not validity requirements:
 
 ## Findings for this repository
 
-The repository currently has 6 top-level skill directories. All 6 have exact `SKILL.md` filenames, matching directory/frontmatter names, descriptions within the limit, and fewer than 500 lines. Their existing `references/` and `assets/` folders use the standard conventions.
+The repository currently has 7 top-level skill directories. All 7 have exact `SKILL.md` filenames, matching directory/frontmatter names, descriptions within the limit, and fewer than 500 lines. The `workflows` skill bundles `simulate-callstack`, `simulate-state-machine`, `convert-to-skill`, and `decompose` under `references/`.
 
-Using the official `skills-ref` validator at the pinned Agent Skills commit, **all 6 skills pass**.
+Using the official `skills-ref` validator at the pinned Agent Skills commit, **all 7 top-level skills pass**.
 
-Using the pinned skills CLI against the local repository with `add <path> --list`, all 6 are discovered.
+Using the pinned skills CLI against the local repository with `add <path> --list`, all 7 top-level skills are discovered. The four workflow components are correctly not listed as separate installable skills.
 
 ## Recommended actions
 
-1. **Keep the flat top-level skill directories.** They are valid and verified with skills.sh; do not move them under `skills/`.
+1. **Keep the top-level skill directories.** They are valid and verified with skills.sh; keep the four workflow components inside `workflows/references/`.
 2. **Keep repository-only files at the root** (`README.md`, `AGENTS.md`, and `docs/`). Do not create a root `SKILL.md`.
-3. **Group the catalog without moving skills.** Add a root `skills.sh.json` to organize the skills.sh page, and mirror those sections in `README.md`. This file affects presentation only—not CLI discovery, installation, or `SKILL.md` contents. [Official customization documentation](https://skills.sh/docs/customize)
+3. **Group the catalog by installable skill.** Add a root `skills.sh.json` to organize the skills.sh page, and mirror those sections in `README.md`. This file affects presentation only—not CLI discovery, installation, or `SKILL.md` contents. [Official customization documentation](https://skills.sh/docs/customize)
 
 ```json
 {
@@ -65,16 +70,12 @@ Using the pinned skills CLI against the local repository with `add <path> --list
   "notGrouped": "bottom",
   "groupings": [
     {
-      "title": "Skill authoring",
-      "skills": ["workflow-to-skill", "decompose-workflow-skill"]
+      "title": "Workflows",
+      "skills": ["workflows"]
     },
     {
       "title": "Planning and delivery",
       "skills": ["plan-happy-path", "implement-happy-path"]
-    },
-    {
-      "title": "Simulation",
-      "skills": ["workflow-callstack-simulation", "workflow-state-machine-simulation"]
     }
   ]
 }

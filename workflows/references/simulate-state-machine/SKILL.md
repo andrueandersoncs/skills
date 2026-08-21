@@ -1,5 +1,5 @@
 ---
-name: workflow-state-machine-simulation
+name: simulate-state-machine
 description: Generate a source-grounded, event-driven workflow simulation as a static Mermaid state diagram, with an optional canonical graph-only web app. Use when asked to visualize, explore, teach, simulate, or export a workflow, procedure, algorithm, function, or skill as a state machine without executing it.
 compatibility: Produces Mermaid stateDiagram-v2 source and, when explicitly requested, a standalone HTML app for a modern JavaScript-enabled browser.
 ---
@@ -35,7 +35,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
     a. Read the target and relevant supplied or repository context completely.
     b. Fix the root operation, entry point, initial context, authority order, abstraction boundary, and source identifiers.
     c. Treat the target as authoritative and surface any conflicting supporting context.
-    d. Default to Mermaid only at `workflow-state-machine-simulation.mmd` in the active repository root.
+    d. Default to Mermaid only at `simulate-state-machine.mmd` in the active repository root.
     e. Select HTML only when explicitly requested and, when selected without a destination, place it beside Mermaid with the same basename.
     f. Stop before writing when the target or entry point is missing, unreadable, or ambiguous.
     g. Stop before writing when a selected destination exists without explicit revision authority.

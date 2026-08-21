@@ -1,5 +1,5 @@
 ---
-name: workflow-callstack-simulation
+name: simulate-callstack
 description: Generate a source-grounded, callstack-style dry-run simulation of a workflow, procedure, algorithm, or function for a supplied scenario, showing nested frames, branches, and state changes. Use when asked to simulate, dry-run, walk through, or trace execution step by step without running it.
 ---
 

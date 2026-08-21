@@ -13,12 +13,9 @@ npx skills add andrueandersoncs/skills
 ## Included skills
 
 - `define-task` — turns requests, goals, and commitments into executable AI-agent task records.
-- `workflow-callstack-simulation` — dry-runs workflows, procedures, algorithms, and functions as source-grounded callstack traces.
-- `decompose-workflow-skill` — splits skills into reusable workflow skills and identifies useful agent or subagent boundaries.
-- `workflow-state-machine-simulation` — turns workflows, procedures, algorithms, and functions into static Mermaid state diagrams by default, with optional interactive HTML graph apps.
+- `workflows` — creates and decomposes workflow skills, dry-runs callstack traces, and models state machines.
 - `implement-happy-path` — implements an approved plan exactly as written and validates its normal end-to-end path.
 - `plan-happy-path` — plans the smallest complete happy-path implementation and independently verifies its scope.
-- `workflow-to-skill` — creates completion-checked workflow skills.
 - `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
 

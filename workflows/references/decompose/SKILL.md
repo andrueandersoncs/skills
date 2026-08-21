@@ -1,12 +1,12 @@
 ---
-name: decompose-workflow-skill
+name: decompose
 description: Decompose a skill into independently useful workflow skills and a behavior-preserving orchestrator. Use when asked to split, extract, modularize, identify reusable workflows, or create agent boundaries in a skill.
-compatibility: Requires workflow-to-skill, workflow-callstack-simulation, repository delegation, and fresh-subagent execution for every numbered step.
+compatibility: Requires convert-to-skill, simulate-callstack, repository delegation, and fresh-subagent execution for every numbered step.
 ---
 
 # Decompose Skill
 
-decompose-workflow-skill owns decomposition, approval, orchestration, validation, and reporting. `workflow-to-skill` creates children; `workflow-callstack-simulation` simulates.
+decompose owns decomposition, approval, orchestration, validation, and reporting. `convert-to-skill` creates children; `simulate-callstack` simulates.
 
 Run every numbered procedure step in this skill and the resulting workflow skill in a new, fresh subagent. Give each subagent only its step definition and declared inputs, including required prior-step outputs.
 
@@ -54,7 +54,7 @@ Run every numbered procedure step in this skill and the resulting workflow skill
 
 **Constraints:**
 
-    a. Reuse `## Callstack Simulation` only when it is the sole final section, current, valid, source-grounded, and branch-complete; otherwise invoke `workflow-callstack-simulation` on the entry/source with compact detail, symbolic missing values, and inline output.
+    a. Reuse `## Callstack Simulation` only when it is the sole final section, current, valid, source-grounded, and branch-complete; otherwise invoke `simulate-callstack` on the entry/source with compact detail, symbolic missing values, and inline output.
     b. Keep traces as run artifacts; do not edit target. If blocked, write nothing and go directly to Step 12.
     c. Re-read target. On fingerprint drift, preserve unrelated work, discard stale artifacts, output a restart packet carrying all four Step 1 inputs—target, controls, repository context, and approval `invalidated` or `pending`—and route it to Step 1.
     d. Completion requires a current validated `reused`/`generated` callstack, restart packet, or terminal packet.
@@ -180,8 +180,8 @@ Run every numbered procedure step in this skill and the resulting workflow skill
 
     a. Immediately re-read every configured skill root and target fingerprint. Drift creates nothing, invalidates approval, outputs a fingerprint-drift restart packet, and routes to Step 1 before writes.
     b. A new collision creates nothing, invalidates approval, and routes the collision replanning packet to Step 7.
-    c. For each candidate invoke `workflow-to-skill` with name, task, complete contract/configuration, conventions, independent trigger, bounded fresh input, and global policy.
-    d. Create only through `workflow-to-skill` at `.agents/skills/<name>/SKILL.md`; never hand-author or overwrite.
+    c. For each candidate invoke `convert-to-skill` with name, task, complete contract/configuration, conventions, independent trigger, bounded fresh input, and global policy.
+    d. Create only through `convert-to-skill` at `.agents/skills/<name>/SKILL.md`; never hand-author or overwrite.
     e. The Step 8 worker uses its approved plan, protected baseline, global policy, created children, and ledger contract to verify ledger agreement, frontmatter, trigger, inputs, one output, completion criteria, dependency boundary, configuration, handoff, and final `## Procedure`.
     f. Failure leaves source unchanged and goes directly to Step 12. Completion requires exactly approved verified children, restart/replan packet, or terminal packet.
 
@@ -228,7 +228,7 @@ Run every numbered procedure step in this skill and the resulting workflow skill
 
 **Constraints:**
 
-    a. Invoke `workflow-callstack-simulation` on the revised entry point with compact detail, symbolic inputs, and inline output; keep the trace as a run artifact, never append it.
+    a. Invoke `simulate-callstack` on the revised entry point with compact detail, symbolic inputs, and inline output; keep the trace as a run artifact, never append it.
     b. Compare baseline and plan. Confirm each extracted frame routes through one child and kept behavior remains reachable with preserved order, authority, outputs, and errors.
     c. Simulation failure or divergence goes directly to Step 12. Completion requires the source-grounded revised callstack and explicit comparison, or terminal packet.
 

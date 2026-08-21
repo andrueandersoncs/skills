@@ -1,5 +1,5 @@
 ---
-name: workflow-to-skill
+name: convert-to-skill
 description: "Create a repository workflow skill as concise, dependency-driven, subagent-ready tasks with completion checks for a repeatable workflow. Use when the user asks to create, design, document, or improve a workflow skill."
 compatibility: Requires a runtime that provides the skill-creator skill and concurrent fresh-subagent delegation.
 ---
