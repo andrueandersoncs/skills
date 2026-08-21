@@ -21,7 +21,3 @@ npx skills add andrueandersoncs/skills
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
 
 Each top-level skill directory can be added to an agent runtime's configured skill path independently. The workflows operate on the active repository rather than this collection.
-
-## Consumer requirements
-
-- `workflow-to-skill` expects the runtime to provide `skill-creator` and `workflow-callstack-simulation`.
