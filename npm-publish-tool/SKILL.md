@@ -37,24 +37,24 @@ The package must:
 
 ```text
 <repo-root>/
-  package.json # private Bun-workspaces root
-  bun.lock     # the only lockfile
-  packages/
-    <package>/ # conforms to layout 1
+  package.json    # private Bun-workspaces root
+  bun.lock       # the only lockfile
+  <workspace-dir>/
+    <package>/   # conforms to layout 1
 ```
 
-The root `package.json` must set `private: true`, declare Bun in `packageManager`, declare `workspaces: ["packages/*"]`, and provide root commands that build and test all workspaces with Bun. Every publishable workspace must independently conform to layout 1's source, output, documentation, and manifest rules while using the root `bun.lock`. Never publish the workspace root.
+The root `package.json` must set `private: true`, declare Bun in `packageManager`, declare workspace globs that cover every package, and provide root commands that build and test all workspaces with Bun. Preserve existing Bun-compatible workspace directories and globs. Every publishable workspace must independently conform to layout 1's source, output, documentation, and manifest rules while using the root `bun.lock`. Never publish the workspace root.
 
 ## Workflow
 
 1. Read the repository instructions, manifests, source, lockfiles, and release configuration. Classify the project as one package or a package monorepo.
 2. Enforce the matching approved layout before release:
    - For a standalone repository, normalize its package to layout 1.
-   - For a repository with workspaces or multiple package roots, normalize or create the layout 2 Bun-workspaces root, place packages under `packages/`, use one root `bun.lock`, and normalize every package to layout 1. Keep the monorepo layout even when only one workspace is publishable.
-   - Replace npm, pnpm, and Yarn lockfiles and package-manager commands with Bun. Run `bun install` to create the authoritative lockfile.
+   - For a repository with workspaces, multiple package roots, or a package nested beneath a monorepo root, normalize or create the layout 2 Bun-workspaces root and normalize every publishable package to layout 1. Keep the monorepo layout even when only one workspace is publishable. Preserve existing Bun-compatible workspace paths and globs.
+   - Replace npm, pnpm, and Yarn lockfiles and package-manager commands with Bun.
    - Keep an existing build or release tool only when Bun can run it and it produces the required artifact. Otherwise, configure the simplest Bun and TypeScript setup that does.
-3. Apply the requested semantic version with the project's working release workflow through `bun` or `bunx`. When none exists, use `bun pm version <version>`. For a monorepo, version each package being released.
-4. Run `bun install --frozen-lockfile`, then the build and normal tests with `bun run`. In a monorepo, run workspace scripts from the root with `bun run --workspaces <script>`.
+3. Apply the requested semantic version with the project's working release workflow through `bun` or `bunx`. When none exists, use `bun pm version <version>`. For a monorepo, finalize every released package version and its internal workspace dependency ranges before creating the release lockfile.
+4. Run `bun install` after versioning to create or update the authoritative `bun.lock`, then run `bun install --frozen-lockfile`. Run the build and normal tests with `bun run`. In a monorepo, run workspace scripts from the root with `bun run --workspaces <script>`.
 5. From each package being released, run `bun pm pack`. Inspect the generated `.tgz` with `tar -tzf`. Confirm that compiled runtime files, declarations, package metadata, README, and license are present and that source, tests, fixtures, local configuration, and secrets are absent.
 6. Create a temporary fixture project with Bun, install each generated `.tgz` with `bun add`, and exercise the documented normal import with Bun. For a CLI package, also run its documented normal command through the installed binary and confirm the shebang and executable bit.
 7. Publish the exact artifact that passed the fixture test with `bun publish <generated-tarball>`. Use a trusted CI release workflow configured to install and run Bun when present. Stop after verification when the request is only to set up, prepare, pack, or test the package.
