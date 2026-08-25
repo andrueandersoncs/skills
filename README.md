@@ -7,7 +7,7 @@ Reusable workflow skills following the [Agent Skills](https://agentskills.io/) f
 Copy and run this [skills.sh](https://skills.sh/andrueandersoncs/skills) command to install the skills:
 
 ```sh
-npx skills@latest add andrueandersoncs/skills --all --yes
+npx skills@latest add andrueandersoncs/skills --yes
 ```
 
 ## Included skills
