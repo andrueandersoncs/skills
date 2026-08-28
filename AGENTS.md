@@ -12,6 +12,8 @@ This project is a repository of Andrue Anderson's personal skills.
 
 > Review this from first principles against the user’s intended outcome. Do not assume the current implementation is appropriate. Find redundancy, unnecessary structure, and repeated rules that could be expressed once globally. Ask what can be deleted without changing behavior. Prefer the simplest **complete** design. Use your common sense. If you're unsure about a change, set up a benchmark to find proof.
 
+- Every plan is a prediction (of a sequence of events). You should exploit this fact as much as possible.
+
 ### Standard Rules
 
 - Disregard edge cases, options, and alternatives.
