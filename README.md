@@ -20,5 +20,6 @@ npx skills@latest add andrueandersoncs/skills --yes
 - `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
 - `npm-publish-tool` — standardizes and publishes TypeScript npm packages and package monorepos with Bun.
+- `setup-better-typescript` — sets up Better TypeScript in npm or Bun repositories and monorepos.
 
 Each top-level skill directory can be added to an agent runtime's configured skill path independently. The workflows operate on the active repository rather than this collection.
