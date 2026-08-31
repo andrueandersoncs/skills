@@ -27,3 +27,5 @@ This project is a repository of Andrue Anderson's personal skills.
 - Avoid complexity at all costs, except where it conflicts with the Golden Rule.
 
 - When describing things, avoid placing negative boundaries. For example **DO** say "this project is Andrue Anderson's personal skills repository", however **DONT** say "this project is Andrue Anderson's personal skills repository, not his code repository, not his personal resume, not a dumping ground for arbitrary notes".
+
+- Follow the advice from the software-laws skill as closely as you can, in general. Cite them frequently in your work.
