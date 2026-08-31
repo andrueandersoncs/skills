@@ -1,218 +1,203 @@
-# Executable Interactive Plans
+# Executable plans as editable tests
 
-## Problem
+## Purpose
 
-Coding agents often reinterpret prose plans, expand the scope, and implement behavior that was never intended. Reviewing their code is slow because the intended behavior must be reconstructed from the plan, implementation, and running application.
+The plan is code. User stories become executable property tests, and the proposed implementation remains exact editable code.
 
-An executable interactive plan makes the intended system concrete before implementation is delegated. It gives a human a fast way to explore and approve the plan, gives coding agents stable behavioral boundaries, and supplies reusable scenarios for verifying the resulting implementation.
+The human reviews two related questions:
 
-## Core idea
+1. **Do these tests express the behavior I want?**
+2. **Does this proposed code implement that behavior?**
 
-An executable interactive plan is a **typed, executable diagram of a user story**.
+## Page structure
 
-It may be modeled as a state machine, an extended state machine, or another typed transition system. It does not need to have a finite set of complete application states. A small set of named story positions can carry unbounded domain data validated by real Effect Schemas.
-
-The diagram and simulation are one artifact:
-
-> Interacting with the diagram runs the simulation.
+Use exactly two primary tabs and one persistent decision bar.
 
 ```text
-User action
-    ↓
-Executable transition
-    ↓
-Domain result + database changes + external effects
-    ↓
-Updated diagram
+┌ Story Tests ─ Proposed Code ──────────────────────────────┐
+│ Story 1   Story 2   Story 3                               │
+│ ┌ tests ────────┐ ┌ exact editable test ───────────────┐ │
+│ │ property A ✓  │ │ Monaco                              │ │
+│ │ property B –  │ │                                    │ │
+│ └───────────────┘ └─────────────────────────────────────┘ │
+│                    [Run test] [Save proposed code]         │
+│                    Generated cases / failure seed          │
+├───────────────────────────────────────────────────────────┤
+│ Decision [choose…]                            Export review│
+└───────────────────────────────────────────────────────────┘
 ```
 
-A user can step through a story, choose actions, inspect state, observe relevant database changes and external calls, reset the world, and try another path. The resulting experience is both an interactive reference model and an executable plan.
+## Story Tests
 
-## What the artifact contains
+### Story contract
 
-The executable diagram contains:
+Each story has:
 
-- Actors and available actions
-- Important story positions and domain state
-- Transitions, guards, and invariants
-- Inputs, outputs, and errors described by canonical Effect Schemas where available or useful
-- Existing domain functions and Effects where they already express the plan
-- Explicit Effect services for every external boundary
-- Deterministic simulation Layers for those services
-- An ephemeral database accessed through the appropriate Effect database packages
-- Initial fixtures and scripted external responses
-- Recorded database changes and external calls
-- Representative story paths and acceptance observations
+- Stable story ID
+- Short title and outcome
+- At least one test ID
+- Proposed-code dependencies
 
-The diagram is the direct interaction and inspection surface for this running model. Selecting a node or transition can show its schemas, required services, expected effects, failure outcomes, and current invariant status.
+Each test has:
 
-## Explicit Effect simulation
+- Stable test ID
+- Property title
+- Canonical test file
+- Owning story ID
+- Proposed-code IDs exercised
 
-The plan runs as a closed, controlled Effect system. Every external capability is visible in the Effect environment.
+Use one canonical test↔code relation. Derive story-side links from its tests.
 
-A transition might have a shape such as:
+### Effect Arbitrary
+
+Use the Effect v4 Schema Arbitrary API documented at <https://www.effect.website/docs/v4/schema/arbitrary>.
 
 ```ts
-Effect<
-  CancelOrderResult,
-  CancelOrderError,
-  OrderRepository | PaymentProvider | EmailProvider | Clock
->
+import { Effect, Schema } from "effect"
+import { FastCheck } from "effect/testing"
+import { expect, it } from "vitest"
+
+const inputs = Schema.toArbitrary(InputSchema)(FastCheck)
+
+it("preserves the story property", async () => {
+  await FastCheck.assert(
+    FastCheck.asyncProperty(inputs, async (input) => {
+      const layer = await Effect.runPromise(makeFreshLayer())
+      const result = await Effect.runPromise(
+        Effect.provide(runStory(input), layer),
+      )
+      expect(result).toMatchObject(expectedResult(input))
+    }),
+    { numRuns: 25 },
+  )
+})
 ```
 
-The interactive plan supplies deterministic simulation Layers for remote services and other controlled capabilities. Database-backed services reuse the real query or repository Layers, supplied with an ephemeral SQL client for the matching database dialect. The runner composes these Layers into the complete simulation environment.
+The test must generate from the exact proposed input Schema. Do not hand-build random values beside the Schema.
 
-Each external-service simulation:
+Each generated case gets fresh deterministic Services, Layers, repositories, clocks, and other mutable boundaries. A failed run reports the FastCheck seed and counterexample so the coding agent can replay it.
 
-- Accepts the canonical request contract and Schema where available
-- Returns the canonical response or error contract and Schema where available
-- Provides scripted outcomes, latency, and failures
-- Records every call, including ordering and retry attempts made by the program
-- Makes its observations available in the diagram
+### Itemized code workspace
 
-Time, randomness, queues, filesystems, and other external capabilities follow the same service-and-Layer model when they participate in the story.
+Story Tests uses the same Monaco interaction as Proposed Code.
 
-## Database simulation
+The left rail selects a story. The item list selects one test. The editor loads the exact full test file.
 
-Database access is an explicit Effect boundary too. The simulation uses the appropriate real Effect database package with a fresh ephemeral database.
+Show:
 
-It exercises the planned or existing:
+- Test title and path
+- Proposed-code dependency links
+- Run count
+- Last status
+- Last failure seed or generated sample summary
+- **Run test**
+- **Save proposed code**
 
-- Database schemas and migrations
-- Queries and repository operations
-- Serialization
-- Transactions
-- Constraints
-- Persisted outcomes
+Use one test per file by default. This makes the entire test the allowed editable range.
 
-The simulation uses the same database dialect as the intended system. A PostgreSQL application uses an ephemeral PostgreSQL database through the corresponding Effect PostgreSQL package. A SQLite application uses an ephemeral or in-memory SQLite database through the corresponding Effect SQLite package.
+### Run and save
 
-The database contents and lifecycle are controlled by the simulation while its relevant database behavior remains realistic.
+**Run test** executes only the selected canonical test file through the repository test runner.
 
-## Reuse in both directions
+**Save proposed code**:
 
-The plan should reuse as much canonical code from the existing codebase as practical:
+1. Saves the selected test atomically.
+2. Marks that test and its story `not run`.
+3. Keeps unrelated story results.
+4. Requires the human or agent to run the changed test again.
 
-- Effect Schemas
-- Domain types and errors
-- Existing functions and Effects
-- Service contracts
-- Queries, repositories, and migrations
+## Proposed Code
 
-Accepted scenarios keep one canonical set of inputs and expected observations. A diagram adapter runs them through the simulation; an implementation adapter runs them through the application's public behavioral seams.
+Keep the existing exact-source workspace.
 
-Other plan artifacts should contribute as much as practical to implementation and verification:
+Group proposed declarations by:
 
-- New behavioral Schemas and service contracts can become production seams
-- Approved invariants can become unit or property tests
-- Simulation Layers can remain test infrastructure
-- Fixtures can seed repeatable tests and local demonstrations
-- The interactive diagram can remain a review and debugging tool
+- **Schemas**
+- **Services**
+- **Effectful functions**
 
-This reuse reduces translation between planning and implementation without requiring production internals to copy the simulation.
+Each item includes a stable code ID, canonical file, declaration range, source hash, and affected test IDs.
 
-## Approval freezes behavioral interfaces
+Saving a proposed declaration marks every dependent test `not run`. Approval remains disabled until those exact tests pass again.
 
-Accepting the plan freezes its **behavioral interfaces**. Here, an interface means a behaviorally important seam rather than only a TypeScript `interface` declaration.
+## Shared editing boundary
 
-The accepted interfaces include:
+Both workspaces use the local review server:
 
-- User and system actions
-- Inputs, outputs, events, and errors
-- Behaviorally important observable states and transitions
-- Guards, postconditions, and invariants
-- External-service request and response contracts
-- Meaningful call ordering and failure behavior
-- Persistence guarantees and transaction boundaries
-- Observable outcomes for representative story paths
+- Loopback and same-origin only
+- Per-session token
+- Opaque allowlisted file ID
+- Repository containment
+- Loaded-hash concurrency check
+- Allowed item range
+- Atomic write
+- Targeted result invalidation
+- Append-only audit
 
-Implementation can change and expand behind these interfaces. Its modules, private APIs, algorithms, data structures, intermediate states, and internal control flow can evolve as the implementation becomes clearer. Diagram story positions do not need to map one-to-one to an internal implementation state machine. Changes to accepted observable behavior require the plan to be reviewed again.
+A failed save or test blocks approval.
 
-This gives coding agents room to discover a good implementation while preventing them from silently redefining the intended system.
+## Template contract
 
-## Planning and implementation workflow
-
-### 1. Build the executable diagram
-
-Model the user story using canonical codebase artifacts where available. Add proposed schemas and behavioral seams where the story requires new behavior. Supply explicit simulation Layers and an ephemeral database.
-
-### 2. Explore the plan
-
-Drive the diagram through the important paths. Inspect:
-
-- State before and after each action
-- Public results and errors
-- Database changes
-- External requests and responses
-- Call ordering
-- Invariant status
-
-Revise the plan until the intended behavior is coherent and understandable.
-
-### 3. Accept the behavioral interfaces
-
-Approval records the diagram's behavioral interfaces and representative scenarios as the implementation contract.
-
-### 4. Delegate implementation
-
-Coding agents implement and expand the real system behind the accepted interfaces. They may reuse approved schemas, functions, Effects, fixtures, and Layers directly wherever that produces the clearest implementation.
-
-### 5. Verify conformance
-
-Run the canonical accepted scenarios through both the diagram adapter and the implementation's public-seam adapter. Apply the verification responsibilities below.
-
-## Verification boundary
-
-The executable diagram verifies the **plan**:
-
-- The data model can represent the story
-- Operations compose in the required order
-- Required service boundaries are explicit
-- Database behavior supports the intended transitions
-- External interactions are specified
-- Representative paths execute successfully
-- Accepted invariants hold for the explored paths
-
-The implementation test suite verifies the **final code**:
-
-- Unit and property tests verify domain operations and invariants
-- Integration tests verify adapters and persistence
-- End-to-end tests replay important paths through the real application
-- Conformance scenarios verify that the implementation preserves the accepted behavioral interfaces
-
-Together, these answer two separate questions:
-
-> **Executable interactive plan:** Is this the system we intend to build?
-
-> **Implementation verification:** Did we build a system that preserves that intent?
-
-## Example
+The template lives at `assets/story-test-template/` and contains:
 
 ```text
-[Paid order]
-      │
-      │ Cancel order
-      ▼
-[Cancelled order]
+assets/story-test-template/
+├── README.md
+├── package.json
+├── review-server.ts
+├── src/
+│   ├── domain/
+│   ├── story-tests/
+│   ├── main.tsx
+│   ├── plan-data.ts
+│   ├── review-shell.tsx
+│   ├── review-types.ts
+│   └── styles.css
+├── tests/
+├── index.html
+├── tsconfig.json
+└── vite.config.ts
 ```
 
-Executing `Cancel order` in the diagram could display:
+A generated plan changes `plan-data.ts`, `src/story-tests/*`, `src/domain/*`, and theme tokens. Shared editor, save, test-run, decision, and export behavior stays in the template.
 
-```text
-Result
-✓ Order status is "cancelled"
+## Source snapshot and export
 
-Database
-✓ Cancellation persisted
-✓ Inventory restored in the same transaction
+`sourceSnapshotId` hashes ordered stories, test inventory, proposed-code inventory, and exact test/code file contents.
 
-External services
-✓ Payment refund requested for $40
-✓ Cancellation email requested after the refund succeeded
+Test results, comments, and edits are mutable review records exported beside the snapshot.
 
-Invariants
-✓ A shipped order was not cancelled
-✓ Refunded amount does not exceed the captured amount
+The durable artifact contains:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "planId": "string",
+  "sourceSnapshotId": "sha256",
+  "decision": "approved | changes-requested",
+  "stories": [],
+  "storyTests": [],
+  "proposedCode": [],
+  "files": [],
+  "testResults": {},
+  "comments": {},
+  "edits": []
+}
 ```
 
-This is the plan itself running—not a static picture of what the plan might mean.
+Embed exact reviewed files. Durable and downloaded artifact bytes match.
+
+## Focused acceptance check
+
+Run one browser pass:
+
+1. Open every story and every test item.
+2. Run every test from the browser.
+3. Confirm generated values come from each proposed Schema.
+4. Follow test→code and code→test links.
+5. Save one reversible test edit in an isolated copy and confirm only its story resets.
+6. Save one reversible proposed-code edit and confirm only dependent tests reset.
+7. Export both decisions in an isolated copy and compare bytes.
+8. Confirm the real draft has no synthetic edits or decision artifact.
+
+Then pause for the human. Do not add autonomous review rounds beyond one repository-required clean-context check.
