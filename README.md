@@ -14,8 +14,7 @@ npx skills@latest add andrueandersoncs/skills --yes
 
 - `define-task` — turns requests, goals, and commitments into executable AI-agent task records.
 - `workflows` — creates and decomposes workflow skills, dry-runs callstack traces, and models state machines.
-- `implement-happy-path` — implements an approved plan exactly as written and validates its normal end-to-end path.
-- `plan-happy-path` — plans the smallest complete happy-path implementation and independently verifies its scope.
+- `happy-path` — plans the smallest complete happy-path change or implements an approved happy-path plan.
 - `predictive-planning` — creates and improves plans as testable forecasts with explicit evidence and response rules.
 - `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
