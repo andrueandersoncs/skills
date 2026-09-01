@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live board</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;600&display=swap" />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <!--
+      THESIS: The project is a live gate board. Rows keep identity when they change gate; they do not vanish and reappear. This refuses empty dark kanban and free-moving Trello cards.
+      OWN-WORLD: Airport document surface. Board ink #0B0D10, slate rows #1C2127, steel labels #6B7178, alert #FFD400. Pass is paper white with segmented fields. Barlow Condensed for occupancy, Barlow for names, ui-monospace for ids. Yellow is only for the next legal action and a row that just moved.
+      FIRST VIEWPORT: Six status lanes as the gate board, occupancy as huge condensed numerals, each task a strip (id, title, owner). Select a strip and the paper pass opens with the next action in yellow.
+      SIGNATURE: A status change slides the same row to its new lane and holds yellow until you look.
+      RISK: Six lanes on a phone; lanes snap-scroll. The pass stacks its segments.
+    -->
+    <div id="app"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
