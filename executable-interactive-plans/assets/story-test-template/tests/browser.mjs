@@ -21,7 +21,7 @@ try {
   await page.getByText("greets every generated name", { exact: true }).first().waitFor()
   await page.getByRole("button", { name: "Run test" }).click()
   await page.locator(".test-actions .status-badge.passed").waitFor()
-  await page.getByRole("button", { name: "Proposed Code" }).click()
+  await page.locator(".tabs").getByRole("button", { name: "Proposed Code" }).click()
   await page.getByText("runExample", { exact: true }).first().waitFor()
   if (errors.length > 0) throw new Error(errors.join("\n"))
   await browser.close()

@@ -2,8 +2,8 @@
 
 ## Review shell
 
-- Load ordered stories, itemized tests, proposed code, and exact files.
-- Select one story and one test.
+- Load ordered stories, itemized tests, and proposed Schemas, Errors, Services, and function signatures.
+- Select one story and one `it.effect.prop` test.
 - Edit the exact test file in Monaco.
 - Run only the selected test and show its current result.
 - Save a test and invalidate only that test.

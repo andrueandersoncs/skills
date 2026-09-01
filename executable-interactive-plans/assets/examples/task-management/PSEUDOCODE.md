@@ -20,3 +20,10 @@
 - Create one incomplete task in a fresh Layer.
 - Run `completeTask` and then `listTasks`.
 - Assert the task remains visible with completed state.
+
+## Missing task
+
+- Generate valid `CompleteTaskInput` values from its exact Schema.
+- Create a fresh empty task-service Layer for every generated value.
+- Run `completeTask`.
+- Assert `TaskNotFound` with that id.

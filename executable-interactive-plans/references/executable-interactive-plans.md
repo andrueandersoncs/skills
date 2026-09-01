@@ -1,85 +1,81 @@
-# Executable plans as editable tests
+# Executable plans as agreed Effect contracts
 
 ## Purpose
 
-The plan is code. User stories become executable property tests, and the proposed implementation remains exact editable code.
+The plan is code. User stories become `@effect/vitest` Arbitrary tests. Proposed Code is the Schemas, Errors, Services, and Effectful function signatures those tests call.
 
-The human reviews two related questions:
+The human agrees on those four contracts before implementation.
 
-1. **Do these tests express the behavior I want?**
-2. **Does this proposed code implement that behavior?**
+## The four contracts
 
-## Page structure
+### Schemas
 
-Use exactly two primary tabs and one persistent decision bar.
+Use the Effect v4 Schema Arbitrary API at <https://www.effect.website/docs/v4/schema/arbitrary>.
 
-```text
-┌ Story Tests ─ Proposed Code ──────────────────────────────┐
-│ Story 1   Story 2   Story 3                               │
-│ ┌ tests ────────┐ ┌ exact editable test ───────────────┐ │
-│ │ property A ✓  │ │ Monaco                              │ │
-│ │ property B –  │ │                                    │ │
-│ └───────────────┘ └─────────────────────────────────────┘ │
-│                    [Run test] [Save proposed code]         │
-│                    Generated cases / failure seed          │
-├───────────────────────────────────────────────────────────┤
-│ Decision [choose…]                            Export review│
-└───────────────────────────────────────────────────────────┘
+`it.effect.prop` takes the Schema itself. `@effect/vitest` derives the Arbitrary.
+
+```ts
+export const CreateTaskInput = Schema.Struct({ title: TaskTitle })
+export type CreateTaskInput = Schema.Schema.Type<typeof CreateTaskInput>
 ```
+
+### Errors
+
+Use `Schema.Error` so the failure is tagged, yieldable, and schema-backed.
+
+```ts
+export class TaskNotFound extends Schema.Error<TaskNotFound>("TaskNotFound")({
+  id: TaskId,
+}) {}
+```
+
+A test that agrees on this Error generates inputs that fail and asserts the Error:
+
+```ts
+it.effect.prop("fails for every generated missing task id", [CompleteTaskInput], ([input]) =>
+  Effect.gen(function* () {
+    const layer = yield* makeTaskService([])
+    const error = yield* completeTask(input).pipe(Effect.provide(layer), Effect.flip)
+    assert.instanceOf(error, TaskNotFound)
+    assert.strictEqual(error.id, input.id)
+  }), { fastCheck: { numRuns: 25 } })
+```
+
+### Services
+
+```ts
+export interface TaskServiceShape {
+  readonly create: (input: CreateTaskInput) => Effect.Effect<Task>
+  readonly list: Effect.Effect<ReadonlyArray<Task>>
+  readonly complete: (input: CompleteTaskInput) => Effect.Effect<Task, TaskNotFound>
+}
+
+export class TaskService extends Context.Service<TaskService, TaskServiceShape>()("TaskService") {}
+```
+
+Each generated case gets a fresh Layer. Layer factories are test fixtures, not Proposed Code.
+
+### Effectful function signatures
+
+Write Success, Error, and Requirements:
+
+```ts
+export const createTask = (input: CreateTaskInput): Effect.Effect<Task, never, TaskService> =>
+  Effect.flatMap(TaskService, (service) => service.create(input))
+
+export const completeTask = (input: CompleteTaskInput): Effect.Effect<Task, TaskNotFound, TaskService> =>
+  Effect.flatMap(TaskService, (service) => service.complete(input))
+```
+
+Hyrum's Law: these signatures are the observable contract.
 
 ## Story Tests
 
-### Story contract
+Each story has a stable ID, a short title, an outcome, and at least one test ID.
 
-Each story has:
-
-- Stable story ID
-- Short title and outcome
-- At least one test ID
-- Proposed-code dependencies
-
-Each test has:
-
-- Stable test ID
-- Property title
-- Canonical test file
-- Owning story ID
-- Proposed-code IDs exercised
+Each test has a stable ID, a property title, a canonical file, an owning story ID, and the proposed-code IDs it exercises.
 
 Use one canonical test↔code relation. Derive story-side links from its tests.
-
-### Effect Arbitrary
-
-Use the Effect v4 Schema Arbitrary API documented at <https://www.effect.website/docs/v4/schema/arbitrary>.
-
-```ts
-import { Effect, Schema } from "effect"
-import { FastCheck } from "effect/testing"
-import { expect, it } from "vitest"
-
-const inputs = Schema.toArbitrary(InputSchema)(FastCheck)
-
-it("preserves the story property", async () => {
-  await FastCheck.assert(
-    FastCheck.asyncProperty(inputs, async (input) => {
-      const layer = await Effect.runPromise(makeFreshLayer())
-      const result = await Effect.runPromise(
-        Effect.provide(runStory(input), layer),
-      )
-      expect(result).toMatchObject(expectedResult(input))
-    }),
-    { numRuns: 25 },
-  )
-})
-```
-
-The test must generate from the exact proposed input Schema. Do not hand-build random values beside the Schema.
-
-Each generated case gets fresh deterministic Services, Layers, repositories, clocks, and other mutable boundaries. A failed run reports the FastCheck seed and counterexample so the coding agent can replay it.
-
-### Itemized code workspace
-
-Story Tests uses the same Monaco interaction as Proposed Code.
 
 The left rail selects a story. The item list selects one test. The editor loads the exact full test file.
 
@@ -87,38 +83,26 @@ Show:
 
 - Test title and path
 - Proposed-code dependency links
-- Run count
-- Last status
-- Last failure seed or generated sample summary
 - **Run test**
+- Last status and output
 - **Save proposed code**
 
-Use one test per file by default. This makes the entire test the allowed editable range.
+**Run test** executes only the selected canonical test file through Vitest.
 
-### Run and save
-
-**Run test** executes only the selected canonical test file through the repository test runner.
-
-**Save proposed code**:
+**Save proposed code** on a test:
 
 1. Saves the selected test atomically.
-2. Marks that test and its story `not run`.
-3. Keeps unrelated story results.
-4. Requires the human or agent to run the changed test again.
+2. Marks that test `not run`.
+3. Keeps unrelated results.
+4. Requires the changed test to be run again.
 
 ## Proposed Code
 
-Keep the existing exact-source workspace.
+Group declarations by **Schemas**, **Errors**, **Services**, and **Effectful functions**.
 
-Group proposed declarations by:
+Each item includes a stable code ID, canonical file, declaration range, and affected test IDs.
 
-- **Schemas**
-- **Services**
-- **Effectful functions**
-
-Each item includes a stable code ID, canonical file, declaration range, source hash, and affected test IDs.
-
-Saving a proposed declaration marks every dependent test `not run`. Approval remains disabled until those exact tests pass again.
+Saving a declaration marks every dependent test `not run`. Approval stays disabled until those tests pass again.
 
 ## Shared editing boundary
 
@@ -165,25 +149,7 @@ A generated plan changes `plan-data.ts`, `src/story-tests/*`, `src/domain/*`, an
 
 `sourceSnapshotId` hashes ordered stories, test inventory, proposed-code inventory, and exact test/code file contents.
 
-Test results, comments, and edits are mutable review records exported beside the snapshot.
-
-The durable artifact contains:
-
-```json
-{
-  "schemaVersion": "1.0.0",
-  "planId": "string",
-  "sourceSnapshotId": "sha256",
-  "decision": "approved | changes-requested",
-  "stories": [],
-  "storyTests": [],
-  "proposedCode": [],
-  "files": [],
-  "testResults": {},
-  "comments": {},
-  "edits": []
-}
-```
+The durable artifact contains the decision, ordered stories, exact test files, exact proposed-code files, current test results, comments, and edit audit.
 
 Embed exact reviewed files. Durable and downloaded artifact bytes match.
 
@@ -193,11 +159,12 @@ Run one browser pass:
 
 1. Open every story and every test item.
 2. Run every test from the browser.
-3. Confirm generated values come from each proposed Schema.
-4. Follow test→code and code→test links.
-5. Save one reversible test edit in an isolated copy and confirm only its story resets.
-6. Save one reversible proposed-code edit and confirm only dependent tests reset.
-7. Export both decisions in an isolated copy and compare bytes.
-8. Confirm the real draft has no synthetic edits or decision artifact.
+3. Confirm each test uses `it.effect.prop` with the proposed Schema.
+4. Confirm Proposed Code groups Schemas, Errors, Services, and Effectful functions.
+5. Follow test→code and code→test links.
+6. Save one reversible test edit in an isolated copy and confirm only that test resets.
+7. Save one reversible proposed-code edit and confirm only dependent tests reset.
+8. Export both decisions in an isolated copy and compare bytes.
+9. Confirm the real draft has no synthetic edits or decision artifact.
 
 Then pause for the human. Do not add autonomous review rounds beyond one repository-required clean-context check.

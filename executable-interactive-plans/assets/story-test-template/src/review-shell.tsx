@@ -2,7 +2,7 @@ import * as monaco from "monaco-editor"
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import type { Bootstrap, CodeFile, HydratedCodeDefinition, HydratedStoryTest, SourceRange, TestResult } from "./review-types"
+import { codeCategories, type Bootstrap, type CodeFile, type HydratedCodeDefinition, type HydratedStoryTest, type SourceRange, type TestResult } from "./review-types"
 
 self.MonacoEnvironment = { getWorker(_: string, label: string) { return label === "typescript" || label === "javascript" ? new tsWorker() : new editorWorker() } }
 const token = document.querySelector<HTMLMetaElement>('meta[name="review-session-token"]')?.content ?? ""
@@ -106,7 +106,7 @@ const ProposedCodeView = ({ data, codeId, results, onCode, onTest, onData, onInv
   const item = data.proposedCode.find(({ id }) => id === codeId) ?? data.proposedCode[0]
   const file = data.files.find(({ fileId }) => fileId === item.fileId)!
   const affected = data.storyTests.filter(({ proposedCodeIds }) => proposedCodeIds.includes(item.id))
-  const groups = useMemo(() => ["Schema", "Service", "EffectfulFunction"].map((category) => ({ category, items: data.proposedCode.filter((entry) => entry.category === category) })), [data.proposedCode])
+  const groups = useMemo(() => codeCategories.map((category) => ({ category, items: data.proposedCode.filter((entry) => entry.category === category) })).filter((group) => group.items.length > 0), [data.proposedCode])
   const header = <div><p className="section-label">{item.category}</p><h2>{item.label}</h2><p>{file.relativePath} · lines {item.range.start.line}–{item.range.end.line}</p><div className="dependency-links">Tested by {affected.map((test) => <button key={test.id} onClick={() => onTest(test.id)}>{test.label} · {results[test.id]?.status ?? "not run"}</button>)}</div></div>
   return <div className="code-view"><aside className="code-list"><h2>Proposed Code</h2>{groups.map((group) => <section key={group.category}><h3>{group.category === "EffectfulFunction" ? "Effectful functions" : `${group.category}s`}</h3>{group.items.map((entry) => <button key={entry.id} aria-current={entry.id === item.id ? "page" : undefined} onClick={() => onCode(entry.id)}><span>{entry.label}</span><small>{entry.relativePath}</small></button>)}</section>)}</aside><EditorPane item={item} itemType="code" file={file} header={header} onSaved={(next) => { onInvalidate(affected.map(({ id }) => id)); onData(next) }}/></div>
 }

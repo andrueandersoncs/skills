@@ -1,6 +1,6 @@
 # Task-management executable story tests
 
-This example starts from `../../story-test-template` and replaces only plan data, Effect Arbitrary tests, and proposed domain code.
+This example starts from `../../story-test-template` and replaces only plan data, `@effect/vitest` Arbitrary tests, and proposed Schemas, Errors, Services, and function signatures.
 
 ```sh
 npm install

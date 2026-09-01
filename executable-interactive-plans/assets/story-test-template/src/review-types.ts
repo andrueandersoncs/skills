@@ -15,9 +15,12 @@ export interface StoryTestDefinition {
   readonly proposedCodeIds: ReadonlyArray<string>
 }
 
+export const codeCategories = ["Schema", "Error", "Service", "EffectfulFunction"] as const
+export type CodeCategory = (typeof codeCategories)[number]
+
 export interface CodeDefinition {
   readonly id: string
-  readonly category: "Schema" | "Service" | "EffectfulFunction"
+  readonly category: CodeCategory
   readonly label: string
   readonly fileId: string
   readonly relativePath: string

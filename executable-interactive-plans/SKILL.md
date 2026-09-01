@@ -1,124 +1,97 @@
 ---
 name: executable-interactive-plans
-description: "Turn user stories into editable executable Effect Arbitrary tests plus exact Proposed Code. Use when a human wants to review, run, edit, and save story tests and proposed Effect code before implementation."
-compatibility: Requires a browser, a local JavaScript runtime, Effect v4, and Vitest.
+description: "Turn user stories into @effect/vitest Arbitrary tests plus exact proposed Effect Schemas, Errors, Services, and function signatures. Use when a human wants to review, run, edit, and agree on those contracts before implementation."
+compatibility: Requires a browser, a local JavaScript runtime, Effect v4, and @effect/vitest.
 ---
 
 # Executable Interactive Plans
 
-Represent the intended product as code: editable user-story tests and exact proposed implementation code.
+The plan is agreement on four Effect contracts, proven by executable story tests.
+
+The human reviews two questions:
+
+1. **Do these tests express the behavior I want?**
+2. **Do these Schemas, Errors, Services, and Effectful function signatures match that behavior?**
 
 Read [references/executable-interactive-plans.md](references/executable-interactive-plans.md). Start from [assets/story-test-template](assets/story-test-template).
 
-## Required result
+Gall's Law: ship the smallest complete set of those four contracts. Hyrum's Law: once agreed, every observable of those signatures is the contract.
 
-The review app has two primary tabs:
+## The four contracts
 
-1. **Story Tests** — every user story owns one or more executable Effect Arbitrary tests.
-2. **Proposed Code** — exact new or changed Effect Schemas, Services, Layers, and Effectful functions.
+Group Proposed Code as **Schemas**, **Errors**, **Services**, and **Effectful functions**. Write each item as exact editable source.
 
-Both tabs use the same itemized Monaco workspace. Both support **Save proposed code**. A saved test or implementation item invalidates only the stories that use it.
+### Schemas
+
+Effect Schemas for inputs, outputs, and domain values. Tests generate from these Schemas. Do not hand-build random values beside them.
+
+### Errors
+
+`Schema.Error` classes that appear in the `E` channel. Every Error in a signature is proposed code. A story test that lists an Error must assert that Error.
+
+### Services
+
+`Context.Service` contracts. The `R` channel names these Services. Test Layers provide them and are not Proposed Code.
+
+### Effectful function signatures
+
+Write the full signature and call it from the tests:
+
+```ts
+(input: Input): Effect.Effect<Success, Error, Service>
+```
+
+## Story tests
+
+Each story owns at least one `@effect/vitest` property. Generate from the exact proposed Schema. Provide a fresh Service Layer per generated case. Call the exact proposed function. Assert the caller-visible success or Error. Each signature lists its input Schema, success Schema, Errors, and Services; each test lists those same IDs.
+
+```ts
+import { assert, it } from "@effect/vitest"
+import { Effect } from "effect"
+import { CreateTaskInput } from "../domain/task"
+import { createTask, listTasks, makeTaskService } from "../domain/task-service"
+
+it.effect.prop("creates every valid generated task as incomplete", [CreateTaskInput], ([input]) =>
+  Effect.gen(function* () {
+    const layer = yield* makeTaskService([])
+    const created = yield* createTask(input).pipe(Effect.provide(layer))
+    const tasks = yield* listTasks.pipe(Effect.provide(layer))
+
+    assert.strictEqual(created.title, input.title)
+    assert.isFalse(created.completed)
+    assert.deepStrictEqual(tasks, [created])
+  }), { fastCheck: { numRuns: 25 } })
+```
+
+Keep one test file per property so the whole file is the editable range.
 
 ## Workflow
 
-### 1. Define stories as properties
+### 1. Name the stories
 
-Keep authored story order. For each story, state:
+Keep authored story order. For each story, state the caller-visible outcome and the Schema, Error, Service, and function IDs it exercises.
 
-- The caller-visible outcome
-- One or more properties that must always hold
-- The input Schema for each property
-- The proposed-code IDs exercised
-
-A story is complete only when at least one test expresses its outcome.
-
-### 2. Create the artifact from the template
+### 2. Create the artifact
 
 ```sh
 node scripts/create-plan.mjs <artifact-destination>
 ```
 
-Replace the template plan, story-test files, proposed domain code, and theme tokens. Keep the shared code workspace and review server unless the repository already owns equivalents.
+Replace plan data, story tests, proposed domain code, and theme tokens. Keep the shared review shell and review server.
 
-### 3. Write Effect Arbitrary tests
+### 3. Fill the four contracts, then the tests
 
-Use Effect v4:
+Write Schemas, Errors, Services, and signatures first. Then write `it.effect.prop` tests that generate from those Schemas and call those functions.
 
-```ts
-import { Schema } from "effect"
-import { FastCheck } from "effect/testing"
+### 4. Review in the browser
 
-const inputs = Schema.toArbitrary(InputSchema)(FastCheck)
-```
+Story Tests runs and edits each property. Proposed Code edits the four contract groups. Saving a test resets that test. Saving a contract resets every linked test. Approval stays off until every current test passes.
 
-Use `FastCheck.property` or `FastCheck.asyncProperty` and `FastCheck.assert`. Each generated run starts with fresh deterministic Services and Layers.
+Goodhart's Law: green tests are evidence. The human decision is the result.
 
-Tests must:
-
-- Generate values from the exact proposed Schema.
-- Execute the exact proposed Effectful function or Service seam.
-- Assert the caller-visible story outcome.
-- Use a fixed run count and record the replay seed on failure.
-
-Keep each item small. Use one test file per item so Monaco can edit and save the complete test without unrelated ranges.
-
-### 4. Itemize Story Tests
-
-For each test item show:
-
-- Story and property title
-- Canonical test file
-- Proposed-code dependencies
-- Monaco with the exact full test
-- Current `passed`, `failed`, or `not run` status
-- **Run test**
-- **Save proposed code**
-
-Saving a test resets its story status. Saving proposed implementation code resets every linked story. Approval stays disabled until every current story test passes.
-
-### 5. Itemize Proposed Code
-
-Group exact proposed declarations by:
-
-- **Schemas**
-- **Services** — Service contracts and Layers
-- **Effectful functions**
-
-Open the canonical file and focus the selected declaration. Link each declaration to its story tests.
-
-### 6. Save through the local review server
-
-A save uses:
-
-- Loopback and same-origin requests
-- A per-session token
-- Opaque allowlisted file IDs
-- Repository containment
-- Loaded-hash concurrency checks
-- Exact item-range enforcement
-- Atomic writes
-- Targeted test invalidation
-- An append-only edit audit
-
-### 7. Run one focused validation pass
-
-Check:
-
-- Every story has at least one test.
-- Every test uses `Schema.toArbitrary` and `effect/testing` FastCheck.
-- Every test runs from the browser and reports its current result.
-- Test and implementation saves invalidate the correct stories.
-- Story↔test↔proposed-code links work in both directions.
-- Explicit `approved` / `changes-requested` export works.
-- The browser reports no errors.
-
-Run one clean-context first-principles check when repository instructions require it. Fix concrete findings once and rerun affected checks. Do not create repeated review chains.
-
-### 8. Pause for the human
+### 5. Pause for the human
 
 Keep one decision control and one **Export review** action. Never infer approval.
-
-Export the decision, ordered stories, exact test files, exact proposed-code files, current test results, comments, and edit audit.
 
 ## Completion
 

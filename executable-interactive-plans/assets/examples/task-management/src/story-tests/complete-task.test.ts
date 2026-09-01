@@ -1,15 +1,15 @@
 import { assert, it } from "@effect/vitest"
 import { Effect } from "effect"
-import { CompleteTaskInput, CreateTaskInput } from "../domain/task"
-import { completeTask, listTasks, makeTaskService } from "../domain/task-service"
+import { CreateTaskInput } from "../domain/task"
+import { completeTask, createTask, listTasks, makeTaskService } from "../domain/task-service"
 
-it.effect.prop("completes every generated incomplete task without removing it", [CreateTaskInput], ([{ title }]) =>
+it.effect.prop("completes every generated incomplete task without removing it", [CreateTaskInput], ([input]) =>
   Effect.gen(function* () {
-    const fixture = [{ id: 1, title, completed: false }]
-    const layer = yield* makeTaskService(fixture)
-    const completed = yield* completeTask({ id: 1 } satisfies CompleteTaskInput).pipe(Effect.provide(layer))
+    const layer = yield* makeTaskService([])
+    const created = yield* createTask(input).pipe(Effect.provide(layer))
+    const completed = yield* completeTask({ id: created.id }).pipe(Effect.provide(layer))
     const tasks = yield* listTasks.pipe(Effect.provide(layer))
 
-    assert.deepStrictEqual(completed, { id: 1, title, completed: true })
+    assert.deepStrictEqual(completed, { ...created, completed: true })
     assert.deepStrictEqual(tasks, [completed])
   }), { fastCheck: { numRuns: 25 } })
