@@ -15,8 +15,8 @@ import { FastCheck } from "effect/testing"
 const samples = FastCheck.sample(Schema.toArbitrary(schema)(FastCheck), 10)
 ```
 
-Default-export the schema from a module. Run the bundled CLI:
+Default-export the schema from a module. Run the CLI:
 
 ```sh
-bun scripts/generate.js ./scripts/person.ts --count 10
+bun apps/effect-arbitrary/generate.ts <schema-module> --count 10
 ```
