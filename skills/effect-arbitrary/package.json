@@ -1,0 +1,11 @@
+{
+  "name": "effect-arbitrary",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build --target bun scripts/generate.ts --outfile scripts/generate.js"
+  },
+  "dependencies": {
+    "effect": "4.0.0-rc.112"
+  }
+}
