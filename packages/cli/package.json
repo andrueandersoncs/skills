@@ -1,0 +1,35 @@
+{
+  "name": "@andrue/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "bun@1.4.0",
+  "description": "CLI for manage-project and Effect Schema sample generation",
+  "license": "MIT",
+  "bin": {
+    "andrue-cli": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "bun run build",
+    "test": "node dist/cli.js --help"
+  },
+  "dependencies": {
+    "effect": "4.0.0-rc.112"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsup": "latest",
+    "typescript": "latest"
+  }
+}

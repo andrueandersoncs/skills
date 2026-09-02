@@ -1,3 +1,4 @@
+import { readFile, writeFile } from "node:fs/promises"
 import { Schema } from "effect"
 
 export const Status = Schema.Literals([
@@ -9,15 +10,6 @@ export const Status = Schema.Literals([
   "Done"
 ])
 export type Status = typeof Status.Type
-
-export const STATUSES: ReadonlyArray<Status> = [
-  "Not started",
-  "Ready",
-  "In progress",
-  "Blocked",
-  "In review",
-  "Done"
-]
 
 export const Task = Schema.Struct({
   id: Schema.String,
@@ -125,10 +117,10 @@ export const encodeProject = (project: Project) => `${Schema.encodeUnknownSync(P
 
 export const decodeProject = (text: string) => Schema.decodeUnknownSync(ProjectJson)(text)
 
-export const readProject = async (path: string) => decodeProject(await Bun.file(path).text())
+export const readProject = async (path: string) => decodeProject(await readFile(path, "utf8"))
 
 export const writeProject = async (path: string, project: Project) => {
-  await Bun.write(path, encodeProject(project))
+  await writeFile(path, encodeProject(project))
 }
 
 const requireProject = (project: Project | undefined): Project => {

@@ -1,7 +1,7 @@
 ---
 name: manage-project
 description: "Manage an AI-agent project from request through decomposition, preparation, routing, execution, monitoring, review, and closure using durable task records. Use when asked to manage, coordinate, run, or track a multi-task project, or to use the manage-project CLI or project board."
-compatibility: Requires concurrent fresh-subagent delegation, the CLI at apps/manage-project/cli.ts, and a durable project record accessible to all participating agents.
+compatibility: Requires concurrent fresh-subagent delegation, the `andrue-cli` command from `@andrue/cli`, and a durable project record accessible to all participating agents.
 ---
 
 # Manage Project
@@ -28,7 +28,7 @@ Use this global `workflow-model`:
 Persist state with:
 
 ```sh
-bun apps/manage-project/cli.ts --record $project-record-location <command>
+andrue-cli manage-project --record $project-record-location <command>
 ```
 
 | Step | Command |

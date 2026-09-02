@@ -403,10 +403,9 @@ document.addEventListener("keydown", (event) => {
 })
 
 const events = new EventSource("/events")
-events.onmessage = (event) => {
+events.onmessage = () => {
   if (state.posting) return
-  if (event.data === "reload") location.reload()
-  else load()
+  load()
 }
 
 setInterval(tick, 1000)

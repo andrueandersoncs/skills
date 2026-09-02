@@ -2,7 +2,12 @@
   "name": "skills",
   "type": "module",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "packageManager": "bun@1.4.0",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "bun run --workspaces build",
+    "test": "bun run --workspaces test"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   }

@@ -1,48 +1,16 @@
-#!/usr/bin/env bun
-import { join, resolve } from "node:path"
-import {
-  Console,
-  Effect,
-  FileSystem,
-  Layer,
-  Path,
-  Stdio,
-  Terminal
-} from "effect"
+import { existsSync } from "node:fs"
+import { dirname, join, resolve } from "node:path"
+import { fileURLToPath } from "node:url"
+import { Console, Effect } from "effect"
 import { Argument, Command, Flag } from "effect/unstable/cli"
-import { ChildProcessSpawner } from "effect/unstable/process"
 import {
   applyAction,
   readProject,
   writeProject,
   type Action,
   type Project
-} from "./project.ts"
-import { startServer } from "./server.ts"
-
-const CliLayer = Layer.mergeAll(
-  FileSystem.layerNoop({
-    readFileString: (path) => Effect.promise(() => Bun.file(path).text()),
-    writeFileString: (path, data) =>
-      Effect.promise(() => Bun.write(path, data)).pipe(Effect.asVoid)
-  }),
-  Path.layer,
-  Stdio.layerTest({}),
-  Layer.succeed(
-    Terminal.Terminal,
-    Terminal.make({
-      columns: Effect.succeed(80),
-      rows: Effect.succeed(24),
-      readInput: Effect.die("unused"),
-      readLine: Effect.die("unused"),
-      display: () => Effect.void
-    })
-  ),
-  Layer.succeed(
-    ChildProcessSpawner.ChildProcessSpawner,
-    ChildProcessSpawner.make(() => Effect.die("unused"))
-  )
-)
+} from "./project"
+import { startServer } from "./server"
 
 const recordFlag = Flag.string("record").pipe(
   Flag.withDescription("Durable project record path"),
@@ -60,13 +28,8 @@ const run = (action: Action, view: (project: Project) => unknown) =>
   Effect.gen(function*() {
     const { record } = yield* manageProject
     const path = resolve(record)
-    const existing = (yield* Effect.promise(() => Bun.file(path).exists()))
-      ? yield* Effect.promise(() => readProject(path))
-      : undefined
-    const project = yield* Effect.try({
-      try: () => applyAction(existing, action),
-      catch: (error) => (error instanceof Error ? error.message : String(error))
-    })
+    const existing = existsSync(path) ? yield* Effect.promise(() => readProject(path)) : undefined
+    const project = applyAction(existing, action)
     yield* Effect.promise(() => writeProject(path, project))
     yield* print({ record: path, ...view(project) as object })
   })
@@ -250,14 +213,14 @@ const serve = Command.make(
       const server = startServer({
         record,
         port,
-        webRoot: join(import.meta.dir, "web")
+        webRoot: join(dirname(fileURLToPath(import.meta.url)), "web")
       })
       yield* Console.log(`http://127.0.0.1:${server.port}`)
       yield* Effect.never
     })
-).pipe(Command.withDescription("Start the project board dev server"))
+).pipe(Command.withDescription("Start the project board"))
 
-const command = manageProject.pipe(
+export const command = manageProject.pipe(
   Command.withSubcommands([
     init,
     add,
@@ -273,10 +236,4 @@ const command = manageProject.pipe(
     report,
     serve
   ])
-)
-
-Effect.runPromise(
-  Command.runWith(command, { version: "0.1.0" })(process.argv.slice(2)).pipe(
-    Effect.provide(CliLayer)
-  )
 )

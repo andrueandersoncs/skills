@@ -10,6 +10,22 @@ Copy and run this [skills.sh](https://skills.sh/andrueandersoncs/skills) command
 npx skills@latest add andrueandersoncs/skills --yes
 ```
 
+## CLI
+
+```sh
+bun add -d @andrue/cli
+```
+
+```json
+{
+  "scripts": {
+    "project": "andrue-cli manage-project show",
+    "board": "andrue-cli manage-project serve",
+    "generate": "andrue-cli generate ./schema.js"
+  }
+}
+```
+
 ## Included skills
 
 - `define-task` — turns requests, goals, and commitments into executable AI-agent task records.

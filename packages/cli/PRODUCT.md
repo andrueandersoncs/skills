@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-delegated: Bun `serve` + static HTML/CSS/JS, already shipping in `apps/manage-project/web`.
+delegated: Node `http` + static HTML/CSS/JS in `packages/cli/src/manage-project/web`.
 
 ## Users
 
@@ -24,7 +24,7 @@ Status is the truth. Columns are the state machine, not a free-moving kanban. Il
 
 ## Operating Context
 
-Run with `bun apps/manage-project/cli.ts --record <path> serve`. The CLI and the board share `applyAction`. Agents and the operator write the same file.
+Run with `andrue-cli manage-project --record <path> serve`. The CLI and the board share `applyAction`. Agents and the operator write the same file.
 
 ## Capabilities and Constraints
 
@@ -39,7 +39,7 @@ None. The first board (warm-black paper, system sans, amber only on the next act
 
 ## Evidence on Hand
 
-Live board at `apps/manage-project/web`. Sample records created by the CLI. No photography, logo, or customer proof.
+Live board at `packages/cli/src/manage-project/web`. Sample records created by the CLI. No photography, logo, or customer proof.
 
 ## Product Principles
 

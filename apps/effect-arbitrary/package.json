@@ -1,8 +1,0 @@
-{
-  "name": "effect-arbitrary",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "effect": "4.0.0-rc.112"
-  }
-}
