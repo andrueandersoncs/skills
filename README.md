@@ -28,6 +28,7 @@ bun add -d @andrue/cli
 
 ## Included skills
 
+- `ai-opportunity-assessment` — turns business discovery material into a prioritized, evidence-aware AI implementation roadmap.
 - `define-task` — turns requests, goals, and commitments into executable AI-agent task records.
 - `workflows` — creates and decomposes workflow skills, dry-runs callstack traces, and models state machines.
 - `happy-path` — plans the smallest complete happy-path change or implements an approved happy-path plan.
