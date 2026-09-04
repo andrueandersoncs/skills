@@ -1,11 +1,11 @@
 ---
 name: software-craft
-description: Route software changes and decisions to the smallest complete evidence-driven workflow and relevant technical specialist. Use when work changes or evaluates a software artifact, or when a software decision requires current repository or external evidence.
+description: Route executable software, libraries, services, infrastructure, and single-workflow agent skills to the smallest complete evidence-driven workflow and relevant technical specialist. Use when changing or evaluating those artifacts, or when a related software decision requires current repository or external evidence.
 ---
 
 # Software Craft
 
-Route by the **current evidence deficit**. Select exactly one process owner for the next action, then add only matching domain or execution overlays. Do not stack other top-level routers.
+Within that scope, route by the **current evidence deficit**. Select exactly one process owner for the next action, then add only matching domain or execution overlays. Do not stack other top-level routers.
 
 Use no component for a stable factual explanation that needs neither repository work nor a current software decision.
 
@@ -28,7 +28,7 @@ Use no component for a stable factual explanation that needs neither repository 
 | Completed work must migrate, integrate, deploy, or roll out | [`ship-change`](references/ship-change/SKILL.md) | The selected shipping mode reaches its own completion state |
 | Knowledge must move to another person, agent, or future session | [`transfer-knowledge`](references/transfer-knowledge/SKILL.md) | The receiver can take the next action without the original conversation |
 | Visual or interaction evidence must be captured and interpreted | [`capture-design-reference`](references/capture-design-reference/SKILL.md) | A source-traceable, originality-safe builder brief exists |
-| A reusable agent skill is being created or changed | [`author-agent-skill`](references/author-agent-skill/SKILL.md) | Routing, behavior, structure, and host discovery pass |
+| A reusable agent skill with one direct workflow is being created or changed | [`author-agent-skill`](references/author-agent-skill/SKILL.md) | Behavior, structure, evaluation, and host discovery pass |
 
 When several rows describe the request, choose the prerequisite whose Done evidence is still missing:
 

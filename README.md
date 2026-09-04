@@ -28,12 +28,15 @@ bun add -d @andrue/cli
 
 ## Included skills
 
+- `technical-documentation` — creates and improves tutorials, how-to guides, reference, and explanation around distinct user needs.
 - `product-management` — builds evidence-backed product catalogs and specifications that connect needs, behavior, delivery, and results.
 - `ai-opportunity-assessment` — turns business discovery material into a prioritized, evidence-aware AI implementation roadmap.
 - `define-task` — turns requests, goals, and commitments into executable AI-agent task records.
 - `workflows` — creates and decomposes workflow skills, dry-runs callstack traces, and models state machines.
-- `software-craft` — routes software work by its current evidence gap, then applies focused delivery, domain, coordination, and verification workflows.
+- `software-craft` — routes executable software, libraries, services, infrastructure, and single-workflow agent skills by their current evidence gap.
+- `skill-routers` — designs, implements, and independently reviews deterministic agent skill routers that select one leaf from current and desired state.
 - `happy-path` — plans the smallest complete happy-path change or implements an approved happy-path plan.
+- `grok-bot` — manages Grok Bots through safe autonomy, feedback loops, coaching, delegation, and learning.
 - `predictive-planning` — creates and improves plans as testable forecasts with explicit evidence and response rules.
 - `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.

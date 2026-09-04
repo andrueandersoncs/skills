@@ -1,6 +1,6 @@
 ---
 name: author-agent-skill
-description: Create, consolidate, or improve reusable agent skills as small discoverable behavior programs with progressive disclosure and adversarial evaluation. Use for SKILL.md files, skill routers, agent instructions, prompt-to-skill extraction, skill decomposition, or routing collisions.
+description: Create, consolidate, or improve reusable agent skills that execute one direct workflow as small discoverable behavior programs with progressive disclosure and adversarial evaluation. Use for single-workflow SKILL.md files, agent instructions, prompt-to-skill extraction, or skill-authoring collisions.
 ---
 
 # Author Agent Skill
