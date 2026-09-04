@@ -1,7 +1,7 @@
 # Software Craft: synthesis of six agent-skill libraries
 
 **Research date:** 2026-09-04  
-**Result:** [`skills/software-craft`](../../skills/software-craft/SKILL.md) with 23 progressively loaded component skills, a complete [origin/relationship table](../../skills/software-craft/references/catalog.md), and [source coverage manifest](software-craft-source-coverage.md).
+**Result:** [`software-craft`](../../skills/help/references/software-craft/SKILL.md) with 23 progressively loaded component skills, a complete [origin/relationship table](../../skills/help/references/software-craft/references/catalog.md), and [source coverage manifest](software-craft-source-coverage.md).
 
 ## Conclusion
 
@@ -256,7 +256,7 @@ software-craft                        one installable router
                                       web game, Swift, security
 ```
 
-Nested components follow this repository's established `workflows/references/<component>/SKILL.md` convention. They ship with the root skill but do not compete as top-level installable skills. The complete name/origin/purpose/relationship table is in [`catalog.md`](../../skills/software-craft/references/catalog.md); every source skill is accounted for in the [coverage manifest](software-craft-source-coverage.md).
+The software workflows remain under `software-craft/references/<component>/SKILL.md`. They ship through `help` and do not compete as installable skills. The complete name/origin/purpose/relationship table is in [`catalog.md`](../../skills/help/references/software-craft/references/catalog.md); every source skill is accounted for in the [coverage manifest](software-craft-source-coverage.md).
 
 ## Licensing and provenance
 

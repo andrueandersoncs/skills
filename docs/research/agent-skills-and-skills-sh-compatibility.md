@@ -53,15 +53,15 @@ The following are **recommendations/conventions**, not validity requirements:
 
 ## Findings for this repository
 
-As of 2026-09-04, the repository has 12 top-level skill directories. Each has an exact `SKILL.md` entry point. `skill-routers` bundles its design, implementation, and independent-review leaves; `software-craft` bundles 25 state-changing leaves plus technical context; `workflows` bundles only callstack and state-machine projection leaves.
+As of 2026-09-04, the repository has one top-level skill directory: `help`. It contains 13 routed components. `skill-routers`, `software-craft`, and `workflows` retain their own nested leaves.
 
-The consolidated layout keeps router selection and re-entry in router roots. Nested leaves are bundled with their owning router and are not separate installable entries.
+The consolidated layout keeps top-level selection and re-entry in `help`. Routed components and their leaves install with it and do not compete as separate skills.
 
-All 12 top-level skills pass the pinned official `skills-ref` validator, and the pinned skills CLI discovers exactly those 12 installable names.
+The top-level `help` skill passes the pinned official `skills-ref` validator, and the pinned skills CLI discovers only `help`.
 
 ## Recommended actions
 
-1. **Keep only independently useful routers and direct workflows at the top level.**
+1. **Keep `help` as the only top-level skill.**
 2. **Keep repository-only files at the root** (`README.md`, `AGENTS.md`, and `docs/`). Do not create a root `SKILL.md`.
 3. **Keep every router self-contained.** Its selected leaves, supporting references, scripts, and assets must install with it.
 4. **Validate every top-level skill and run a skills.sh discovery smoke test after structural changes.**
