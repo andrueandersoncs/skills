@@ -1,6 +1,6 @@
 ---
 name: grok-bot
-description: Manage Grok Bots through safe autonomy, focused roles, end-to-end feedback loops, workflow teaching, routines, handoffs, multi-bot learning, and reusable templates. Use when operating, coaching, organizing, creating, sharing, delegating recurring work to, or setting working policies for Grok Bots, especially when deciding autonomy, roster design, recurring work, reviews, feedback loops, or template boundaries.
+description: Create and manage Grok Bots, reusable skills, routines, and handoffs.
 ---
 
 # Grok Bot
@@ -19,4 +19,6 @@ Do not use this skill for ordinary engineering execution, generic task partition
 6. **Coach conversationally.** Treat a gap as a learning assignment: ask the bot to research the area, examine successful local examples, and return with an informed approach. Keep the conversation direct rather than adding ritual or oversized prompts.
 7. **Package stable workflows.** Once a narrow bot job works reliably, share it as a template containing only the identity, description, skills, and routines the job needs. Name the required connections and remove API keys, internal URLs, customer data, and anything else private. Treat it as a recipe: the shared copy does not include your computer, logins, conversation history, or learned memory, so recipients connect their own accounts and data.
 
-When defining or revising a bot, read [the curated examples](references/examples.md) and borrow the smallest matching job shape, approval boundary, cadence, and proof. Use xAI's current documentation for [Bots](https://docs.x.ai/grok-bot/bots), [skills and routines](https://docs.x.ai/grok-bot/skills-routines-and-automations), and [approval boundaries](https://docs.x.ai/grok-bot/approvals-security-and-privacy). Consult the [official Grok Bot guides](https://x.ai/bot/guides) for domain examples, treating author-specific structures as examples rather than requirements.
+When creating a bot, start with [xAI's Bot Marketplace](https://x.ai/bot/marketplace), the primary source of truth for current bot templates. Search or browse the closest category, open the closest listing, and inspect its description and shared configuration. If a listing is close, import it as the starting point, then adapt its full configuration to the user's intended job and the operating method above. Create a bot from scratch only when no marketplace template provides a close job shape.
+
+Use xAI's current documentation for [Bots](https://docs.x.ai/grok-bot/bots), [skills and routines](https://docs.x.ai/grok-bot/skills-routines-and-automations), and [approval boundaries](https://docs.x.ai/grok-bot/approvals-security-and-privacy). Consult the [official Grok Bot guides](https://x.ai/bot/guides) for secondary domain examples.

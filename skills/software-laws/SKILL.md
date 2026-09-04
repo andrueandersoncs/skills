@@ -1,6 +1,6 @@
 ---
 name: software-laws
-description: Follow and reference established software laws when making software-related decisions.
+description: Explain or assess a named software law in a concrete case.
 ---
 
 # Software Laws

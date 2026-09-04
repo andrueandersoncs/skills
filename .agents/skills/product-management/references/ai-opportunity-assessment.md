@@ -14,7 +14,7 @@ Use the available discovery transcript, business context, desired outcomes, and 
    - **Effectiveness:** increases revenue or improves decisions.
    - **Efficiency:** saves time or reduces cost.
    - **Quality:** improves the product or customer experience.
-4. Recommend the simplest effective intervention. Distinguish AI from conventional automation or process changes, and use AI only when it adds material value.
+4. Recommend the simplest effective intervention. Explain in plain language how it changes the current situation, why that should produce the desired outcome, what evidence makes it credible, and, when supported, why earlier attempts failed. Distinguish AI from conventional automation or process changes, and use AI only when it adds material value.
 5. Prioritize the opportunities by expected value, strength of evidence, and implementation effort.
 6. Quantify projected outcomes from supplied facts. Label assumptions, ranges, and unknowns clearly.
 7. Turn the priorities into the smallest practical implementation sequence. Give each phase an outcome and a way to verify it.

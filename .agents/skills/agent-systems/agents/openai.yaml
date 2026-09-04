@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Systems"
+  short_description: "Design reliable agent architecture"
+  default_prompt: "Use $agent-systems to design or improve this agent system."

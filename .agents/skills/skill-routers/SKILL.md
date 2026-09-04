@@ -1,6 +1,6 @@
 ---
 name: skill-routers
-description: Route agent-skill-router work by current and desired state to exactly one design, implementation, or independent-review workflow. Use when asked to explain or design an agent skill router, implement a defined agent-skill route table, or independently audit an implemented agent skill router.
+description: Design, implement, or audit a router that selects one agent-skill workflow.
 ---
 
 # Skill Routers

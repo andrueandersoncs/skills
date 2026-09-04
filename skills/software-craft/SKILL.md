@@ -1,6 +1,6 @@
 ---
 name: software-craft
-description: Route executable software, libraries, services, infrastructure, and single-workflow agent skills to exactly one evidence-driven workflow. Use when changing, diagnosing, reviewing, verifying, shipping, or making a current evidence-dependent decision about those artifacts.
+description: Route software design, implementation, diagnosis, review, verification, or release to one specialist workflow.
 ---
 
 # Software Craft

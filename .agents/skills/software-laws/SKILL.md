@@ -1,6 +1,6 @@
 ---
 name: software-laws
-description: Explain or evaluate established software laws as context-aware evidence prompts. Use when the user names a software law or principle, asks which laws apply to a decision, or requests a law-based assessment of a concrete case.
+description: Explain or assess a named software law in a concrete case.
 ---
 
 # Software Laws

@@ -1,6 +1,6 @@
 ---
 name: workflows
-description: Produce source-grounded, nonexecuting projections of a workflow as a callstack trace, a state-machine model, or both. Use when asked to dry-run, trace, simulate, visualize, or diagram a workflow, procedure, algorithm, function, or skill without executing it.
+description: Simulate a workflow without executing it as a callstack trace, state-machine model, or diagram.
 ---
 
 # Workflows

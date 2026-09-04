@@ -1,29 +1,35 @@
 {
   "version": 1,
   "skills": {
+    "agent-systems": {
+      "source": "andrueandersoncs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/agent-systems/SKILL.md",
+      "computedHash": "2c9319230cda1e87f9c5681c3826735ebb05087509e828556909e50f28fb03fc"
+    },
     "deslop": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/deslop/SKILL.md",
-      "computedHash": "bedb5b23ecd1d7391dae8833dc83de394166f268027040e12141373c3e903286"
+      "computedHash": "1381993a7af16054e8529aec7ce6a1f46ecd7601aa125c536b7670ac31552834"
     },
     "distill-skill-to-model": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/distill-skill-to-model/SKILL.md",
-      "computedHash": "e05218b6446a5f45ebf6c867612c64f43c6670e1964a9006c4b0b521c5d18213"
+      "computedHash": "290afa1dbaa84712d366975aba5ed7be6f6be3513012414aa0764f3be6227c87"
     },
     "elicit-llm-creativity": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/elicit-llm-creativity/SKILL.md",
-      "computedHash": "22ad8900c49aafb533a79b68e8eb4f593f4d746b8b3167245e5146acf95730e7"
+      "computedHash": "dc63da584663ddc0196b0c93580d8690db85e20f8bc0b50abb7f576ed3ca0f0c"
     },
     "grok-bot": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/grok-bot/SKILL.md",
-      "computedHash": "b766b41cd2503d6807183add9055176d48cc182542e27c7fcf38f2191cf08ab5"
+      "computedHash": "983e584d3d0a550d7a76f3a99aa926e4f4e5155971ee8aa9d887203dd10fc84d"
     },
     "impeccable": {
       "source": "pbakaus/impeccable",
@@ -35,55 +41,55 @@
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/llm-wiki/SKILL.md",
-      "computedHash": "a4e2f1a7e9405a20386b1c52b9efec5ed4da6346ceb04ee75b6245ec45968119"
+      "computedHash": "9d8a0beb334b4d9e5dded0488fb08fba31c510947855bf85331c135a5ced339d"
     },
     "manage-project": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/manage-project/SKILL.md",
-      "computedHash": "93520cb9f363aa3636b91e27268dc1b01e903f35aea7d1a0bccf01a3d1ff2157"
+      "computedHash": "a78063d48007c19845ee54ad8e55a81205bdf0669f16d2ac0881f4469833287d"
     },
     "predictive-planning": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/predictive-planning/SKILL.md",
-      "computedHash": "a31c5d3f64d7d96ea3928738605be8baa7b1d919b767da6d0bf3709e989d7d94"
+      "computedHash": "0bd5b9e0669ec617c52a57c692050c8685e3a8beadd34e7c2f63104dcdc6d0b5"
     },
     "product-management": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/product-management/SKILL.md",
-      "computedHash": "b056845aeda89fbf657f9b5d7ef4ae0a239c495df6f30ee3b88bc9a8210ef933"
+      "computedHash": "372768c5d8585a59f1c1718487a7dd3f549eff489e971734a819ff375713bf58"
     },
     "skill-routers": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/skill-routers/SKILL.md",
-      "computedHash": "dba8be242441002caae92ec262f68da6fa832c81c9c3d28b69ee79714c40bed9"
+      "computedHash": "6fed8d448ce065b2a68153b7a704581483cafc83393e40ea02d0017916be9909"
     },
     "software-craft": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/software-craft/SKILL.md",
-      "computedHash": "041f4edb40704d2e960f1a1d13c3744275efa954492f34cba973adff5ecbd287"
+      "computedHash": "2c919ebf6d01cbc9c3b0f942d537c0dcb46b1c3bb0669e30b939b7a0cd35dafa"
     },
     "software-laws": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/software-laws/SKILL.md",
-      "computedHash": "a20579a508e3af75345ec62d009d07ff8da1a4da3e624913c5024323898c48a9"
+      "computedHash": "19d2374943e990aaca59734162150eb02593c543a753ae8b1a785fb4dee0d388"
     },
     "technical-documentation": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/technical-documentation/SKILL.md",
-      "computedHash": "4951fb909b498a432259a885cea54429d8e4cfe8a702299e4052989d3dff031e"
+      "computedHash": "7d8dc5a5cc3d2762fc7935532a6ee91b6fbd92f2c2d9ab908334d98939e5f2b9"
     },
     "workflows": {
       "source": "andrueandersoncs/skills",
       "sourceType": "github",
       "skillPath": "skills/workflows/SKILL.md",
-      "computedHash": "171ea2d4f2b8bcc66cc15f35fc95caabab00897622d467ec72c5730a28ba86af"
+      "computedHash": "89dc6b3d328a362b6f518d107a31ba2c4fd0c30573ab34dc19363bf5da0ff20d"
     }
   }
 }

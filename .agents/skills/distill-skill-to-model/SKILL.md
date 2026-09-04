@@ -1,6 +1,6 @@
 ---
 name: distill-skill-to-model
-description: Distill an Agent Skills package into a small skill-specific LoRA model and prove it against the original skill with sealed paired evaluations. Use when asked to convert, internalize, translate, or train a small custom model from SKILL.md behavior.
+description: Train and evaluate a small model that reproduces one Agent Skill.
 ---
 
 # Distill Skill to Model

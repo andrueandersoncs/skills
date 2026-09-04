@@ -28,6 +28,7 @@ bun add -d @andrue/cli
 
 ## Included skills
 
+- `agent-systems` — routes agent architecture work across harnesses, context, memory, tools, interaction, coding, evaluation, training, evolution, and multi-agent coordination.
 - `skill-routers` — designs, implements, and independently reviews deterministic agent skill routers from current and desired state.
 - `software-craft` — routes software work to exactly one state-changing workflow, with Effect, TypeScript, Swift, npm publishing, and tool guidance supplied as context.
 - `workflows` — produces source-grounded callstack and state-machine projections without executing the target.
@@ -42,3 +43,5 @@ bun add -d @andrue/cli
 - `software-laws` — applies and evaluates named software laws as context-aware evidence prompts.
 
 Each directory under `skills/` can be added to an agent runtime's configured skill path independently. The workflows operate on the active repository rather than this collection.
+
+`skills/` is the canonical source for repository-owned skills. `.agents/skills/` contains installed runtime copies and may also contain independently sourced skills.

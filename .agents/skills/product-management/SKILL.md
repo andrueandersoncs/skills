@@ -1,6 +1,6 @@
 ---
 name: product-management
-description: Build evidence-backed product records and assessments that connect customer needs and business opportunities to durable behavior, delivery work, and observed results. Use when defining, cataloging, specifying, reviewing, or documenting a product, capability, feature, journey, requirement, roadmap, release, product decision, discovery call, or AI opportunity assessment.
+description: Build product records that connect evidence, needs, decisions, delivery, and results.
 ---
 
 # Product Management

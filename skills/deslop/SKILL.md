@@ -1,6 +1,6 @@
 ---
 name: deslop
-description: Remove AI-writing patterns without changing meaning or flattening the writer's voice. Use when editing, humanizing, tightening, or auditing prose, including documentation, posts, essays, messages, and product copy, or when asked whether text reads as AI slop.
+description: Rewrite prose to remove AI-writing patterns while preserving meaning and voice.
 ---
 
 # Deslop
