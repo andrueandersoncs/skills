@@ -1,7 +1,7 @@
 # Software Craft source coverage
 
 **Snapshot date:** 2026-09-04  
-**Scope:** Every actual `SKILL.md` in the six inspected repositories. Grouped rows share the same result and retained rule. “Excluded” means the source was analyzed but did not produce a general software-craft component.
+**Scope:** Every actual `SKILL.md` in the seven inspected repositories. Grouped rows share the same result and retained rule. “Excluded” means the source was analyzed but did not produce a general software-craft component.
 
 ## addyosmani/agent-skills — 25
 
@@ -136,6 +136,33 @@ The v2 Cartographer graph CLI informed freshness, bounded briefs, completeness a
 | `using-git-worktrees`, `finishing-a-development-branch` | `coordinate-agents`, `ship-change` | Isolation provenance, safe integration choices, guarded destructive cleanup |
 | `writing-skills` | `author-agent-skill` | RED/GREEN adversarial skill behavior tests and routing pressure |
 
+## cursor/plugins pstack — 45
+
+Snapshot: [`93b00b8`](https://github.com/cursor/plugins/tree/93b00b89ef425a9c1bac0d0b317dfc49c930ac99/pstack/skills), pstack `0.14.8`, MIT.
+
+| Source skills | Result / disposition | Retained contribution or exclusion reason |
+| --- | --- | --- |
+| `create-verification-skill`, `maintain-verification-skill` | `author-agent-skill` context | Project-local launch, doctor, drive, evidence, cleanup, feature-map, and maintenance contract |
+| `typescript-best-practices`, `principle-type-system-discipline` | Shared `write-typescript` context | Constructive domain types, boundary parsing, honest narrowing, authoritative derivation, exhaustiveness, and proportional precision |
+| `blast-radius` | `review-change` | Central safety fact and coupling paths that symbol references miss |
+| `architect` | `map-codebase`, `design-contract`, `prototype-options`, `implement-change` | Ground consumers, compare materially different contracts, and implement against the selected shape |
+| `arena` | `prototype-options`, `design-contract`, `coordinate-agents` | Competing candidates are an optional decision tactic rather than another workflow owner |
+| `automate-me`, `reflect` | Excluded: Cursor transcript and mode automation | Reusable skill authoring and evidence-based consolidation remain in `author-agent-skill` |
+| `figure-it-out`, `poteto-mode`, `setup-pstack` | Excluded: competing meta-router and provider model configuration | Current-plus-desired-state routing and project coordination already have canonical owners |
+| `how`, `teach`, `recall` | `transfer-knowledge`; provider-specific recall excluded | Receiver-shaped explanation and resumable context use durable evidence rather than Cursor transcript paths |
+| `interrogate`, `no-comments` | `review-change`, `absurd-code-review` | Independent evidence-backed judgment survives; bundled model panels and custom agents do not |
+| `show-me-your-work` | Excluded: durable project records already own the result | `manage-project` and `predictive-planning` preserve decisions, evidence, and revisions without a second log format |
+| `swarm` | `coordinate-agents` | One-wave delegation only for independent ownership and state |
+| `tdd` | `implement-change`, `diagnose-problem`, `verify-change` | Observed RED where a plausible regression justifies a durable behavior guard |
+| `technical-writing`, `bro`, `unslop` | Excluded: editorial behavior has separate owners | `technical-documentation` and `deslop` own document structure and prose; `unslop` is already preserved verbatim under `deslop` |
+| `make-bot-ui` | Excluded: Cursor Grok webhook deployment | Provider-specific secrets, webhook, and Tailscale procedure has no portable second caller |
+| `why` | Excluded: evidence and explanation already have owners | `research-evidence` owns sourced decisions; `technical-documentation` owns historical and design-rationale explanations |
+| `principle-laziness-protocol`, `principle-foundational-thinking`, `principle-redesign-from-first-principles`, `principle-subtract-before-you-add`, `principle-minimize-reader-load`, `principle-outcome-oriented-execution`, `principle-model-the-domain`, `principle-boundary-discipline`, `principle-make-operations-idempotent`, `principle-migrate-callers-then-delete-legacy-apis` | `design-contract`, `implement-change`, `review-change`, `secure-system` | Small contracts, domain-shaped types, boundary checks, complete cutovers, idempotency, and deletion of unnecessary structure already have canonical owners |
+| `principle-exhaust-the-design-space`, `principle-experience-first` | `prototype-options`, `design-contract`, `design-interface` | Compare consequential alternatives and prefer the coherent user result |
+| `principle-prove-it-works`, `principle-fix-root-causes`, `principle-sequence-verifiable-units` | `diagnose-problem`, `plan-change`, `verify-change` | Reproduce failures, fix the earliest verified cause, and close each unit with direct evidence |
+| `principle-guard-the-context-window`, `principle-never-block-on-the-human`, `principle-separate-before-serializing-shared-state` | `map-codebase`, `coordinate-agents`, `manage-work-queue` | Selective context, autonomous reversible work, and independent ownership before concurrency |
+| `principle-build-the-lever`, `principle-encode-lessons-in-structure` | `prototype-options`, `author-agent-skill`, `ship-change` | Prefer rerunnable evidence and structural enforcement over repeated prose |
+
 ## Accounting
 
 - Addy: 25
@@ -144,6 +171,7 @@ The v2 Cartographer graph CLI informed freshness, bounded briefs, completeness a
 - Emil: 12
 - Cartographer: 1
 - Superpowers: 14
-- **Total: 221**
+- Pstack: 45
+- **Total: 266**
 
-The source synthesis produced 23 components. The current router retains 22 as routed leaves and keeps Swift as shared technical context; three consolidated local workflows add distinct adversarial-review and Effect-contract results. Exclusion is deliberate: it removes source-bound operation without pretending the source was absent.
+The source synthesis produced 24 components. The current router retains 22 as routed leaves and keeps Swift and TypeScript as shared technical context; verification-skill guidance is nested under `author-agent-skill`. Three consolidated local workflows add distinct adversarial-review and Effect-contract results. Exclusion is deliberate: it removes source-bound operation without pretending the source was absent.

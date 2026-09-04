@@ -16,7 +16,7 @@ The reviewable software artifact, originating outcome or specification, reposito
    - **Specification:** missing behavior, wrong behavior, scope creep, compatibility, and migration completeness.
    - **Quality:** correctness, clarity, simplicity, architecture, security, performance, operability, and test strength.
 3. Read tests before implementation. Ask what observable break each test would catch.
-4. Trace changed public seams and callers. Look for partial cutovers, duplicated ownership, unreachable cleanup, and new concepts that can be deleted.
+4. Identify the central fact the change's safety depends on, then trace every coupling path, not only symbol references: lifecycle and timing, wire or persisted formats, dependency semantics, feature flags, and downstream readers. Also look for partial cutovers, duplicated ownership, unreachable cleanup, and new concepts that can be deleted.
 5. Judge domain-specific security, performance, interface, and motion concerns as part of the requested review context.
 6. Report only evidence-backed findings with severity, file location, consequence, and smallest corrective action. Keep praise and style preference out of the findings list.
 7. When receiving review, verify each claim against code and contract. Clarify ambiguity and push back with evidence; do not implement feedback merely because a reviewer stated it.

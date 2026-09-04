@@ -29,7 +29,7 @@ bun add -d @andrue/cli
 ## Included skills
 
 - `skill-routers` — designs, implements, and independently reviews deterministic agent skill routers from current and desired state.
-- `software-craft` — routes software work to exactly one state-changing workflow, with Effect, Swift, npm publishing, and tool guidance supplied as context.
+- `software-craft` — routes software work to exactly one state-changing workflow, with Effect, TypeScript, Swift, npm publishing, and tool guidance supplied as context.
 - `workflows` — produces source-grounded callstack and state-machine projections without executing the target.
 - `technical-documentation` — creates and improves tutorials, how-to guides, reference, and explanation around distinct user needs.
 - `product-management` — builds evidence-backed product records and AI opportunity assessments connecting needs, behavior, delivery, and results.

@@ -24,6 +24,10 @@ The recurring direct workflow, intended callers, existing skill sources, reposit
 8. Rerun routing and behavior scenarios in fresh context. Tighten only wording linked to observed failures; check collisions and bundled links.
 9. Validate structure, frontmatter, line budget, reference paths, and actual host discovery. Verify visual demos in the browser when the skill promises them.
 
+## Artifact context
+
+When the requested artifact is a project-local verification skill, apply [the verification skill context](references/verification-harness.md) within this authoring workflow.
+
 ## Output
 
 A created or revised single-workflow agent skill with its routed behavior, supporting references, and evaluation evidence.

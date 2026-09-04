@@ -53,6 +53,7 @@ Choose the first matching row. Row order is the only precedence rule.
 Load exactly one selected leaf and treat it as the active skill. Supply relevant technology guidance as context rather than selecting a second owner:
 
 - [Effect](references/effect.md), including [Effect DSLs](references/effect-dsl/guide.md)
+- [TypeScript](references/write-typescript.md)
 - [Swift](references/write-swift.md)
 - [Interface design](references/design-interface/SKILL.md), [motion](references/animate-interface/SKILL.md), [immersive web](references/build-immersive-web/SKILL.md), and [web games](references/build-web-game/SKILL.md)
 - [Security](references/secure-system/SKILL.md)
