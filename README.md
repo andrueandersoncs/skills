@@ -33,7 +33,7 @@ bun add -d @andrue/cli
 - `workflows` — produces source-grounded callstack and state-machine projections without executing the target.
 - `technical-documentation` — creates and improves tutorials, how-to guides, reference, and explanation around distinct user needs.
 - `product-management` — builds evidence-backed product records and AI opportunity assessments connecting needs, behavior, delivery, and results.
-- `grok-bot` — manages Grok Bots through safe autonomy, feedback loops, coaching, delegation, and learning.
+- `grok-bot` — manages Grok Bots through safe autonomy, feedback loops, coaching, delegation, learning, and reusable templates.
 - `predictive-planning` — creates and improves plans as testable forecasts with explicit evidence and response rules.
 - `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
