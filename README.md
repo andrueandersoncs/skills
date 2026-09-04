@@ -32,11 +32,13 @@ bun add -d @andrue/cli
 - `ai-opportunity-assessment` — turns business discovery material into a prioritized, evidence-aware AI implementation roadmap.
 - `define-task` — turns requests, goals, and commitments into executable AI-agent task records.
 - `workflows` — creates and decomposes workflow skills, dry-runs callstack traces, and models state machines.
+- `software-craft` — routes software work by its current evidence gap, then applies focused delivery, domain, coordination, and verification workflows.
 - `happy-path` — plans the smallest complete happy-path change or implements an approved happy-path plan.
 - `predictive-planning` — creates and improves plans as testable forecasts with explicit evidence and response rules.
 - `manage-project` — manages AI-agent projects through durable task records and independent review.
 - `llm-wiki` — builds and maintains a persistent Markdown wiki from immutable source documents.
 - `elicit-llm-creativity` — produces distinctive creative work through broad ideation, external randomness, taste, and independent critique.
+- `deslop` — removes AI-writing patterns without changing meaning or flattening the writer's voice.
 - `effect-arbitrary` — generates valid sample data from Effect Schemas.
 - `effect-schema-brainstorming` — explores domain models through Effect Schemas, generated examples, and executable invariants.
 - `npm-publish-tool` — standardizes and publishes TypeScript npm packages and package monorepos with Bun.
