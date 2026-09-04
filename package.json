@@ -6,9 +6,11 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "build": "bun run --workspaces build",
-    "test": "bun run --workspaces test"
+    "test": "bun run --workspaces test",
+    "lint:bts": "better-typescript"
   },
   "devDependencies": {
+    "@better-typescript/better-typescript": "^0.4.9",
     "@types/bun": "latest"
   }
 }

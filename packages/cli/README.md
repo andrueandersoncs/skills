@@ -11,9 +11,10 @@ bun add -d @andrue/cli
   "scripts": {
     "project": "andrue-cli manage-project show",
     "board": "andrue-cli manage-project serve",
+    "wiki": "andrue-cli wiki --root ./wiki lint",
     "generate": "andrue-cli generate ./schema.js"
   }
 }
 ```
 
-`manage-project` writes a durable task record. `generate` prints samples from a module that default-exports an Effect Schema.
+`manage-project` writes a durable task record. `wiki` operates on a Git-backed Markdown wiki. `generate` prints samples from a module that default-exports an Effect Schema.

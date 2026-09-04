@@ -9,6 +9,7 @@ import {
 } from "effect"
 import { Command } from "effect/unstable/cli"
 import { ChildProcessSpawner } from "effect/unstable/process"
+import { command as wiki } from "./wiki/command"
 import { command as generate } from "./effect-arbitrary/command"
 import { command as manageProject } from "./manage-project/command"
 import { version } from "./version"
@@ -38,8 +39,8 @@ const CliLayer = Layer.mergeAll(
 )
 
 const command = Command.make("andrue-cli").pipe(
-  Command.withDescription("Manage projects and generate Effect Schema samples"),
-  Command.withSubcommands([manageProject, generate])
+  Command.withDescription("Manage projects, wikis, and generate Effect Schema samples"),
+  Command.withSubcommands([manageProject, generate, wiki])
 )
 
 Effect.runPromise(

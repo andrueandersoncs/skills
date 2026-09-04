@@ -69,6 +69,16 @@ When pages accumulate stale claims, repeated material, or low-value detail:
 
 Suggest compaction when you notice structural debt rather than waiting for the user to find it.
 
+## CLI Tool
+
+Use `andrue-cli wiki` for mechanical wiki operations. The LLM still writes pages, citations, and commits.
+
+- `andrue-cli wiki --root <dir> init` — create `raw/`, `README.md`, `AGENTS.md`, and the initial git commit
+- `andrue-cli wiki --root <dir> ingest <source>` — copy a source into `raw/` without overwriting
+- `andrue-cli wiki --root <dir> lint` — report missing pages, orphans, and broken relative links
+- `andrue-cli wiki --root <dir> compact` — report root sprawl and large pages
+
+
 ## Add Tools Proportionally
 
 Start with Markdown files, file search, relative links, `README.md`, and Git. Add search engines or embeddings only when navigation no longer works at the wiki's scale. Add image handling only for image-bearing sources. Add presentation formats only when the user needs those outputs. Add metadata or plugins only when they support a real repeated query or workflow. Record adopted tools and conventions in the schema.
