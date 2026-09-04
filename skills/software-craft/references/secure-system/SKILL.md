@@ -5,6 +5,10 @@ description: Threat-model and harden software that crosses trust, authorization,
 
 # Secure System
 
+## Inputs
+
+The software boundary, assets and actors, privileged actions, data classes, concrete abuse outcomes, and applicable operational constraints.
+
 ## Method
 
 1. Map assets, actors, entry points, trust boundaries, data classes, and privileged actions. State the concrete abuse outcomes that matter.
@@ -15,6 +19,10 @@ description: Threat-model and harden software that crosses trust, authorization,
 6. Minimize personal data, define purpose and retention, restrict access, and make deletion/export obligations executable.
 7. For model-driven systems, treat retrieved content and model output as untrusted; constrain tools, arguments, permissions, side effects, and confirmation boundaries.
 8. Test the highest-consequence abuse paths through the real boundary. Inspect audit events, headers, limits, permission failures, and secret absence.
+
+## Output
+
+A threat model, correctly placed preventive or detective controls, and real-boundary evidence for the highest-consequence abuse paths.
 
 ## Done
 

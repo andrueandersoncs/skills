@@ -5,6 +5,10 @@ description: Answer a software decision with current primary-source evidence, ve
 
 # Research Evidence
 
+## Inputs
+
+The decision to support, material claims, applicable versions and environment, candidate sources, and evidence constraints.
+
 ## Method
 
 1. Write the exact decision and the claims that would change it.
@@ -20,12 +24,10 @@ description: Answer a software decision with current primary-source evidence, ve
 7. Run the smallest useful experiment when documentation cannot prove runtime behavior.
 8. Save a durable report only when later work needs the evidence; otherwise answer directly and cite sources.
 
+## Output
+
+A concise evidence brief separating sourced facts, direct observations, uncertainty, and the resulting decision.
+
 ## Done
 
 The decision can be traced to current evidence, and unsupported assumptions are visibly separated from sourced facts.
-
-## Next
-
-- A technique should become reusable → `author-agent-skill`
-- Evidence exposes a design choice → `define-work` or `design-contract`
-- Evidence establishes an implementation contract → `implement-change`

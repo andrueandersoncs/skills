@@ -1,11 +1,8 @@
----
-name: implement-effect-dsls
-description: Implement data-first DSLs and F-algebras in TypeScript with Effect v4, using Effect Schema for syntax and Effect Match for exhaustive interpreters. Use for command languages, recursive ASTs, interpreter-pattern designs, catamorphisms, or multiple interpretations of one program.
----
+# Effect DSL guidance
 
-# Implement Effect DSLs
+Apply this guidance as context when the selected software workflow designs or implements a data-first DSL, command language, recursive AST, interpreter, catamorphism, or F-algebra with Effect v4.
 
-Use the project's installed Effect v4 as the authority. Read `node_modules/effect/AGENTS.md`, then inspect `node_modules/effect/src` for any API used. Confirm the installed `effect` version starts with `4.`; v4 release candidates count as v4.
+First follow the shared [Effect context](../effect.md). Confirm that the installed `effect` version starts with `4.`; release candidates count as v4.
 
 ## Choose the representation
 
@@ -26,6 +23,6 @@ Default to one closed tagged union. Add an explicit fixed-point wrapper, Effect 
 5. Implement each interpretation with `Match.type` and `Match.tagsExhaustive`. Keep effects, services, retries, logging, and authorization in or around the effectful interpreter.
 6. For an F-algebra, parameterize one syntax layer by child results, define its map, and put recursion in one fold for that syntax. Each algebra handles exactly one already-recursed layer.
 
-## Verify
+## Evidence
 
 Type-check against the installed Effect v4. Test Schema decoding, smart constructors, every interpreter, and at least one complete program. Let exhaustive Match compilation expose missing syntax cases. When the language has a fold, verify a second interpretation reuses it without implementing recursion again.

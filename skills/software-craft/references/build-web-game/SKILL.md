@@ -5,6 +5,10 @@ description: Build and verify production web-game systems as playable vertical s
 
 # Build Web Game
 
+## Inputs
+
+The requested player outcome, existing game state and systems, supported devices and controls, assets, and production constraints.
+
 ## System boundaries
 
 - **World:** levels, routes, zones, collision, navigation, lighting, and camera.
@@ -26,6 +30,10 @@ description: Build and verify production web-game systems as playable vertical s
 6. Set budgets for frame time, draw calls, geometry, textures, AI/ray work, audio voices, and long-session memory. Adapt quality deliberately.
 7. Test invariants mechanically, then play the real journey on desktop and mobile. Verify crowded combat, pause/background/resume, saves, transitions, mute, failure, and release version.
 8. Record source and license for every asset and connect release notes to the actual deployed revision.
+
+## Output
+
+A playable vertical slice or completed game-system change with deterministic state, supported controls, and player-journey evidence.
 
 ## Done
 

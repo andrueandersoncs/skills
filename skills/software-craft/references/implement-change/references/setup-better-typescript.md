@@ -1,12 +1,6 @@
----
-name: setup-better-typescript
-description: Set up the Better TypeScript linter in Node.js/npm or Bun TypeScript projects, including single-package repositories and monorepos. Use when asked to add, install, configure, or create a lint script for @better-typescript/better-typescript.
-compatibility: Requires Node.js 18 or newer or Bun, a package.json, and a TypeScript project with tsconfig.json.
----
+# Set up Better TypeScript
 
-# Set Up Better TypeScript
-
-Set up [`@better-typescript/better-typescript`](https://github.com/andrueandersoncs/better-typescript) in the package from which the linter will run.
+Apply this recipe as context within `implement-change` when the requested behavior is configuring `@better-typescript/better-typescript`.
 
 ## Procedure
 

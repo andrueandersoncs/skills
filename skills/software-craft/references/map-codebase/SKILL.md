@@ -5,6 +5,10 @@ description: Build or refresh an evidence-backed map of an unfamiliar codebase, 
 
 # Map Codebase
 
+## Inputs
+
+The repository or subsystem scope, desired decisions or handoff, available freshness evidence, and repository conventions.
+
 ## Choose depth
 
 - For a local change, map only entry points, callers, contracts, tests, and runtime path that can affect the outcome.
@@ -26,10 +30,10 @@ description: Build or refresh an evidence-backed map of an unfamiliar codebase, 
 6. Mark the source revision and working-tree state. On refresh, re-read changed modules and their dependents; content changes matter even when paths do not.
 7. Keep secrets, credentials, build output, vendored code, and irrelevant generated artifacts out of the map.
 
+## Output
+
+A selective or durable codebase map linking the relevant contracts, callers, implementation, tests, runtime paths, and freshness conditions.
+
 ## Done
 
 A reader can locate the relevant contract, implementation, tests, and runtime entry point without rescanning the repository. The map states what evidence makes it stale.
-
-## Next
-
-Use `design-contract`, `plan-change`, or `transfer-knowledge` with links to the map rather than duplicating it.

@@ -1,6 +1,6 @@
 ---
 name: product-management
-description: Build and maintain evidence-backed product catalogs and specifications that connect customer needs and outcomes to durable behavior, delivery work, and observed results. Use when asked to define, catalog, specify, review, or document a product, product area, capability, feature, journey, requirement, business rule, roadmap, release, or product decision.
+description: Build evidence-backed product records and assessments that connect customer needs and business opportunities to durable behavior, delivery work, and observed results. Use when defining, cataloging, specifying, reviewing, or documenting a product, capability, feature, journey, requirement, roadmap, release, product decision, discovery call, or AI opportunity assessment.
 ---
 
 # Product Management
@@ -11,6 +11,7 @@ Create the smallest complete product record that explains who needs the product,
 - [Feature specifications](references/specifications.md) for reusable rules, states, permissions, quality requirements, and analytics contracts
 - [Question model](references/question-model.md) for answer coherence, uncertainty, relationships, time, product claims, and completeness dimensions
 - [Platform design](references/platform.md) for product-platform capabilities, control-plane scope, architecture, and progressive construction
+- [AI opportunity assessment](references/ai-opportunity-assessment.md) for turning discovery evidence into a prioritized AI, automation, and process-improvement decision document
 
 ## Core Model
 

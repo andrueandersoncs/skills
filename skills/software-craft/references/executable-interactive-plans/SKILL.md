@@ -1,6 +1,6 @@
 ---
 name: executable-interactive-plans
-description: "Turn user stories into @effect/vitest Arbitrary tests plus exact proposed Effect Schemas, Errors, Services, and function signatures. Use when a human wants to review, run, edit, and agree on those contracts before implementation."
+description: Produce a human-approved Effect contract artifact containing executable story properties and exact Schemas, Errors, Services, and function signatures. Use when those complete contracts must be reviewed and agreed before implementation.
 compatibility: Requires a browser, a local JavaScript runtime, Effect v4, and @effect/vitest.
 ---
 
@@ -8,12 +8,18 @@ compatibility: Requires a browser, a local JavaScript runtime, Effect v4, and @e
 
 The plan is agreement on four Effect contracts, proven by executable story tests.
 
+## Inputs
+
+- The user stories and caller-visible outcomes to express
+- The owning Effect workspace and relevant repository conventions
+- The artifact destination
+
 The human reviews two questions:
 
 1. **Do these tests express the behavior I want?**
 2. **Do these Schemas, Errors, Services, and Effectful function signatures match that behavior?**
 
-Read [references/executable-interactive-plans.md](references/executable-interactive-plans.md). Start from [assets/story-test-template](assets/story-test-template).
+Read the shared [Effect context](../effect.md) and [the detailed method](references/executable-interactive-plans.md). Start from [the story-test template](assets/story-test-template).
 
 Gall's Law: ship the smallest complete set of those four contracts. Hyrum's Law: once agreed, every observable of those signatures is the contract.
 
@@ -93,7 +99,7 @@ Goodhart's Law: green tests are evidence. The human decision is the result.
 
 Keep one decision control and one **Export review** action. Never infer approval.
 
-## Completion
+## Output
 
 Return:
 
@@ -102,3 +108,7 @@ Return:
 - The current source-snapshot ID
 - The story-test result summary
 - The one next human action
+
+## Done
+
+Every current story property passes against the exact proposed contracts, the human has explicitly approved the current source snapshot, and the returned artifact path, browser URL, snapshot ID, and result summary identify that approved state.

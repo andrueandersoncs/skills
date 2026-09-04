@@ -1,6 +1,6 @@
 # Software Craft catalog
 
-This catalog records the 23 component skills produced from 221 source skills. The root [`software-craft`](../SKILL.md) router is the only installable entry point; these components are progressively loaded references. The [source coverage manifest](../../../docs/research/software-craft-source-coverage.md) records the retained rule or exclusion for every inspected source skill.
+This catalog records 25 routed leaves: 22 synthesized from 221 source skills and three consolidated local workflows. The root [`software-craft`](../SKILL.md) router is the only installable entry point; its leaves and technical context are progressively loaded references. The [source coverage manifest](../../../docs/research/software-craft-source-coverage.md) records the retained rule or exclusion for every inspected source skill.
 
 ## Resulting skills
 
@@ -16,6 +16,7 @@ This catalog records the 23 component skills produced from 221 source skills. Th
 | `implement-change` | Addy: `incremental-implementation`, `test-driven-development`, `doubt-driven-development`; Matt: `implement`, `implement-spec`, `tdd`; Superpowers: `executing-plans`, `subagent-driven-development`, `test-driven-development`; Meng: `iterate-until-verified` | Change source in small vertical slices with behavior-level feedback and complete cutover. | `plan-change`, `coordinate-agents`, `review-change`, `verify-change` |
 | `diagnose-problem` | Addy: `debugging-and-error-recovery`; Matt: `diagnosing-bugs`; Superpowers: `systematic-debugging`; Meng/Emil: domain performance diagnosis | Build a red-capable loop, falsify causes, fix the earliest verified cause, and guard recurrence. | `implement-change`, `optimize-system`, `verify-change` |
 | `review-change` | Addy: `code-review-and-quality`, `code-simplification`; Matt: `code-review`; Superpowers: requesting/receiving review; Emil: `review-animations`; Meng: audit skills | Keep specification and quality verdicts separate, then report evidence-backed corrective findings. | `implement-change`, `secure-system`, `optimize-system`, `verify-change` |
+| `absurd-code-review` | Local | Produce a fingerprinted remove-versus-retain review with independent evidence adjudication and exact cross-stage alignment. | `review-change`, `verify-change` |
 | `verify-change` | Superpowers: `verification-before-completion`; Addy: `constraint-driven-development`, `browser-testing-with-devtools`; Meng: `audit-verify-explain-grade-5`, `iterate-until-verified` | Match every completion claim to fresh command, runtime, or artifact evidence. | Every implementation and specialist skill; especially `review-change` and `ship-change` |
 | `ship-change` | Addy: Git, CI/CD, migration, documentation, observability, and launch skills; Superpowers: worktrees and branch finishing; Matt: merge conflicts and `wizard`; Meng: GitHub/game publishing | Integrate, migrate, automate, document, observe, deploy, stage, and roll back completed work. | `verify-change`, `secure-system`, `optimize-system`, `transfer-knowledge` |
 | `coordinate-agents` | Superpowers: parallel agents, subagent development, worktrees; Matt: `implement-spec`, `claude-handoff`; Cartographer: parallel readers; Addy: orchestration patterns | Partition genuinely independent work, specify handoffs, isolate mutation, and integrate once. | `map-codebase`, `plan-change`, `review-change`, `verify-change` |
@@ -25,10 +26,11 @@ This catalog records the 23 component skills produced from 221 source skills. Th
 | `animate-interface` | Emil: motion vocabulary, opportunity finder, web/Expo builders, review and audit; Meng: animation systems, GSAP/scroll effects, animation optimization | Gate, name, build, audit, and verify purposeful web or Expo motion. | `design-interface`, `optimize-system`, `verify-change` |
 | `build-immersive-web` | Meng: Three.js/WebGL routers, scenes, shaders, particles, effects, and cinematic scroll systems | Add progressive, measured 3D or visual storytelling without sacrificing the semantic experience. | `design-interface`, `animate-interface`, `capture-design-reference`, `optimize-system` |
 | `build-web-game` | Meng: all 20 game-development skills plus `implement-fog-of-war` | Build production browser-game systems as deterministic playable vertical slices across world, combat, enemies, player systems, presentation, and release. | `build-immersive-web`, `design-interface`, `secure-system`, `optimize-system` |
-| `write-swift` | Emil: `write-swift`; Meng: Apple `performance-profiling` | Use modern value-oriented Swift, disciplined concurrency, clear APIs, Swift Testing, and measured profiling. | `design-contract`, `diagnose-problem`, `optimize-system`, `verify-change` |
 | `secure-system` | Addy: `security-and-hardening`; Meng: publication, originality, asset provenance, and private editor safeguards | Threat-model and prove controls at trust, authorization, data, dependency, secret, and AI-tool boundaries. | `design-contract`, `review-change`, `ship-change`, `verify-change` |
 | `optimize-system` | Addy: `performance-optimization`; Meng: web animation, Three.js, game, and Apple profiling; Emil: web/Expo motion performance | Attribute one measured bottleneck, change one cause, and remeasure under comparable conditions. | `diagnose-problem`, `animate-interface`, `build-immersive-web`, `build-web-game` |
 | `author-agent-skill` | Superpowers: `writing-skills`; Matt: `writing-for-agents`; Meng: article/technique extraction; Addy: skill anatomy and eval system | Treat skills as routed behavior programs: deduplicate, progressively disclose, and pressure-test them. | `research-evidence`, `prototype-options`, `review-change`, `verify-change` |
+| `effect-schema-brainstorming` | Local | Agree on production Effect Schemas through generated examples and behavior-linked properties. | `design-contract`, `effect` context |
+| `executable-interactive-plans` | Local | Produce a human-approved Effect contract artifact with executable story properties. | `design-contract`, `prototype-options`, `effect` context |
 
 ## Source snapshots
 
@@ -43,10 +45,11 @@ This catalog records the 23 component skills produced from 221 source skills. Th
 
 ## Consolidation decisions
 
-- **One router, many leaves.** Addy and Superpowers both demonstrate that competing always-on routers collide. `software-craft` owns routing; components own one result.
-- **State over phase.** Lifecycle labels help navigation, but the current unknown determines the next component. A failure always routes to diagnosis even during implementation or release.
-- **Mechanisms over branded recipes.** Meng's overlapping style/effect skills become interface, motion, immersive-web, or game mechanisms rather than dozens of competing visual identities.
-- **One canonical rule.** Shared verification, review, performance, security, and coordination rules live once and are referenced by domain specialists.
-- **Distinct boundaries survive.** Missing motion, building motion, reviewing motion, and measuring jank are related but remain separate routes inside `animate-interface`; the same applies to research, prototypes, contracts, plans, and implementation.
-- **Personal and package-specific automation is not generalized without a stable second caller.** Meng-specific X voice pipelines, private content paths, unavailable external skill dependencies, ShoeHorn migration, course-repository scaffolding, and repository setup installers informed the patterns but do not become general components.
+- **One owner per state transition.** `software-craft` owns general software routing; the separate `skill-routers` skill owns agent-router design, implementation, and audit.
+- **Current plus desired state.** First-match rows select the earliest missing owner while preserving the requested result across re-entry.
+- **Context is not ownership.** Effect, Effect DSL, Swift, npm publishing, and Better TypeScript guidance informs the selected leaf without adding another workflow owner.
+- **One canonical rule.** Shared verification, review, performance, security, and coordination rules live once.
+- **Distinct outputs survive.** Adversarial review, Effect Schema brainstorming, and executable Effect contract plans remain separate leaves because each produces a different observable result.
+- **Scope constraints stay context.** An explicit normal-valid-path request limits the chosen plan or implementation without creating a happy-path router.
+- **Personal and package-specific automation is not generalized without a stable second caller.** Source-bound setup mechanics inform reusable guidance but do not become competing owners.
 - **No copied source text or bundled third-party assets.** This set is an original synthesis with source attribution. External package, service, media, font, and asset terms still apply when a component uses them.

@@ -1,6 +1,6 @@
 ---
 name: manage-project
-description: "Manage an AI-agent project from request through decomposition, preparation, routing, execution, monitoring, review, and closure using durable task records. Use when asked to manage, coordinate, run, or track a multi-task project, or to use the manage-project CLI or project board."
+description: "Manage a multi-task AI-agent project through a durable record from decomposition to independent review and closure. Use when the user explicitly requests the manage-project CLI or board, or needs resumable coordination across owners, blockers, and asynchronous events."
 compatibility: Requires concurrent fresh-subagent delegation, the `andrue-cli` command from `@andrue/cli`, and a durable project record accessible to all participating agents.
 ---
 

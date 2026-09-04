@@ -5,6 +5,10 @@ description: Partition and integrate independent software work across fresh-cont
 
 # Coordinate Agents
 
+## Inputs
+
+The ready work graph, shared contracts, independent ownership boundaries, integration target, and required evidence.
+
 ## Independence gate
 
 Parallelize only when tasks share neither evolving state, file ownership, nor a sequential dependency. Otherwise keep one implementation owner and use fresh agents only for research or review.
@@ -25,6 +29,10 @@ Parallelize only when tasks share neither evolving state, file ownership, nor a 
 6. Review each result against its contract. Resolve interface conflicts centrally rather than asking workers to negotiate after divergence.
 7. Integrate once, then run cross-slice runtime verification and the relevant full checks.
 8. Persist only pointers, decisions, and evidence needed for recovery. Redact secrets from handoffs and scratch artifacts.
+
+## Output
+
+One integrated software result with reviewed worker outputs, resolved interface boundaries, and cross-slice runtime evidence.
 
 ## Done
 

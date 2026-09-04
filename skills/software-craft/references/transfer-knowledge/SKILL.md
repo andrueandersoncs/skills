@@ -5,6 +5,10 @@ description: Move the minimum complete context to another person, agent, or futu
 
 # Transfer Knowledge
 
+## Inputs
+
+The receiver, next decision or action, canonical source artifacts, current state, constraints, and delivery medium.
+
 ## Route
 
 - Active work changes owner or environment → create a **handoff**.
@@ -22,6 +26,10 @@ description: Move the minimum complete context to another person, agent, or futu
 5. For questionnaires, ask the recipient only facts they uniquely know, ordered by decision value, with context and answer slots.
 6. For procedures, map every manual stage, source value, destination, expected state, and secret boundary; make the guide runnable and checkable.
 7. Redact credentials and private data. Store temporary handoffs outside the repository unless the knowledge is durably project-relevant.
+
+## Output
+
+The smallest handoff, questionnaire, explanation, learning artifact, or procedure that lets the receiver take the next action.
 
 ## Done
 

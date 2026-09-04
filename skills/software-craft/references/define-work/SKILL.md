@@ -5,6 +5,10 @@ description: Resolve unclear software intent into an agreed outcome, success tes
 
 # Define Work
 
+## Inputs
+
+The software request, available repository and product evidence, constraints, decision authority, and known success conditions.
+
 ## Method
 
 1. Inspect available repository and product facts before questioning the user.
@@ -24,13 +28,10 @@ description: Resolve unclear software intent into an agreed outcome, success tes
    - unresolved decisions and cheapest evidence for each.
 7. Obtain explicit agreement for subjective, architectural, or irreversible choices. Proceed directly on clear mechanical work.
 
+## Output
+
+One accepted, testable software outcome with explicit constraints, success evidence, and ownership for every remaining unknown.
+
 ## Done
 
 The user and agent share one testable outcome, and every remaining unknown has an owner: research, prototype, implementation, or human decision.
-
-## Next
-
-- Runnable uncertainty → `prototype-options`
-- External factual uncertainty → `research-evidence`
-- Contract or architecture choice → `design-contract`
-- Accepted multi-step outcome → `plan-change`

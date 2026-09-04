@@ -5,6 +5,10 @@ description: Improve measured software performance by attributing one bottleneck
 
 # Optimize System
 
+## Inputs
+
+The user-visible performance outcome, explicit budget, representative environment, measured miss, and evidence identifying the owning cost.
+
 ## Method
 
 1. Define the user-visible outcome and budget: latency, throughput, frame time, memory, startup, energy, bundle, or cost.
@@ -15,6 +19,10 @@ description: Improve measured software performance by attributing one bottleneck
 6. Keep only changes with a material attributed improvement and no correctness, accessibility, security, or maintenance regression. Revert neutral complexity.
 7. Check long-session behavior, hidden/offscreen work, teardown, cold and warm paths, and supported slow devices when relevant.
 8. Record the successful evidence and useful failed attempts. Add a regression budget where a plausible future change could silently restore the cost.
+
+## Output
+
+One attributed performance change with comparable before-and-after measurements and the resulting budget status.
 
 ## Done
 

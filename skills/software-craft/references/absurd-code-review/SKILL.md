@@ -1,6 +1,6 @@
 ---
 name: absurd-code-review
-description: Analyzes bounded code for absurd or questionable parts, steelmans why each should stay, and produces an evidence-adjudicated read-only report. Use when asked to challenge, investigate, or review absurd, dubious, suspicious, overcomplicated, or questionable code in a project, repository, directory, file, snippet, diff, commit, branch, or PR.
+description: Produce a three-stage code-review report that argues for removal, steelmans retention, and independently adjudicates one winner per aligned part. Use when the user explicitly requests both sides to be steelmanned or asks for this evidence-adjudicated absurd-code-review format.
 compatibility: Requires fresh-subagent delegation and research capability; uses project tests or measurements when they can distinguish the arguments.
 ---
 
@@ -119,3 +119,7 @@ Using `$scope-resolution-record`, `$stage-one-record`, `$stage-two-record`, and 
 **Outputs:**
 
     a. Exactly one Absurd Code Review Report at the requested destination or inline.
+
+## Done
+
+The report is tied to the current scope fingerprint, preserves exact part alignment across all three stages, selects one evidence-supported winner per part, and passes the final source, traceability, and completeness checks.

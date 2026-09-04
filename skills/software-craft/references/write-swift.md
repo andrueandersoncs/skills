@@ -1,9 +1,6 @@
----
-name: write-swift
-description: Write, review, debug, optimize, or migrate modern Swift with value-oriented models, explicit errors, disciplined concurrency, clear APIs, and measured performance. Use for Swift packages, apps, SwiftUI, concurrency diagnostics, testing, interop, or toolchain migration.
----
+# Swift context
 
-# Write Swift
+Apply this guidance as context to the selected software workflow when it writes, reviews, diagnoses, optimizes, or migrates Swift code.
 
 ## Method
 
@@ -18,6 +15,6 @@ description: Write, review, debug, optimize, or migrate modern Swift with value-
 9. Use Swift Testing by default where the project supports it. Test public behavior and concurrency outcomes deterministically.
 10. Verify compiler diagnostics, focused tests, release build behavior, and representative device performance.
 
-## Done
+## Evidence
 
 The code uses the simplest safe language feature that expresses the requirement, concurrency has an owner and measured purpose, and release behavior is proven on the supported toolchain.

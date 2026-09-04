@@ -1,6 +1,6 @@
 ---
 name: software-laws
-description: Apply established software laws as context-aware guidance for planning, architecture, implementation, delivery, and review. Use when making software tradeoffs, assessing project risks, choosing designs, reviewing code or APIs, estimating work, or evaluating engineering practices.
+description: Explain or evaluate established software laws as context-aware evidence prompts. Use when the user names a software law or principle, asks which laws apply to a decision, or requests a law-based assessment of a concrete case.
 ---
 
 # Software Laws

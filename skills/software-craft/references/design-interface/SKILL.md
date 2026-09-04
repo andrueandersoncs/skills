@@ -5,10 +5,14 @@ description: Design and implement distinctive production web interfaces with coh
 
 # Design Interface
 
+## Inputs
+
+The interface outcome, product content and personality, current framework and design system, supported viewports and inputs, and accessibility constraints.
+
 ## Method
 
 1. Inspect the existing framework, routes, tokens, components, dependencies, content, and product personality.
-2. Define the interface goal and one coherent art direction per production surface. During `prototype-options`, define one coherent direction per variant until the user selects the production direction.
+2. Define the interface goal and one coherent art direction per production surface. When comparing variants, keep one coherent direction per variant until the user selects the production direction.
 3. Reuse project primitives and semantic tokens. Choose the least powerful state layer and an already-installed suitable library before adding a dependency.
 4. Build focused components with clear data and presentation boundaries. Preserve realistic copy and data.
 5. Complete every relevant state: loading, empty, error, success, disabled, optimistic, focus, hover, active, and responsive layouts.
@@ -18,7 +22,11 @@ description: Design and implement distinctive production web interfaces with coh
 
 ## Library decisions
 
-Recommend one library for the actual task. Prefer the repository's current dependency. Verify current official documentation before relying on version-sensitive APIs. Use `capture-design-reference` for evidence, `animate-interface` for motion, and `build-immersive-web` for WebGL.
+Recommend one library for the actual task. Prefer the repository's current dependency. Verify current official documentation before relying on version-sensitive APIs. Treat reference capture, motion, and WebGL as bounded concerns within the selected interface result.
+
+## Output
+
+A production web interface with coherent art direction, complete relevant states, responsive behavior, and live-browser evidence.
 
 ## Done
 

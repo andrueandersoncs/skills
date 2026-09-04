@@ -5,6 +5,10 @@ description: Build purposeful Three.js, WebGL, shader, particle, or cinematic-sc
 
 # Build Immersive Web
 
+## Inputs
+
+The product message, semantic surface, requested visual experience, supported devices and inputs, assets, and performance constraints.
+
 ## Method
 
 1. Define the message and choose one visual lane:
@@ -23,6 +27,10 @@ description: Build purposeful Three.js, WebGL, shader, particle, or cinematic-sc
 ## Design rule
 
 Use effects as mechanisms, not identities. Select a small compatible recipe set and tune it to the product's content rather than reproducing a reference site's signature.
+
+## Output
+
+A purposeful immersive web experience with its semantic fallback, asset provenance, lifecycle cleanup, and measured runtime evidence.
 
 ## Done
 

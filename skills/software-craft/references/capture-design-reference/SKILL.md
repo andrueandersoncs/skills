@@ -5,6 +5,10 @@ description: Capture trustworthy visual and interaction references and convert t
 
 # Capture Design Reference
 
+## Inputs
+
+The design question, candidate sources or discovery scope, target product context, capture controls, and originality constraints.
+
 ## Method
 
 1. State the design question and select a small, diverse reference set that can answer it.
@@ -19,6 +23,10 @@ description: Capture trustworthy visual and interaction references and convert t
 6. Build an originality ledger: reusable grammar, protected identity/signature elements, replacement direction, and asset-license status.
 7. Convert the evidence into a builder-ready brief with section anatomy, states, motion, constraints, fallbacks, and direct source links.
 8. Verify files, dimensions, crops, playback, links, duplicates, and manifest entries.
+
+## Output
+
+A source-traceable builder brief containing the captured mechanisms, provenance, product translation, and originality boundaries.
 
 ## Done
 

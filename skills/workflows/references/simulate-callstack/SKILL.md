@@ -116,3 +116,7 @@ Model supplied behavior as a source-grounded trace for inspection without execut
 **Outputs:**
 
     a. Callstack at the resolved location, completing the workflow.
+
+## Done
+
+The returned callstack is source-traceable, respects the requested bounds and scenario, and contains no fabricated execution or side effects.

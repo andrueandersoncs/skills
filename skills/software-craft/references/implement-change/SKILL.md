@@ -5,6 +5,10 @@ description: Implement an agreed software behavior in small testable vertical sl
 
 # Implement Change
 
+## Inputs
+
+The accepted software behavior or plan, relevant repository evidence, scope constraints, and required runtime or command proof.
+
 ## Method
 
 1. Read the accepted outcome or plan, relevant source, callers, tests, commands, and repository rules. Resolve material contradictions before editing.
@@ -21,10 +25,14 @@ description: Implement an agreed software behavior in small testable vertical sl
 7. Re-read consequential decisions with fresh context before they spread. Resolve findings against the contract rather than accepting them by authority.
 8. Complete every caller migration and remove obsolete paths, aliases, comments, and dead compatibility code when the cutover allows it.
 
+## Tool recipes
+
+For an explicit Better TypeScript setup request, apply [the Better TypeScript recipe](references/setup-better-typescript.md) within this implementation workflow.
+
+## Output
+
+Working repository behavior through the real entry point, with complete caller migration and focused evidence.
+
 ## Done
 
 The smallest complete behavior works through its real entry point, regression-prone behavior has a meaningful guard, and no old path or debug residue remains.
-
-## Next
-
-Use `review-change` for independent judgment and `verify-change` before any completion claim.

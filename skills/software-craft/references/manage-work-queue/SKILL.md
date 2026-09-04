@@ -5,6 +5,10 @@ description: Turn a large, foggy, or issue-driven program into verified states, 
 
 # Manage Work Queue
 
+## Inputs
+
+The canonical tracker, issue or program scope, repository evidence, ownership rules, and known decisions and dependencies.
+
 ## Method
 
 1. Identify the canonical tracker, state model, labels, and ownership rules. Preserve one source of truth.
@@ -19,6 +23,10 @@ description: Turn a large, foggy, or issue-driven program into verified states, 
 5. Express blocking edges and publish the current ready frontier. Keep each claimable item independently owned and bounded to one context.
 6. Recommend the state transition and evidence before applying it. Retain the reason for rejected or deferred work in the repository's established location.
 7. Update the map as decisions reveal new work. Resolve one dependent frontier at a time rather than inventing a complete distant plan.
+
+## Output
+
+An updated work queue in which each item has a justified state, explicit blockers, one owner, and a claimable ready frontier.
 
 ## Done
 

@@ -5,6 +5,10 @@ description: Find and fix the root cause of a reproducible software failure usin
 
 # Diagnose Problem
 
+## Inputs
+
+The reported failure, affected software boundary, expected behavior, available reproduction evidence, and relevant repository context.
+
 ## Method
 
 1. Stop unrelated implementation and preserve the original evidence. Redact secrets from logs and reports.
@@ -16,6 +20,10 @@ description: Find and fix the root cause of a reproducible software failure usin
 7. Capture the minimal reproduction as a behavior-level regression test when practical.
 8. Fix the earliest verified cause, not the last visible symptom. Run the focused loop, surrounding checks, and the original end-to-end scenario.
 9. After three failed fixes, stop changing symptoms and question the architecture, contract, or reproduction model.
+
+## Output
+
+A verified root-cause fix, causal explanation, original-scenario result, and meaningful regression guard when warranted.
 
 ## Done
 

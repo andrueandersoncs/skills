@@ -5,6 +5,10 @@ description: Create, consolidate, or improve reusable agent skills that execute 
 
 # Author Agent Skill
 
+## Inputs
+
+The recurring direct workflow, intended callers, existing skill sources, repository conventions, and requested destination.
+
 ## Method
 
 1. State the recurring outcome and one credible caller beyond the current source. Keep project-private procedure in project instructions.
@@ -15,10 +19,14 @@ description: Create, consolidate, or improve reusable agent skills that execute 
    - at least two nearby negative cases;
    - at least one behavior case likely to expose a shortcut or rationalization.
 5. Write the minimum skill that changes the failed behavior. Give frontmatter a valid matching name and a description containing what it does and when it applies.
-6. Put the common process in `SKILL.md`. Move large recipes, standards, examples, scripts, and assets into one-hop progressive references. Keep routers thin and leaf contracts independent.
+6. Put the common process in `SKILL.md`. Move large recipes, standards, examples, scripts, and assets into one-hop progressive references. Keep the entry skill concise and each referenced behavior contract independent.
 7. Replace source branding, hardcoded private paths, unavailable tools, and stale package facts with explicit inputs or version-aware research. Preserve numerical rules only with the failure they prevent.
 8. Rerun routing and behavior scenarios in fresh context. Tighten only wording linked to observed failures; check collisions and bundled links.
 9. Validate structure, frontmatter, line budget, reference paths, and actual host discovery. Verify visual demos in the browser when the skill promises them.
+
+## Output
+
+A created or revised single-workflow agent skill with its routed behavior, supporting references, and evaluation evidence.
 
 ## Done
 

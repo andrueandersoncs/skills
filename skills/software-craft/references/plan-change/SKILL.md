@@ -5,6 +5,10 @@ description: Turn an accepted software outcome or contract into dependency-order
 
 # Plan Change
 
+## Inputs
+
+The accepted outcome or contract, relevant repository map, constraints and exclusions, ownership boundaries, and required completion evidence.
+
 ## Method
 
 1. Confirm the accepted outcome, contract, exclusions, and evidence source. Map only the code needed to plan accurately.
@@ -21,6 +25,10 @@ description: Turn an accepted software outcome or contract into dependency-order
    - rollback or compatibility rule when relevant.
 7. Keep tasks small enough for one context and one review, but complete enough to demonstrate value. Remove tasks that create no evidence, reduce no risk, and deliver no behavior.
 8. Place checkpoints before expensive or irreversible commitments. Define what observation changes the plan.
+
+## Output
+
+An acyclic implementation plan of self-contained, dependency-ordered, evidence-producing vertical slices.
 
 ## Done
 

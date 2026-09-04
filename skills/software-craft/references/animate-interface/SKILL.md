@@ -5,6 +5,10 @@ description: Find, design, implement, optimize, or review purposeful interface m
 
 # Animate Interface
 
+## Inputs
+
+The requested motion outcome, current interface or reference, supported platforms and inputs, and applicable performance and accessibility constraints.
+
 ## Route
 
 - Vague visible effect → name the motion and nearest alternatives.
@@ -23,6 +27,10 @@ description: Find, design, implement, optimize, or review purposeful interface m
 5. Pause hidden or offscreen loops, bound resources, avoid per-frame allocation/state updates, and dispose listeners, timelines, canvases, and GPU assets.
 6. Provide a composed reduced-motion state, pointer/touch gating, text scaling, and non-motion feedback where meaning depends on movement.
 7. Verify in slow motion or frame-by-frame, then at normal speed. For Expo, use a release build on a slow supported device; for web, inspect runtime frames, long-session behavior, resize, and teardown.
+
+## Output
+
+The named, implemented, or reviewed motion result with runtime and accessibility evidence appropriate to the request.
 
 ## Done
 

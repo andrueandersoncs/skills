@@ -5,24 +5,25 @@
 
 ## Conclusion
 
-Keep the installable skills at the repository's top level and group the workflow components inside the `workflows` skill:
+Keep each independently installable router or direct workflow as an immediate child of `skills/`. Bundle a router's selected leaves, technical context, scripts, and assets inside that directory:
 
 ```text
 skills/
-├── README.md
-├── AGENTS.md
+├── skill-routers/
+│   ├── SKILL.md
+│   └── references/
+├── software-craft/
+│   ├── SKILL.md
+│   └── references/
 ├── workflows/
 │   ├── SKILL.md
 │   └── references/
 │       ├── simulate-callstack/SKILL.md
-│       ├── simulate-state-machine/SKILL.md
-│       ├── convert-to-skill/SKILL.md
-│       └── decompose/SKILL.md
-├── ...other top-level skills...
-└── docs/research/...
+│       └── simulate-state-machine/SKILL.md
+└── ...other installable skills...
 ```
 
-Top-level skill directories are valid. The Agent Skills specification deliberately does not prescribe where skill directories live; it specifies each skill's contents. The skills CLI explicitly scans immediate children of a repository root, so this project's top-level skills—including the single `workflows` router—are directly installable. Its nested component skills are bundled references rather than separately discoverable skills. Moving the top-level folders under a new `skills/` container is unnecessary. Do **not** add a repository-root `SKILL.md`: the current skills CLI treats that as a single directly targeted skill and normally returns before scanning child skills. [Agent Skills client guide](https://github.com/agentskills/agentskills/blob/69ef37e9424c0a7ea9dd2293b559e43ec8176379/docs/client-implementation/adding-skills-support.mdx#L36-L62); [skills CLI discovery source](https://github.com/vercel-labs/skills/blob/c6f69c631292444cc541ac6d91e2226b0ff247da/src/skills.ts#L229-L263).
+The Agent Skills specification deliberately does not prescribe where skill directories live; it specifies each skill's contents. The skills CLI scans the known `skills/` container, so each immediate child remains independently installable while nested leaves stay bundled rather than independently discoverable. Do **not** add a repository-root `SKILL.md`: the current skills CLI treats that as one directly targeted skill and normally returns before scanning children. [Agent Skills client guide](https://github.com/agentskills/agentskills/blob/69ef37e9424c0a7ea9dd2293b559e43ec8176379/docs/client-implementation/adding-skills-support.mdx#L36-L62); [skills CLI discovery source](https://github.com/vercel-labs/skills/blob/c6f69c631292444cc541ac6d91e2226b0ff247da/src/skills.ts#L229-L263).
 
 ## Agent Skills requirements
 
@@ -52,43 +53,25 @@ The following are **recommendations/conventions**, not validity requirements:
 
 ## Findings for this repository
 
-The repository currently has 7 top-level skill directories. All 7 have exact `SKILL.md` filenames, matching directory/frontmatter names, descriptions within the limit, and fewer than 500 lines. The `workflows` skill bundles `simulate-callstack`, `simulate-state-machine`, `convert-to-skill`, and `decompose` under `references/`.
+As of 2026-09-04, the repository has 12 top-level skill directories. Each has an exact `SKILL.md` entry point. `skill-routers` bundles its design, implementation, and independent-review leaves; `software-craft` bundles 25 state-changing leaves plus technical context; `workflows` bundles only callstack and state-machine projection leaves.
 
-Using the official `skills-ref` validator at the pinned Agent Skills commit, **all 7 top-level skills pass**.
+The consolidated layout keeps router selection and re-entry in router roots. Nested leaves are bundled with their owning router and are not separate installable entries.
 
-Using the pinned skills CLI against the local repository with `add <path> --list`, all 7 top-level skills are discovered. The four workflow components are correctly not listed as separate installable skills.
+All 12 top-level skills pass the pinned official `skills-ref` validator, and the pinned skills CLI discovers exactly those 12 installable names.
 
 ## Recommended actions
 
-1. **Keep the top-level skill directories.** They are valid and verified with skills.sh; keep the four workflow components inside `workflows/references/`.
+1. **Keep only independently useful routers and direct workflows at the top level.**
 2. **Keep repository-only files at the root** (`README.md`, `AGENTS.md`, and `docs/`). Do not create a root `SKILL.md`.
-3. **Group the catalog by installable skill.** Add a root `skills.sh.json` to organize the skills.sh page, and mirror those sections in `README.md`. This file affects presentation only—not CLI discovery, installation, or `SKILL.md` contents. [Official customization documentation](https://skills.sh/docs/customize)
-
-```json
-{
-  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
-  "notGrouped": "bottom",
-  "groupings": [
-    {
-      "title": "Workflows",
-      "skills": ["workflows"]
-    },
-    {
-      "title": "Planning and delivery",
-      "skills": ["plan-happy-path", "implement-happy-path"]
-    }
-  ]
-}
-```
-
-4. **Optionally add CI validation** for every top-level skill and a skills.sh discovery smoke test. Pinning revisions makes changes explicit:
+3. **Keep every router self-contained.** Its selected leaves, supporting references, scripts, and assets must install with it.
+4. **Validate every top-level skill and run a skills.sh discovery smoke test after structural changes.**
 
 ```bash
 set -euo pipefail
 while IFS= read -r -d '' file; do
   uvx --from 'git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref' \
     skills-ref validate "$(dirname "$file")"
-done < <(find . -mindepth 2 -maxdepth 2 -name SKILL.md -print0)
+done < <(find skills -mindepth 2 -maxdepth 2 -name SKILL.md -print0)
 
 npx --yes skills@1.5.22 add . --list
 ```

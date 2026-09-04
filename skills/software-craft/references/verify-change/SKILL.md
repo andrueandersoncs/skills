@@ -5,6 +5,10 @@ description: Prove a software claim with fresh claim-specific evidence from comm
 
 # Verify Change
 
+## Inputs
+
+The exact software claim, candidate artifact or runtime surface, authoritative evidence source, and relevant integration constraints.
+
 ## Method
 
 1. State the exact claim and the observation that would prove it.
@@ -18,6 +22,10 @@ description: Prove a software claim with fresh claim-specific evidence from comm
 5. A regression claim requires evidence that the guard detects the broken behavior and passes with the fix.
 6. Compare results with the claim. Report the actual state when evidence is incomplete or failing.
 7. Preserve durable constraints or regression guards only when they defend a plausible future break.
+
+## Output
+
+A claim-specific pass or failure result tied to fresh command output, runtime observation, or artifact inspection.
 
 ## Done
 

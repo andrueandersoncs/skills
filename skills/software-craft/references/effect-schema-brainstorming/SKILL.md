@@ -1,6 +1,6 @@
 ---
 name: effect-schema-brainstorming
-description: This skill should be used when the user asks to "brainstorm a production Effect Schema", "model a domain with Effect Schema", "iterate on real schemas using generated examples", "write user-story properties from Effect Schemas", or "replace schema round-trip checks with functional properties".
+description: Agree on a production Effect Schema through generated examples and behavior-linked properties. Use when the requested result is a production domain model expressed as Effect Schemas.
 compatibility: Requires Effect v4. Uses `effect/testing`; optionally uses `@andrue/cli`.
 ---
 
@@ -8,16 +8,21 @@ compatibility: Requires Effect v4. Uses `effect/testing`; optionally uses `@andr
 
 Make production schemas, generated examples, and functional properties the shared language of the conversation. Iterate on the schemas that the final implementation imports; never create disposable copies merely for brainstorming.
 
-Use this skill for domain discovery that directly shapes implementation. Use `executable-interactive-plans` after the work expands into agreed Errors, Services, functions, and end-to-end stories.
+## Inputs
+
+- The domain idea, requirements, and decisions already made
+- The owning Effect workspace and current production schemas when present
+- Existing public behavior and focused tests when present
+
+Use this skill for domain discovery that directly shapes the production schema.
 
 ## Ground the workspace
 
-1. Read the `effect` and `effect-arbitrary` skills when available.
-2. Locate the workspace package that owns the domain and declares Effect v4. Read that installed Effect package's `AGENTS.md` and relevant source.
-3. Locate the existing production schema module, its exports, callsites, and tests. Edit those schemas in place. For a new domain, create the schema in its intended final source module following package conventions.
-4. Never place production schemas, competing copies, or wrapper schemas in a scratch directory. Keep test-only scenario schemas in the package's normal test location unless they are real domain concepts that belong in production.
-5. Give every named production schema, type alias, interface, class, and named nested data structure its own JSDoc comment that states its domain role and includes a realistic `@example` usage. Document exported decoded types separately from their schema values. Name meaningful nested structures instead of hiding them in anonymous `Schema.Struct` declarations; inline primitive composition does not need JSDoc.
-6. Generate examples directly from the production schema symbols. Keep permanent tests in the package's normal test location. Use a one-off runner for sample printing unless the package already has a samples convention, then delete that runner after capturing its output.
+1. Read the shared [Effect context](../effect.md), then locate the workspace package that owns the domain and declares Effect v4. Read the installed Effect package's `AGENTS.md` and relevant source.
+2. Locate the existing production schema module, its exports, callsites, and tests. Edit those schemas in place. For a new domain, create the schema in its intended final source module following package conventions.
+3. Never place production schemas, competing copies, or wrapper schemas in a scratch directory. Keep test-only scenario schemas in the package's normal test location unless they are real domain concepts that belong in production.
+4. Give every named production schema, type alias, interface, class, and named nested data structure its own JSDoc comment that states its domain role and includes a realistic `@example` usage. Document exported decoded types separately from their schema values. Name meaningful nested structures instead of hiding them in anonymous `Schema.Struct` declarations; inline primitive composition does not need JSDoc.
+5. Generate examples directly from the production schema symbols. Keep permanent tests in the package's normal test location. Use a one-off runner for sample printing unless the package already has a samples convention, then delete that runner after capturing its output.
 
 Keep one production working set throughout the conversation. Every accepted answer updates the same schema symbols that the final implementation uses.
 
@@ -128,7 +133,7 @@ test("a quote totals every item in the cart", () => {
 
 Use the repository's existing test runner around the same `FastCheck.property` body when it is not Bun.
 
-## Conversation format
+## Output
 
 For each iteration, return:
 
@@ -137,4 +142,6 @@ For each iteration, return:
 3. **Properties** — requirement or story names and pass/fail results when implemented behavior exists.
 4. **Question** — one domain decision that changes the canonical production schemas or properties.
 
-Never infer approval. Finish when the user selects a model and the production schemas and callsites reflect it. Require every named production schema, type alias, interface, class, named nested structure, and exported decoded type to have its own current domain-role JSDoc and realistic `@example`. For implemented behavior, require agreed properties to pass and return the production schema path, property-test path, commands, observed results, and final examples. For schema-only greenfield work, return the production schema path, direct-import sampling evidence, final examples, and named behavioral requirements for implementation planning. Leave no temporary candidate or sample artifacts.
+## Done
+
+The user has selected the model; the production schemas and affected callsites reflect it; every named production schema, type alias, interface, class, named nested structure, and exported decoded type has current domain-role JSDoc and a realistic `@example`; and direct-import sampling produces the final examples. When public behavior exists, the agreed behavior-linked properties pass. No temporary candidate or sample artifact remains.

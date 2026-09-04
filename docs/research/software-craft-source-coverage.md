@@ -146,4 +146,4 @@ The v2 Cartographer graph CLI informed freshness, bounded briefs, completeness a
 - Superpowers: 14
 - **Total: 221**
 
-The resulting set contains 23 reusable components. Exclusion is deliberate: it removes source-bound operation without pretending the source was absent.
+The source synthesis produced 23 components. The current router retains 22 as routed leaves and keeps Swift as shared technical context; three consolidated local workflows add distinct adversarial-review and Effect-contract results. Exclusion is deliberate: it removes source-bound operation without pretending the source was absent.

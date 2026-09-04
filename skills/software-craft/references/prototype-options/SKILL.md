@@ -5,6 +5,10 @@ description: Answer a high-value design question with a disposable runnable prot
 
 # Prototype Options
 
+## Inputs
+
+One decision question, candidate directions or constraints, representative scenario, disposable-work boundary, and evidence threshold.
+
 ## Method
 
 1. State one question the prototype must answer and the decision it will unlock.
@@ -21,6 +25,10 @@ description: Answer a high-value design question with a disposable runnable prot
 ## Constraints
 
 Skip production polish, broad tests, migrations, persistence, and abstractions unless the question specifically depends on them.
+
+## Output
+
+A disposable executable probe or comparison with observed evidence and the decision it supports.
 
 ## Done
 

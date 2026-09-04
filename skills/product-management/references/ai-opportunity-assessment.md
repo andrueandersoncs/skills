@@ -1,11 +1,6 @@
----
-name: ai-opportunity-assessment
-description: Turn business discovery material into an evidence-aware assessment and practical roadmap for valuable AI, automation, and process improvements. Use when asked to analyze a discovery call, assess a business for AI, or prioritize AI opportunities.
----
-
 # AI Opportunity Assessment
 
-Produce a decision document the client can use independently.
+Use this output profile when discovery material must become a client-ready AI, automation, and process-improvement assessment.
 
 ## Inputs
 

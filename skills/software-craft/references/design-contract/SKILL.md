@@ -5,6 +5,10 @@ description: Design a domain model, module seam, public API, schema, or architec
 
 # Design Contract
 
+## Inputs
+
+The accepted outcome, current consumers and seams, domain vocabulary, compatibility constraints, and available evidence.
+
 ## Method
 
 1. Inspect actual consumers, repository vocabulary, existing seams, and compatibility constraints.
@@ -17,10 +21,10 @@ description: Design a domain model, module seam, public API, schema, or architec
 8. Choose the highest stable public seam for behavior tests. Avoid tests coupled to private structure.
 9. Record an ADR only when the decision is hard to reverse, surprising, and supported by a real tradeoff.
 
+## Output
+
+An explicit domain, API, schema, or architecture contract with invariants, observable behavior, compatibility decisions, and a test seam.
+
 ## Done
 
 Callers can use and test the contract without knowing its implementation, every observable behavior is intentional, and migration consequences are explicit.
-
-## Next
-
-Use `plan-change` for multi-step migration or `implement-change` for a bounded contract.
