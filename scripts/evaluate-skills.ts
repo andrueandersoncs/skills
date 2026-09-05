@@ -40,7 +40,7 @@ function argumentsForRun() {
   return { model, cases, output: resolve(options.get("--output") ?? join(root, ".scratch/skill-evals")) }
 }
 
-async function snapshot(directory: string, prefix = ""): Promise<Record<string, string>> {
+export async function snapshot(directory: string, prefix = ""): Promise<Record<string, string>> {
   const files: Record<string, string> = {}
   for (const entry of await readdir(join(directory, prefix), { withFileTypes: true })) {
     const path = join(prefix, entry.name)
@@ -54,7 +54,7 @@ function changes(before: Record<string, string>, after: Record<string, string>) 
   return [...new Set([...Object.keys(before), ...Object.keys(after)])].filter(path => before[path] !== after[path])
 }
 
-async function command(args: string[], cwd: string, timeoutMs: number) {
+export async function command(args: string[], cwd: string, timeoutMs: number) {
   const child = Bun.spawn(args, { cwd, stdout: "pipe", stderr: "pipe" })
   const stdout = new Response(child.stdout).text()
   const stderr = new Response(child.stderr).text()
@@ -77,13 +77,13 @@ function toolPaths(workspace: string, block: Block) {
   return paths.map(path => relative(workspace, resolve(workspace, path.replace(/(\.(?:md|ts|json))[:?#].*$/, "$1"))).replaceAll("\\", "/"))
 }
 
-async function runAgent(workspace: string, prompt: string, model: string, evidence: string) {
+export async function runAgent(workspace: string, prompt: string, model: string, evidence: string, instructions = systemPrompt) {
   await mkdir(evidence, { recursive: true })
   const start = performance.now()
   const result = await command([
     "omp", "-p", prompt, "--mode", "json", "--model", model, "--thinking", "minimal",
     "--no-session", "--no-skills", "--no-rules", "--no-extensions", "--no-title", "--no-lsp", "--no-pty",
-    "--tools", "read,write,edit,grep,glob", "--system-prompt", systemPrompt, "--max-time", String(maxTimeSeconds),
+    "--tools", "read,write,edit,grep,glob", "--system-prompt", instructions, "--max-time", String(maxTimeSeconds),
   ], workspace, (maxTimeSeconds + 20) * 1_000)
   await writeFile(join(evidence, "transcript.jsonl"), result.stdout)
   await writeFile(join(evidence, "stderr.txt"), result.stderr)
@@ -103,6 +103,7 @@ async function runAgent(workspace: string, prompt: string, model: string, eviden
   if (models.length !== 1 || models[0] !== model) failures.push(`Requested ${model}; observed ${models.join(", ") || "no model"}`)
   return {
     runtime: check(failures), models, reads, mutations,
+    toolCalls: calls.length,
     usage: messages.flatMap(message => message.usage ? [message.usage] : []),
     durationMs: Math.round(performance.now() - start), exitCode: result.code,
     transcript: relative(root, join(evidence, "transcript.jsonl")),

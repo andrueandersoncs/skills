@@ -1,6 +1,6 @@
 ---
 name: skill-routers
-description: Gather context about agent-skill-router work and match the situation to design, implementation, or independent review. Use when asked to explain, design, implement, or audit an agent skill router.
+description: Explain, design, implement, or audit contextual routers that select one agent-skill workflow.
 metadata:
   internal: true
 ---

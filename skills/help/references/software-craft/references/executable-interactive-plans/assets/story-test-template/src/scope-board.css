@@ -144,6 +144,7 @@
 
 .scope-board-stage {
   position: relative;
+  width: 100%;
   height: auto;
   min-height: 380px;
   max-height: 720px;
@@ -203,8 +204,8 @@
 }
 
 .scope-board-node-label > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .scope-board-node-label small {
@@ -216,7 +217,7 @@
   text-transform: capitalize;
 }
 
-.scope-board-node-label.is-removed > span { text-decoration: line-through; }
+.scope-board[data-comparison-mode="comparison"] .scope-board-node-label.is-removed > span { text-decoration: line-through; }
 .scope-board-node-label[data-active="true"] { z-index: 4; }
 .scope-board-node-label[aria-pressed="true"] { outline: 1px solid var(--entity-color); background: #0b2922; }
 .scope-board [hidden] { display: none; }

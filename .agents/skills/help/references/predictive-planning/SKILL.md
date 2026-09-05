@@ -1,6 +1,6 @@
 ---
 name: predictive-planning
-description: Create and improve plans as testable forecasts with explicit outcomes, probabilities, assumptions, evidence checkpoints, trigger rules, and calibration. Use when creating, reviewing, stress-testing, or updating a plan, estimate, roadmap, project proposal, or strategy.
+description: Create or review plans, estimates, proposals, and strategies as testable forecasts with probabilities, evidence, and response rules.
 metadata:
   internal: true
 ---

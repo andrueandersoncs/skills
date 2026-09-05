@@ -1,8 +1,10 @@
 import * as monaco from "monaco-editor"
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { codeCategories, codeDependencies, type Bootstrap, type CodeFile, type SourceRange, type TestResult } from "./review-types"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { codeDependencies, type Bootstrap, type CodeFile, type SourceRange, type TestResult } from "./review-types"
+import { ContractDiff } from "./contract-diff"
+import { ScopeBoard } from "./scope-board"
 
 self.MonacoEnvironment = { getWorker(_: string, label: string) { return label === "typescript" || label === "javascript" ? new tsWorker() : new editorWorker() } }
 const token = document.querySelector<HTMLMetaElement>('meta[name="review-session-token"]')?.content ?? ""
@@ -119,17 +121,39 @@ interface ProposedCodeViewProps extends ReviewActions {
 }
 
 const ProposedCodeView = ({ data, codeId, busy, dirty, onCode, onTest, ...actions }: ProposedCodeViewProps) => {
-  const item = data.proposedCode.find(({ id }) => id === codeId) ?? data.proposedCode[0]
-  const file = data.files.find(({ fileId }) => fileId === item.fileId)!
-  const affected = data.storyTests.filter(({ proposedCodeIds }) => proposedCodeIds.includes(item.id))
-  const groups = useMemo(() => codeCategories.map((category) => ({ category, items: data.proposedCode.filter((entry) => entry.category === category) })).filter((group) => group.items.length > 0), [data.proposedCode])
-  const header = <div><p className="section-label">{item.category}</p><h2>{item.label}</h2><p>{file.relativePath} · lines {item.range.start.line}–{item.range.end.line}</p><div className="dependency-links">Depends on {codeDependencies(item).map((id) => <button key={id} disabled={busy || dirty} onClick={() => onCode(id)}>{data.proposedCode.find((entry) => entry.id === id)?.label}</button>)}</div><div className="dependency-links">Tested by {affected.map((test) => <button key={test.id} disabled={busy || dirty} onClick={() => onTest(test.id)}>{test.label} · {data.testResults[test.id]?.status ?? "not run"}</button>)}</div></div>
-  return <div className="code-view"><aside className="code-list"><h2>Proposed Code</h2>{groups.map((group) => <section key={group.category}><h3>{group.category === "EffectfulFunction" ? "Effectful functions" : `${group.category}s`}</h3>{group.items.map((entry) => <button key={entry.id} disabled={busy || dirty} aria-current={entry.id === item.id ? "page" : undefined} onClick={() => onCode(entry.id)}><span>{entry.label}</span><small>{entry.relativePath}</small></button>)}</section>)}</aside><EditorPane item={item} itemType="code" file={file} header={header} busy={busy} retryRequired={data.failedSaveItemIds.includes(item.id)} {...actions}/></div>
+  const node = data.scopeGraph.nodes.find(({ id }) => id === codeId) ?? data.scopeGraph.nodes[0]
+  const [editing, setEditing] = useState(false)
+  useEffect(() => { setEditing(false) }, [node?.id])
+  if (!node) return <p>No contract declarations are included in this plan.</p>
+  const item = data.proposedCode.find(({ id }) => id === node.id)
+  const definition = item ?? data.currentCode.find(({ id }) => id === node.id)!
+  const file = item ? data.files.find(({ fileId }) => fileId === item.fileId)! : undefined
+  const affected = data.storyTests.filter(({ proposedCodeIds }) => proposedCodeIds.includes(node.id))
+  const dependencies = codeDependencies(definition)
+  const header = <div className="contract-heading">
+    <div className="contract-title"><h2>{node.label}</h2><span className="change-label" data-change={node.change}>{node.change === "unchanged" ? "Context" : node.change}</span></div>
+    <p>{node.category === "EffectfulFunction" ? "Function contract" : node.category} · {definition.relativePath}</p>
+    {node.rationale && <p className="contract-rationale">{node.rationale}</p>}
+    {dependencies.length > 0 && <div className="dependency-links">Contract dependencies {dependencies.map((id) => <button key={id} disabled={busy || dirty} onClick={() => onCode(id)}>{data.scopeGraph.nodes.find((entry) => entry.id === id)?.label ?? id}</button>)}</div>}
+    {affected.length > 0 && <div className="dependency-links">Tested by {affected.map((test) => <button key={test.id} disabled={busy || dirty} onClick={() => onTest(test.id)}>{test.label} · {data.testResults[test.id]?.status ?? "not run"}</button>)}</div>}
+  </div>
+  return <div className="code-view">
+    <div className="scope-workspace">
+      <ScopeBoard graph={data.scopeGraph} selectedId={node.id} onSelect={onCode} disabled={busy || dirty} />
+      {data.scopeGraph.issues.length > 0 && <section className="scope-issues" aria-label="Schema interpretation issues"><h2>Some schemas could not be interpreted</h2><p>The exact source remains available; these components do not have a generated schema shape.</p><ul>{data.scopeGraph.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></section>}
+    </div>
+    <div className="contract-workspace">
+      {editing && item && file ? <>
+        <button className="comparison-action" disabled={dirty || busy} onClick={() => setEditing(false)}>Back to contract comparison</button>
+        <EditorPane item={item} itemType="code" file={file} header={header} busy={busy} retryRequired={data.failedSaveItemIds.includes(item.id)} {...actions} />
+      </> : <ContractDiff node={node} header={header} disabled={busy || dirty} onEdit={item ? () => setEditing(true) : undefined} />}
+    </div>
+  </div>
 }
 
 export const ReviewShell = () => {
   const [data, setData] = useState<Bootstrap | null>(null)
-  const [tab, setTab] = useState<"tests" | "code">("tests")
+  const [tab, setTab] = useState<"tests" | "code">("code")
   const [storyId, setStoryId] = useState("")
   const [testId, setTestId] = useState("")
   const [codeId, setCodeId] = useState("")
@@ -142,7 +166,12 @@ export const ReviewShell = () => {
   const onDirty = useCallback((value: boolean) => { setDirty(value); if (value) setDecision("") }, [])
   const onError = useCallback((error: unknown) => { setMessage(String(error)); setUnavailable(true); setDecision("") }, [])
 
-  useEffect(() => { void request<Bootstrap>("/api/review/bootstrap").then((next) => { acceptData(next); setStoryId(next.plan.stories[0].id); setTestId(next.storyTests[0].id); setCodeId(next.proposedCode[0].id) }).catch(onError) }, [acceptData, onError])
+  useEffect(() => { void request<Bootstrap>("/api/review/bootstrap").then((next) => {
+    acceptData(next)
+    setStoryId(next.plan.stories[0].id)
+    setTestId(next.storyTests[0].id)
+    setCodeId((next.scopeGraph.nodes.find((node) => node.change === "modified" && node.current?.source !== node.proposed?.source && node.proposed?.schema?.fields.length) ?? next.scopeGraph.nodes.find((node) => node.change !== "unchanged") ?? next.scopeGraph.nodes[0])?.id ?? "")
+  }).catch(onError) }, [acceptData, onError])
   if (!data) return <div className="loading">{message || "Loading executable plan…"}</div>
 
   const chooseStory = (id: string) => { setStoryId(id); setTestId(data.storyTests.find((test) => test.storyId === id)!.id) }
@@ -163,5 +192,13 @@ export const ReviewShell = () => {
     finally { setBusy(false) }
   }
 
-  return <div className="review-app"><header className="app-header"><div><p className="section-label">Executable plan · {data.plan.version}</p><h1>{data.plan.title}</h1><p>{data.plan.description}</p></div><code>{data.sourceSnapshotId.slice(0, 12)}</code></header><nav className="tabs" aria-label="Review sections"><button  disabled={busy || dirty} aria-current={tab === "tests" ? "page" : undefined} onClick={() => setTab("tests")}>Story Tests</button><button  disabled={busy || dirty} aria-current={tab === "code" ? "page" : undefined} onClick={() => setTab("code")}>Proposed Code</button></nav><main>{tab === "tests" ? <StoryTestsView data={data} storyId={storyId} testId={testId} busy={busy} dirty={dirty} onStory={chooseStory} onTest={setTestId} onCode={chooseCode} {...actions}/> : <ProposedCodeView data={data} codeId={codeId} busy={busy} onCode={setCodeId} onTest={chooseTest} {...actions} dirty={dirty}/>}</main><footer className="decision-bar"><div><strong>{dirty ? "Save or reload the edited source" : data.failedSaveItemIds.length ? `Resolve failed saves: ${data.failedSaveItemIds.join(", ")}` : allPassed ? "All story tests pass" : "Run every story test before approval"}</strong><span aria-live="polite">{message}</span></div><div><select aria-label="Review decision" value={decision} disabled={busy || dirty} onChange={(event) => setDecision(event.target.value)}><option value="">Choose decision…</option><option value="changes-requested">Changes requested</option><option value="approved" disabled={!canApprove}>Approved</option></select><button className="primary-action" disabled={!decision || busy || dirty || (decision === "approved" && !canApprove)} onClick={() => void exportReview()}>Export review</button></div></footer></div>
+  return <div className="review-app">
+    <header className="app-header"><div><h1>{data.plan.title}</h1><p>{data.plan.description}</p></div><code title="Source snapshot">{data.sourceSnapshotId.slice(0, 12)}</code></header>
+    <nav className="tabs" aria-label="Review sections">
+      <button disabled={busy || dirty} aria-current={tab === "code" ? "page" : undefined} onClick={() => setTab("code")}>Proposed Code</button>
+      <button disabled={busy || dirty} aria-current={tab === "tests" ? "page" : undefined} onClick={() => setTab("tests")}>Story Tests</button>
+    </nav>
+    <main>{tab === "tests" ? <StoryTestsView data={data} storyId={storyId} testId={testId} busy={busy} dirty={dirty} onStory={chooseStory} onTest={setTestId} onCode={chooseCode} {...actions}/> : <ProposedCodeView data={data} codeId={codeId} busy={busy} onCode={setCodeId} onTest={chooseTest} {...actions} dirty={dirty}/>}</main>
+    <footer className="decision-bar"><div><strong>{dirty ? "Save or reload the edited source" : data.failedSaveItemIds.length ? `Resolve failed saves: ${data.failedSaveItemIds.join(", ")}` : allPassed ? "All story tests pass" : "Run every story test before approval"}</strong><span aria-live="polite">{message}</span></div><div><select aria-label="Review decision" value={decision} disabled={busy || dirty} onChange={(event) => setDecision(event.target.value)}><option value="">Choose decision…</option><option value="changes-requested">Changes requested</option><option value="approved" disabled={!canApprove}>Approved</option></select><button className="primary-action" disabled={!decision || busy || dirty || (decision === "approved" && !canApprove)} onClick={() => void exportReview()}>Export review</button></div></footer>
+  </div>
 }

@@ -1,6 +1,6 @@
 ---
 name: help
-description: Gather the available task context and route a request to exactly one specialist skill. Use as the single entry point for writing, creativity, planning, product, project, wiki, workflow, Grok Bot, agent-skill, software-law, and software work.
+description: Gather task context and select one specialist for writing, planning, product, projects, wikis, Grok Bots, agent systems, skills, software laws, or engineering.
 ---
 
 # Help
@@ -15,6 +15,7 @@ Read [the shared routing guide](references/skill-routers/references/canonical-de
 | A source skill needs distilling into a small LoRA with a sealed comparison against that skill. | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
 | Grok Bot capabilities, skills, routines, roster, autonomy rules, handoffs, or templates need creating or changing. | [`grok-bot`](references/grok-bot/SKILL.md) |
 | A persistent Git-backed LLM wiki needs setting up, ingesting sources, answering queries, linting, or compacting. | [`llm-wiki`](references/llm-wiki/SKILL.md) |
+| An agent system's harness, context, memory, tools, interaction, coding loop, evaluation, training strategy, learning loop, or multi-agent architecture needs designing or improving. | [`agent-systems`](references/agent-systems/SKILL.md) |
 | A multi-task project needs a durable record to coordinate work, blockers, asynchronous results, review, or resumption. | [`manage-project`](references/manage-project/SKILL.md) |
 | A plan, estimate, proposal, roadmap, or strategy needs testable forecasts, probabilities, and response rules. | [`predictive-planning`](references/predictive-planning/SKILL.md) |
 | Product capabilities, features, journeys, requirements, releases, discovery, or AI opportunities need defining or maintaining in a durable product record. | [`product-management`](references/product-management/SKILL.md) |

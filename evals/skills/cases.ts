@@ -57,6 +57,18 @@ const routerProbes: Probe[] = [
 
 export const skillEvaluationCases: SkillEvaluationCase[] = [
   {
+    id: "compilation-owner-no-training",
+    prompt: "Our existing prose-editing skill passes its required behavior cases, but profiling shows loading its instructions dominates token cost. Compile a cheaper instruction representation and evaluate retained behavior. We have not chosen model training. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
+    files: {},
+    allowedChanges: [],
+    requiredChanges: [],
+    routes: [
+      "skills/help/references/agent-systems/SKILL.md",
+      "skills/help/references/agent-systems/references/compile-agent-skill/SKILL.md",
+    ],
+    forbiddenRoutes: ["skills/help/references/distill-skill-to-model/SKILL.md"],
+  },
+  {
     id: "one-file-fix-no-map",
     prompt: "Fix this scale-by-two function: `scale(7)` currently returns 8 instead of 14. The defect is isolated to `src/scale.ts`; there are no other callers or dependencies. Make the smallest complete change without creating planning or mapping artifacts.",
     files: { "src/scale.ts": "export const scale = (value: number) => value + 1\n" },

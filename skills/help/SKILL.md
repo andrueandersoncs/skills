@@ -12,10 +12,10 @@ Read [the shared routing guide](references/skill-routers/references/canonical-de
 | Situation pattern | Skill |
 | --- | --- |
 | An agent skill router needs explaining, designing, implementing, or auditing. | [`skill-routers`](references/skill-routers/SKILL.md) |
-| A source skill needs distilling into a small LoRA with a sealed comparison against that skill. | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
+| LoRA training is already chosen: a source skill needs distilling into a small adapter with a sealed comparison against that skill. | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
 | Grok Bot capabilities, skills, routines, roster, autonomy rules, handoffs, or templates need creating or changing. | [`grok-bot`](references/grok-bot/SKILL.md) |
 | A persistent Git-backed LLM wiki needs setting up, ingesting sources, answering queries, linting, or compacting. | [`llm-wiki`](references/llm-wiki/SKILL.md) |
-| An agent system's harness, context, memory, tools, interaction, coding loop, evaluation, training strategy, learning loop, or multi-agent architecture needs designing or improving. | [`agent-systems`](references/agent-systems/SKILL.md) |
+| An agent system's harness, context, memory, tools, interaction, coding loop, evaluation, training strategy, learning loop, or multi-agent architecture needs designing or improving; or an existing skill needs compiling into a cheaper runtime representation without an already-chosen LoRA target. | [`agent-systems`](references/agent-systems/SKILL.md) |
 | A multi-task project needs a durable record to coordinate work, blockers, asynchronous results, review, or resumption. | [`manage-project`](references/manage-project/SKILL.md) |
 | A plan, estimate, proposal, roadmap, or strategy needs testable forecasts, probabilities, and response rules. | [`predictive-planning`](references/predictive-planning/SKILL.md) |
 | Product capabilities, features, journeys, requirements, releases, discovery, or AI opportunities need defining or maintaining in a durable product record. | [`product-management`](references/product-management/SKILL.md) |

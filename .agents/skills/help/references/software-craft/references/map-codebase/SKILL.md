@@ -13,7 +13,7 @@ The repository or subsystem scope, desired decisions or handoff, available fresh
 
 - For a local change, map only entry points, callers, contracts, tests, and runtime path that can affect the outcome.
 - For onboarding or repeated cross-repository work, create a durable map using the repository's documentation convention.
-- For requested durable synthesis, use [technical-documentation's reference contract](../../../technical-documentation/SKILL.md#reference-contract). Split and cross-link other document types only when the reader's need changes.
+- For requested durable synthesis, use [technical-documentation](../../../technical-documentation/SKILL.md) with its [reference contract](../../../technical-documentation/references/reference.md). Split and cross-link other document types only when the reader's need changes.
 
 ## Method
 

@@ -33,7 +33,7 @@ bun add -d @andrue/cli
 `help` contains:
 
 - `skill-routers` — agent-skill router design, implementation, and review
-- `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, training, evolution, and multi-agent architecture
+- `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, skill compilation, training, evolution, and multi-agent architecture
 - `software-craft` — executable software work, including focused `review-symmetry` code reviews
 - `workflows` — nonexecuting callstack and state-machine projections
 - `technical-documentation` — tutorials, how-to guides, reference, and explanation
@@ -73,3 +73,61 @@ Use an available `provider/model`. `--case one-file-fix-no-map` selects one scen
 The evaluator runs isolated with-skill and no-skill sessions using the same model. It checks runtime results, allowed writes, loaded workflows, and fresh-context consumers of generated skills. Reports, transcripts, fixture workspaces, and the hashed skill snapshot are retained under `.scratch/skill-evals/` by default.
 
 A failing skill scenario or runtime failure returns a nonzero exit. Baseline quality failures are reported separately; a tie does not establish that the skills improve outcomes. See [the cases](evals/skills/cases.ts) and [the existing evaluation method](skills/help/references/software-craft/references/author-agent-skill/SKILL.md).
+
+## Skill compilation
+
+[`compile-agent-skill`](skills/help/references/agent-systems/references/compile-agent-skill/SKILL.md) coordinates instruction deletion against a behavioral contract. The checkout-only runner reuses the authenticated `omp` evaluator. It never overwrites a source or installed skill.
+
+Keep cases beside the source package in `evals/development.json` and `evals/acceptance.json`, following the [shared comparison method](skills/help/references/agent-systems/references/evaluate-agents/references/comparison-method.md). Expected checks remain verifier-side. Split by task family, not paraphrase.
+
+Seal acceptance and its decision rule before candidate selection:
+
+```sh
+bun run compile:skill seal \
+  --suite skills/help/references/deslop/evals/acceptance.json \
+  --output .scratch/skill-compilation/deslop-seal.json \
+  --repeats 2 --min-savings 0.05
+
+bun run compile:skill compile \
+  --source skills/help/references/deslop \
+  --development skills/help/references/deslop/evals/development.json \
+  --seal .scratch/skill-compilation/deslop-seal.json \
+  --model openai-codex/gpt-5.6-luna \
+  --drop '## Pattern catalog' \
+  --drop '## Verbatim references' --together
+```
+
+The seal command refuses to overwrite an existing seal. `compile` prints a unique evidence directory under `.scratch/skill-compilation/`. Set `RUN` to that printed directory, then evaluate its frozen candidate:
+
+```sh
+bun run compile:skill accept --run "$RUN" \
+  --suite skills/help/references/deslop/evals/acceptance.json
+```
+
+`--drop` selects whole Markdown sections, including nested headings but ignoring headings inside fenced examples. Repeated flags normally try sequential deletions; each retained deletion becomes the starting point for the next trial. `--together` instead tests the named deletions as one candidate, useful when one section sends the agent to references that duplicate another. Without `--drop`, the runner considers each level-two section. Every trial evaluates the cumulative candidate. A rejected trial leaves the previous candidate unchanged.
+
+`--source` must contain the complete runtime package; `--entry` selects its relative entry file (default `SKILL.md`). Use a wider source root when the skill references sibling resources. Directories named `evals` are excluded from every runtime copy. `--output` changes the artifact parent directory, which must remain outside the source package.
+
+The decision rule requires every source and candidate case to pass and total tokens per successful task to improve by the sealed margin. Cost includes failed attempts and cached tokens across the entire trajectory. Reports also retain input/output/cache usage, tool calls, runtime failures, wall-clock latency, provider-reported prices, per-family results, transcripts, and fixture workspaces. Zero reported price is marked unpriced rather than free. Provider prices are not an invoice or a measurement of external tool costs.
+
+`manifest.json` records source/candidate hashes, selected deletions, suite hashes, runner versions, and model/runtime settings. Acceptance rejects changed suites, runtime versions, or candidate packages and refuses a second acceptance run in the same directory. `report.json` records the three-way no-skill/source/compiled result. A failed gate returns nonzero and does not deploy anything.
+
+These are sampled artifact checks, not a statistical non-inferiority claim or a complete prose-quality evaluation. The small `deslop` suites cover particular preservation and editing obligations. A no-skill tie does not establish that the source skill is useful.
+
+Sealing enforces the local workflow, not an OS security boundary. Candidate selection loads only development cases; acceptance loads the holdout after selection. Evaluated sessions receive their current fixture and prompt, never the suite or expected checks. Local `omp` tools retain the user's filesystem permissions: use trusted fixtures and packages here, or an external sandbox for adversarial evaluation. After inspecting acceptance results, treat those cases as development evidence for future optimization.
+
+### Recorded experiment
+
+On 2026-09-05, `openai-codex/gpt-5.6-luna` selected the combined deletion of `deslop`'s Pattern catalog and Verbatim references sections. Five development cases and four independently authored holdout cases were each run twice per arm. The source skill was unchanged.
+
+| Holdout arm | Passed | Total tokens per successful task | Mean task latency |
+| --- | --- | --- | --- |
+| No skill | 8/8 | 23,537.75 | 11.94 s |
+| Source | 8/8 | 30,203.75 | 12.09 s |
+| Compiled | 8/8 | 24,508.75 | 13.11 s |
+
+The candidate cleared the predeclared 5% token-saving gate with an observed 18.9% reduction, while mean latency increased 8.4%. The no-skill baseline was cheaper and passed the same sampled checks; this experiment does not establish the skill's usefulness or broad equivalence.
+
+Local evidence is retained in `.scratch/skill-compilation/run-NdshWZ/`, including `manifest.json`, `development.json`, and `report.json`. Earlier rejected/incomplete runs remain in sibling directories. Wording-pinned checks were removed from exposed cases before the final development run; the final holdout was newly authored and sealed before candidate selection.
+
+The bundled acceptance cases are now public regression fixtures. Obtain a fresh holdout before using this result to guide another optimization.

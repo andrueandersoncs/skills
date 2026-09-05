@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import * as THREE from "three"
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 import { createCircuitTraces } from "./circuit-traces"
-import type { ScopeChange, ScopeConnection, ScopeGraph, ScopeNode, ScopeVersion, SchemaView } from "./scope-types"
+import { componentFootprint, createBoardComponent } from "./board-components"
+import { changeColors, changeNames, entityStyles, relationshipStyles } from "./board-semantics"
+import type { ScopeChange, ScopeConnection, ScopeGraph, ScopeNode, ScopeVersion } from "./scope-types"
 import "./scope-board.css"
 
 type ScopeBoardProps = {
@@ -13,8 +15,7 @@ type ScopeBoardProps = {
 }
 
 type Point = { readonly x: number; readonly z: number }
-type ComponentFootprint = { readonly width: number; readonly depth: number; readonly shape: "union" | "array" | "codec" | "plain" }
-type NodeVisual = { readonly materials: THREE.MeshStandardMaterial[]; readonly halo: THREE.Mesh }
+type NodeVisual = ReturnType<typeof createBoardComponent>
 type CameraOrientation = { azimuth: number; polar: number }
 type BoardRuntime = {
   readonly select: (id: string) => void
@@ -25,35 +26,10 @@ type BoardRuntime = {
 
 type ComparisonMode = "comparison" | "current" | "proposed"
 
-const changeNames: Record<ScopeChange, string> = {
-  added: "Added · proposed",
-  modified: "Modified · current → proposed",
-  removed: "Removed · current",
-  unchanged: "Unchanged",
-}
-
-const connectionNames: Record<ScopeConnection["kind"], string> = {
-  schema: "Schema composition",
-  dependency: "Declared dependency",
-  input: "Function input",
-  success: "Function success",
-  error: "Function error",
-  service: "Function service",
-}
-
-const changeColors: Record<ScopeChange, number> = {
-  added: 0x5fa77a,
-  modified: 0xc38345,
-  removed: 0x9a625b,
-  unchanged: 0x6f877a,
-}
 
 
 const clamp = (value: number, minimum: number, maximum: number) => Math.min(maximum, Math.max(minimum, value))
-const defaultCameraOrientation: CameraOrientation = {
-  azimuth: Math.atan2(16, 19),
-  polar: Math.acos(18 / Math.hypot(16, 18, 19)),
-}
+const defaultCameraOrientation: CameraOrientation = { azimuth: 0, polar: 0.00001 }
 const versionFor = (node: ScopeNode, mode: ComparisonMode): ScopeVersion | undefined => mode === "current"
   ? node.current
   : mode === "proposed"
@@ -66,22 +42,6 @@ const nodeStatus = (node: ScopeNode, mode: ComparisonMode) => mode === "comparis
     ? mode === "current" ? "Current definition" : "Proposed definition"
     : mode === "current" ? "Absent from current" : "Absent from proposed"
 
-const schemaShape = (schema: SchemaView | undefined) => {
-  const kind = schema?.kind.toLowerCase() ?? ""
-  if (kind.includes("union")) return "union"
-  if (kind.includes("array")) return "array"
-  if (kind.includes("codec") || schema?.encoded) return "codec"
-  return "plain"
-}
-
-const componentFootprint = (schema: SchemaView | undefined): ComponentFootprint => {
-  const fields = schema?.fields.length ?? 0
-  return {
-    width: 1.25 + clamp(fields, 0, 7) * 0.11,
-    depth: 0.86 + clamp(fields, 0, 6) * 0.045,
-    shape: schemaShape(schema),
-  }
-}
 
 
 const disposeObject = (root: THREE.Object3D) => {
@@ -94,117 +54,8 @@ const disposeObject = (root: THREE.Object3D) => {
   })
 }
 
-const addComponent = (
-  scene: THREE.Scene,
-  node: ScopeNode,
-  position: Point,
-  footprint: ComponentFootprint,
-  mode: ComparisonMode,
-  nodeVisuals: Map<string, NodeVisual>,
-  pickables: THREE.Object3D[],
-) => {
-  const version = versionFor(node, mode)
-  const group = new THREE.Group()
-  group.position.set(position.x, 0.34, position.z)
-  group.userData.scopeNodeId = node.id
 
-  const category = version?.category ?? node.category
-  const color = mode === "comparison" ? changeColors[node.change] : mode === "current" ? 0x637b71 : 0x5fa77a
-  const bodyMaterial = new THREE.MeshStandardMaterial({ color, roughness: 0.64, metalness: 0.24 })
-  const capMaterial = new THREE.MeshStandardMaterial({ color: category === "Interface" ? 0x7ca6bd : category === "Type" ? 0xa28bbb : 0xe8bf76, roughness: 0.42, metalness: 0.58 })
-  const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x274e42, roughness: 0.7, metalness: 0.15 })
-  const body = new THREE.Mesh(new THREE.BoxGeometry(footprint.width, 0.34, footprint.depth), bodyMaterial)
-  body.position.y = 0.16
-  group.add(body)
-
-  const cap = new THREE.Mesh(new THREE.BoxGeometry(footprint.width * 0.7, 0.08, footprint.depth * 0.56), capMaterial)
-  cap.position.y = 0.37
-  group.add(cap)
-
-  if (footprint.shape === "union") {
-    const marker = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.055, 6, 12), darkMaterial)
-    marker.rotation.x = Math.PI / 2
-    marker.position.set(0, 0.44, 0)
-    group.add(marker)
-  } else if (footprint.shape === "array") {
-    for (let index = -1; index <= 1; index += 1) {
-      const lane = new THREE.Mesh(new THREE.BoxGeometry(footprint.width * 0.48, 0.035, 0.055), darkMaterial)
-      lane.position.set(0, 0.43, index * 0.13)
-      group.add(lane)
-    }
-  } else if (footprint.shape === "codec") {
-    const lower = new THREE.Mesh(new THREE.BoxGeometry(footprint.width * 0.46, 0.04, footprint.depth * 0.4), darkMaterial)
-    lower.position.set(-footprint.width * 0.14, 0.43, 0)
-    const upper = lower.clone()
-    upper.position.x = footprint.width * 0.14
-    group.add(lower, upper)
-  } else if (category === "Interface") {
-    for (let index = -1; index <= 1; index += 1) {
-      const rail = new THREE.Mesh(new THREE.BoxGeometry(footprint.width * 0.42, 0.035, 0.05), darkMaterial)
-      rail.position.set(0, 0.43, index * 0.13)
-      group.add(rail)
-    }
-  } else if (category === "Type") {
-    const marker = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.045, 6), darkMaterial)
-    marker.position.y = 0.43
-    group.add(marker)
-  }
-
-
-  if (mode === "comparison" && node.change === "modified" && node.current?.schema) {
-    const before = componentFootprint(node.current.schema)
-    const currentOutline = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(before.width, 0.38, before.depth)),
-      new THREE.LineBasicMaterial({ color: 0xf4e0ba, transparent: true, opacity: 0.72 }),
-    )
-    currentOutline.position.set(0, 0.17, 0)
-    group.add(currentOutline)
-  }
-
-  if (mode === "comparison" && node.change === "removed") {
-    const outline = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(footprint.width + 0.12, 0.46, footprint.depth + 0.12)),
-      new THREE.LineBasicMaterial({ color: 0xe0a5a0, transparent: true, opacity: 0.95 }),
-    )
-    outline.position.y = 0.19
-    group.add(outline)
-    bodyMaterial.transparent = true
-    bodyMaterial.opacity = 0.3
-    capMaterial.transparent = true
-    capMaterial.opacity = 0.35
-  } else if (!version) {
-    const unavailableOutline = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(footprint.width + 0.12, 0.42, footprint.depth + 0.12)),
-      new THREE.LineBasicMaterial({ color: 0xc7d2c9, transparent: true, opacity: 0.82 }),
-    )
-    unavailableOutline.position.y = 0.18
-    group.add(unavailableOutline)
-    bodyMaterial.transparent = true
-    bodyMaterial.opacity = 0.12
-    capMaterial.transparent = true
-    capMaterial.opacity = 0.16
-  }
-
-  group.traverse((object) => {
-    if (object instanceof THREE.Mesh) {
-      object.userData.scopeNodeId = node.id
-      pickables.push(object)
-    }
-  })
-
-  const halo = new THREE.Mesh(
-    new THREE.BoxGeometry(footprint.width + 0.25, 0.028, footprint.depth + 0.25),
-    new THREE.MeshBasicMaterial({ color: 0xffe5a8, transparent: true, opacity: 0.82 }),
-  )
-  halo.position.y = 0.015
-  halo.visible = false
-  group.add(halo)
-
-  scene.add(group)
-  nodeVisuals.set(node.id, { materials: [bodyMaterial, capMaterial], halo })
-}
-
-const boardLayout = (nodes: ReadonlyArray<ScopeNode>, mode: ComparisonMode) => {
+const boardLayout = (nodes: ReadonlyArray<ScopeNode>, mode: ComparisonMode, compact: boolean) => {
   const byScope = new Map<string, ScopeNode[]>()
   nodes.forEach((node) => {
     const key = versionFor(node, mode)?.scope ?? node.scope
@@ -216,9 +67,9 @@ const boardLayout = (nodes: ReadonlyArray<ScopeNode>, mode: ComparisonMode) => {
   const maximumGroupSize = Math.max(1, ...groups.map((group) => group.nodes.length))
   const localColumns = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(maximumGroupSize))))
   const localRows = Math.ceil(maximumGroupSize / localColumns)
-  const regionWidth = Math.max(5.5, localColumns * 3 + 1.8)
-  const regionDepth = Math.max(4.3, localRows * 2.5 + 1.8)
-  const groupColumns = Math.max(1, Math.ceil(Math.sqrt(groups.length)))
+  const regionWidth = Math.max(6.4, localColumns * 4.8 + 1.8)
+  const regionDepth = Math.max(5.6, localRows * 4.2 + 2.2)
+  const groupColumns = compact ? 1 : Math.max(1, Math.ceil(Math.sqrt(groups.length)))
   const groupRows = Math.ceil(groups.length / groupColumns)
   const boardWidth = groupColumns * (regionWidth + 0.55) + 0.75
   const boardDepth = groupRows * (regionDepth + 0.55) + 0.75
@@ -235,13 +86,36 @@ const boardLayout = (nodes: ReadonlyArray<ScopeNode>, mode: ComparisonMode) => {
       const column = index % localColumns
       const row = Math.floor(index / localColumns)
       positions.set(node.id, {
-        x: centerX + (column - (localColumns - 1) / 2) * 3,
-        z: centerZ + (row - (localRows - 1) / 2) * 2.5,
+        x: centerX + (column - (localColumns - 1) / 2) * 4.8,
+        z: centerZ + (row - (localRows - 1) / 2) * 4.2,
       })
     })
   })
 
   return { positions, regions, regionWidth, regionDepth, boardWidth, boardDepth }
+}
+
+const relationshipMarkerPaths = {
+  diamond: "M35 9 L39 5 L43 9 L39 13 Z",
+  circle: "M43 9 A4 4 0 1 1 35 9 A4 4 0 1 1 43 9",
+  arrow: "M36 5 L42 9 L36 13",
+  "double-arrow": "M31 5 L37 9 L31 13 M37 5 L43 9 L37 13",
+  cross: "M35 5 L43 13 M43 5 L35 13",
+  square: "M35 5 H43 V13 H35 Z",
+}
+
+const RelationshipSwatch = ({ kind }: { readonly kind: ScopeConnection["kind"] }) => {
+  const style = relationshipStyles[kind]
+  return <svg viewBox="0 0 48 18" aria-hidden="true" fill="none" stroke={style.color} strokeWidth="2" strokeLinejoin="round">
+    {style.pattern === "double"
+      ? <path d="M2 6 H32 M2 12 H32" />
+      : <path
+          d={style.pattern === "zigzag" ? "M2 9 H6 L10 5 L16 13 L22 5 L28 13 L32 9 H35" : "M2 9 H35"}
+          strokeWidth={style.pattern === "bus" ? 4 : 2}
+          strokeDasharray={style.pattern === "dashed" ? "4 3" : undefined}
+        />}
+    <path d={relationshipMarkerPaths[style.marker]} />
+  </svg>
 }
 
 export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: ScopeBoardProps) => {
@@ -253,6 +127,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
   const selectRef = useRef(onSelect)
   const disabledRef = useRef(disabled)
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("comparison")
+  const [compact, setCompact] = useState(() => window.matchMedia("(max-width: 620px)").matches)
   const [hoveredId, setHoveredId] = useState("")
   const selectedIdRef = useRef(selectedId)
   const cameraOrientationRef = useRef<CameraOrientation | null>(null)
@@ -270,7 +145,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     () => selectedId ? visibleConnections.filter((connection) => connection.from === selectedId || connection.to === selectedId) : [],
     [visibleConnections, selectedId],
   )
-  const layout = useMemo(() => boardLayout(graph.nodes, comparisonMode), [graph.nodes, comparisonMode])
+  const layout = useMemo(() => boardLayout(graph.nodes, comparisonMode, compact), [graph.nodes, comparisonMode, compact])
   const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes])
   const selectedNode = nodeById.get(selectedId)
 
@@ -290,6 +165,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     setRendererStatus("ready")
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75))
     renderer.outputColorSpace = THREE.SRGBColorSpace
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.setClearColor(0xf6f7f2, 0)
     renderer.domElement.className = "scope-board-canvas"
     renderer.domElement.setAttribute("aria-hidden", "true")
@@ -306,12 +182,12 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     controls.enablePan = false
     controls.enableZoom = false
     controls.autoRotate = false
-    controls.minPolarAngle = 0.34
+    controls.minPolarAngle = defaultCameraOrientation.polar
     controls.maxPolarAngle = Math.PI / 2 - 0.18
     controls.enabled = !disabledRef.current
     controls.update()
-    scene.add(new THREE.HemisphereLight(0xfff4d6, 0x173b31, 2.25))
-    const keyLight = new THREE.DirectionalLight(0xffdf9d, 2.5)
+    scene.add(new THREE.HemisphereLight(0xf2f7ec, 0x173b31, 1.8))
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2)
     keyLight.position.set(-7, 14, 9)
     scene.add(keyLight)
 
@@ -341,9 +217,13 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     const pickables: THREE.Object3D[] = []
     const components = graph.nodes.map((node) => {
       const position = layout.positions.get(node.id) ?? { x: 0, z: 0 }
-      const footprint = componentFootprint(versionFor(node, comparisonMode)?.schema)
-      addComponent(scene, node, position, footprint, comparisonMode, nodeVisuals, pickables)
-      return { id: node.id, x: position.x, z: position.z, width: footprint.width, depth: footprint.depth }
+      const version = versionFor(node, comparisonMode)
+      const footprint = componentFootprint(version?.category ?? node.category, version?.schema)
+      const visual = createBoardComponent({ node, version, comparison: comparisonMode === "comparison", position, footprint })
+      scene.add(visual.group)
+      nodeVisuals.set(node.id, visual)
+      pickables.push(...visual.pickables)
+      return { id: node.id, x: position.x, z: position.z, width: footprint.width, depth: footprint.depth, contacts: visual.contacts }
     })
     const circuitTraces = createCircuitTraces({
       connections: visibleConnections,
@@ -356,28 +236,44 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
 
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
+    const hitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.5)
+    const hitPoint = new THREE.Vector3()
     const labelPoint = new THREE.Vector3()
     const fitPoint = new THREE.Vector3()
     const regionPoint = new THREE.Vector3()
     const cameraOffset = new THREE.Vector3()
     const cameraSpherical = new THREE.Spherical()
     let viewport = { width: 0, height: 0 }
+    const labelBounds = components.map((component) => ({ id: component.id, left: 0, top: 0, width: 0, height: 0, hidden: true }))
 
     const updateLabels = () => {
-      graph.nodes.forEach((node) => {
-        const point = layout.positions.get(node.id)
-        const label = nodeLabelRefs.current.get(node.id)
-        if (!point || !label) return
-        labelPoint.set(point.x, 0.78, point.z).project(camera)
-        label.style.transform = `translate3d(${(labelPoint.x * 0.5 + 0.5) * viewport.width}px, ${(-labelPoint.y * 0.5 + 0.5) * viewport.height}px, 0) translate(-50%, -135%)`
+      const labelWidth = clamp(viewport.width / (camera.right - camera.left) * 4.45, 44, 124)
+      components.forEach((component, index) => {
+        const label = nodeLabelRefs.current.get(component.id)
+        if (!label) return
+        labelPoint.set(component.x, 0.12, component.z + component.depth / 2 + 0.35).project(camera)
+        const bounds = labelBounds[index]
+        bounds.left = (labelPoint.x * 0.5 + 0.5) * viewport.width
+        bounds.top = (-labelPoint.y * 0.5 + 0.5) * viewport.height
+        bounds.hidden = labelPoint.z < -1 || labelPoint.z > 1
+        label.style.maxWidth = `${labelWidth}px`
+        label.style.transform = `translate3d(${(labelPoint.x * 0.5 + 0.5) * viewport.width}px, ${(-labelPoint.y * 0.5 + 0.5) * viewport.height}px, 0) translate(-50%, 0)`
         label.hidden = labelPoint.z < -1 || labelPoint.z > 1
       })
       layout.regions.forEach((region) => {
         const label = regionLabelRefs.current.get(region.scope)
         if (!label) return
-        regionPoint.set(region.x - layout.regionWidth * 0.36, 0.31, region.z - layout.regionDepth * 0.38).project(camera)
+        regionPoint.set(region.x, 0.12, region.z - layout.regionDepth / 2 + 0.65).project(camera)
         label.style.transform = `translate3d(${(regionPoint.x * 0.5 + 0.5) * viewport.width}px, ${(-regionPoint.y * 0.5 + 0.5) * viewport.height}px, 0) translate(-50%, -50%)`
         label.hidden = regionPoint.z < -1 || regionPoint.z > 1
+      })
+      // Read after all label writes so hit targets share a single layout pass.
+      labelBounds.forEach((bounds) => {
+        const label = nodeLabelRefs.current.get(bounds.id)
+        if (!label) return
+        bounds.width = label.offsetWidth
+        bounds.height = label.offsetHeight
+        bounds.left -= bounds.width / 2
       })
     }
 
@@ -421,6 +317,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     const resize = () => {
       const { width, height } = stage.getBoundingClientRect()
       if (!width || !height) return
+      setCompact(width < 560)
       viewport = { width, height }
       renderer.setSize(width, height, false)
       fitCamera()
@@ -447,8 +344,8 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
         const isSelected = nodeId === id
         visual.halo.visible = isSelected
         visual.materials.forEach((material) => {
-          material.emissive.setHex(isSelected ? 0x43300d : 0x000000)
-          material.emissiveIntensity = isSelected ? 0.5 : 0
+          material.emissive.copy(material.color)
+          material.emissiveIntensity = isSelected ? 0.24 : 0.025
         })
       })
       circuitTraces.select(id)
@@ -463,7 +360,21 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
       raycaster.setFromCamera(pointer, camera)
       intersections.length = 0
       raycaster.intersectObjects(pickables, false, intersections)
-      return intersections[0]?.object.userData.scopeNodeId as string | undefined
+      const hit = intersections[0]?.object.userData.scopeNodeId as string | undefined
+      if (hit) return hit
+      if (!raycaster.ray.intersectPlane(hitPlane, hitPoint)) return undefined
+      for (const component of components) {
+        if (Math.abs(hitPoint.x - component.x) <= component.width / 2 && Math.abs(hitPoint.z - component.z) <= component.depth / 2) return component.id
+      }
+      return undefined
+    }
+
+    const pickLabel = (event: PointerEvent): string | undefined => {
+      for (const bounds of labelBounds) {
+        if (bounds.hidden) continue
+        if (event.offsetX >= bounds.left && event.offsetX <= bounds.left + bounds.width && event.offsetY >= bounds.top && event.offsetY <= bounds.top + bounds.height) return bounds.id
+      }
+      return undefined
     }
 
     const activePointers = new Map<number, Point>()
@@ -478,13 +389,18 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     const onPointerMove = (event: PointerEvent) => {
       const origin = activePointers.get(event.pointerId)
       if (origin && Math.hypot(event.clientX - origin.x, event.clientY - origin.z) > 6) selectionSuppressed = true
-      if (!disabledRef.current && !selectionSuppressed) setHoveredId(pick(event) ?? "")
+      if (!disabledRef.current && !selectionSuppressed) {
+        const id = pickLabel(event) ?? pick(event) ?? ""
+        const node = nodeById.get(id)
+        renderer.domElement.title = node ? `${labelFor(node, comparisonMode)} · ${entityStyles[versionFor(node, comparisonMode)?.category ?? node.category].label} · ${nodeStatus(node, comparisonMode)}` : ""
+        setHoveredId(id)
+      }
     }
     const onPointerUp = (event: PointerEvent) => {
       const canSelect = !disabledRef.current && !selectionSuppressed && event.isPrimary && event.button === 0 && activePointers.has(event.pointerId)
       activePointers.delete(event.pointerId)
       if (canSelect) {
-        const id = pick(event)
+        const id = pickLabel(event) ?? pick(event)
         if (id) selectRef.current(id)
       }
       if (activePointers.size === 0) selectionSuppressed = false
@@ -587,28 +503,36 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
         <div className="scope-board-modes" aria-label="Comparison mode">
           {(["comparison", "current", "proposed"] as const).map((mode) => <button key={mode} type="button" disabled={disabled} aria-pressed={comparisonMode === mode} onClick={() => setComparisonMode(mode)} data-comparison-mode={mode}>{mode === "comparison" ? "Compare" : mode[0].toUpperCase() + mode.slice(1)}</button>)}
         </div>
-        <button className="scope-board-reset" type="button" disabled={disabled || rendererStatus !== "ready"} onClick={() => runtimeRef.current?.reset()}>Reset view</button>
+        <button className="scope-board-reset" type="button" disabled={disabled || rendererStatus !== "ready"} onClick={() => runtimeRef.current?.reset()}>Top view</button>
         <div className="scope-board-legend" aria-label="Change legend">
-          {(Object.keys(changeNames) as ScopeChange[]).map((change) => <span key={change} data-change={change}><i aria-hidden="true" />{changeNames[change]}</span>)}
+          {(Object.keys(changeNames) as ScopeChange[]).map((change) => <span key={change} data-change={change} style={{ "--change-color": changeColors[change] } as CSSProperties}><i aria-hidden="true" />{changeNames[change]}</span>)}
         </div>
       </div>
     </header>
-    <p className="scope-board-description" id="scope-board-description">Drag to rotate, or use arrow keys when focused. {graph.nodes.length} declarations across {layout.regions.length} regions. Unchanged source does not mean unaffected behavior.</p>
-    <div className="scope-board-stage" ref={stageRef} tabIndex={rendererStatus === "ready" ? 0 : -1} aria-label="Interactive 3D contract scope board" aria-describedby="scope-board-description" data-board-stage="isometric">
+    <p className="scope-board-description" id="scope-board-description">Arrows point to referenced contracts. Drag or use arrow keys to rotate. Unchanged source does not mean unaffected behavior.</p>
+    <ul className="scope-board-relationship-key" aria-label="Relationship key">
+      {(Object.keys(relationshipStyles) as ScopeConnection["kind"][]).map((kind) => <li key={kind} data-connection-kind={kind}><RelationshipSwatch kind={kind} /><span>{relationshipStyles[kind].label}</span></li>)}
+    </ul>
+    <div className="scope-board-stage" ref={stageRef} style={{ aspectRatio: layout.boardWidth / layout.boardDepth }} tabIndex={rendererStatus === "ready" ? 0 : -1} aria-label="Interactive contract circuit board" aria-describedby="scope-board-description" data-board-stage="circuit">
       <div className="scope-board-overlay" ref={overlayRef} hidden={rendererStatus !== "ready"}>
-        {graph.nodes.map((node) => <button
+        {graph.nodes.map((node) => {
+          const entity = entityStyles[versionFor(node, comparisonMode)?.category ?? node.category]
+          return <button
           key={node.id}
           type="button"
           className={`scope-board-node-label is-${node.change}`}
-          data-visible={node.id === selectedId || node.id === hoveredId}
-          title={`${labelFor(node, comparisonMode)} · ${nodeStatus(node, comparisonMode)}`}
+          style={{ "--entity-color": entity.color } as CSSProperties}
+          data-active={node.id === selectedId || node.id === hoveredId}
+          data-category={versionFor(node, comparisonMode)?.category ?? node.category}
+          title={`${labelFor(node, comparisonMode)} · ${entity.label} · ${nodeStatus(node, comparisonMode)}`}
           ref={(element) => { if (element) nodeLabelRefs.current.set(node.id, element); else nodeLabelRefs.current.delete(node.id) }}
           onClick={() => selectNode(node.id)}
           disabled={disabled}
           aria-pressed={selectedId === node.id}
           data-node-id={node.id}
           data-change={node.change}
-        >{labelFor(node, comparisonMode)}<small>{versionFor(node, comparisonMode)?.category ?? node.category} · {nodeStatus(node, comparisonMode)}</small></button>)}
+        ><span>{labelFor(node, comparisonMode)}</span><small>{entity.label}{comparisonMode === "comparison" && node.change !== "unchanged" ? ` · ${node.change}` : !versionFor(node, comparisonMode) ? " · absent" : ""}</small></button>
+        })}
         {layout.regions.map((region) => <span
           key={region.scope}
           className="scope-board-region-label"
@@ -627,7 +551,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
         const otherId = connection.from === selectedId ? connection.to : connection.from
         const label = comparisonMode === "current" ? connection.currentLabel : comparisonMode === "proposed" ? connection.proposedLabel : connection.label
         const other = nodeById.get(otherId)
-        return <li key={connection.id} data-connection-id={connection.id} data-connection-kind={connection.kind} data-change={connection.change}><button disabled={disabled} onClick={() => selectNode(otherId)}>{other ? labelFor(other, comparisonMode) : otherId}</button><span>{connectionNames[connection.kind]}{connection.kind === "schema" ? ` · ${label}` : ""}{comparisonMode === "comparison" && connection.change !== "unchanged" ? ` · ${changeNames[connection.change]}` : ""}</span></li>
+        return <li key={connection.id} data-connection-id={connection.id} data-connection-kind={connection.kind} data-change={connection.change}><button disabled={disabled} onClick={() => selectNode(otherId)}>{other ? labelFor(other, comparisonMode) : otherId}</button><span>{relationshipStyles[connection.kind].label}{connection.kind === "schema" ? ` · ${label}` : ""}{comparisonMode === "comparison" && connection.change !== "unchanged" ? ` · ${changeNames[connection.change]}` : ""}</span></li>
       })}</ul> : <span>No connections in this view.</span>}</aside>
     </div>
   </section>

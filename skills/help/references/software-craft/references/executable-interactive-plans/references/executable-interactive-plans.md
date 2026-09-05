@@ -26,7 +26,7 @@ Do not make type-compatible inferred wires, repository-wide declaration inventor
 - **Unchanged source context** is nearby or connected source retained to orient the reviewer. It does not claim behavioral non-impact.
 - **Structural/dependency effects** are the graph relationships derived by the bounded rules above.
 
-The scope board starts in a shallow isometric view with prominent copper circuit traces for declared relationships. Drag or swipe to rotate, use arrow keys while focused, and use Reset view to restore the initial orientation. Rotation does not change the selected contract.
+The scope board starts top-down. Entity silhouettes and persistent labels identify categories; trace colors, rail patterns, and terminals identify relationship kinds, with an on-board key. Trace arrowheads point toward referenced contracts. Drag or swipe to rotate, use arrow keys while focused, and use Top view to restore the overhead view. Rotation does not change the selected contract.
 
 A keyboard-accessible contract list provides the same review information without WebGL. Use either surface to select a declaration, inspect its category and relationship, and move to its exact source.
 

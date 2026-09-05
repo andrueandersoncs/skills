@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js"
 import { changeColors, relationshipStyles } from "./board-semantics"
 import type { ScopeConnection } from "./scope-types"
+import type { ComponentContacts } from "./board-components"
 
 type Footprint = {
   readonly id: string
@@ -9,6 +10,7 @@ type Footprint = {
   readonly z: number
   readonly width: number
   readonly depth: number
+  readonly contacts: ComponentContacts
 }
 
 type CircuitTraceOptions = {
@@ -23,16 +25,13 @@ type Point = { readonly x: number; readonly z: number }
 type Side = "left" | "right" | "top" | "bottom"
 type Obstacle = Footprint & { readonly left: number; readonly right: number; readonly top: number; readonly bottom: number }
 type Segment = { readonly from: Point; readonly to: Point }
-type Endpoint = { readonly pad: Point; readonly exit: Point }
+type Endpoint = { readonly pad: Point; readonly exit: Point; readonly contact: ComponentContacts[Side] }
 type Rail = Segment & { readonly width: number }
 type RelationshipPattern = (typeof relationshipStyles)[ScopeConnection["kind"]]["pattern"]
+type RelationshipMarker = (typeof relationshipStyles)[ScopeConnection["kind"]]["marker"]
 type TraceVisual = {
   readonly connection: ScopeConnection
   readonly material: THREE.MeshStandardMaterial
-  readonly baseColor: THREE.Color
-  readonly baseEmissive: THREE.Color
-  readonly highlightColor: THREE.Color
-  readonly highlightEmissive: THREE.Color
 }
 
 const trackWidth = 0.145
@@ -45,7 +44,6 @@ const routeClearance = 0.24 // Includes solder leads and the track's mask cleara
 const boardMargin = 0.2
 const traceY = 0.102
 const layerStep = 0.032
-const componentLeadTop = 0.345
 const traceHeight = 0.018
 const markerHeight = 0.034
 const markerSize = 0.44
@@ -86,13 +84,13 @@ const endpointFor = (component: Footprint, side: Side, index: number, total: num
     const offset = total <= 1 ? 0 : -offsetLimit + index / (total - 1) * offsetLimit * 2
     const x = component.x + (side === "left" ? -1 : 1) * (component.width / 2 + 0.045)
     const z = component.z + offset
-    return { pad: { x, z }, exit: { x: x + (side === "left" ? -1 : 1) * routeClearance, z } }
+    return { pad: { x, z }, exit: { x: x + (side === "left" ? -1 : 1) * routeClearance, z }, contact: component.contacts[side] }
   }
   const offsetLimit = Math.max(0, component.width / 2 - 0.11)
   const offset = total <= 1 ? 0 : -offsetLimit + index / (total - 1) * offsetLimit * 2
   const z = component.z + (side === "top" ? -1 : 1) * (component.depth / 2 + 0.045)
   const x = component.x + offset
-  return { pad: { x, z }, exit: { x, z: z + (side === "top" ? -1 : 1) * routeClearance } }
+  return { pad: { x, z }, exit: { x, z: z + (side === "top" ? -1 : 1) * routeClearance }, contact: component.contacts[side] }
 }
 
 const sidesToward = (from: Footprint, to: Footprint): ReadonlyArray<Side> => {
@@ -231,12 +229,12 @@ const cornerGeometry = (point: Point, y: number, radius: number, height: number)
   return geometry
 }
 
-const leadGeometry = (point: Point, y: number) => {
-  const bottom = y + traceHeight / 2
-  const height = Math.max(0.012, componentLeadTop - bottom)
-  const geometry = new THREE.CylinderGeometry(0.042, 0.055, height, 8)
-  geometry.translate(point.x, bottom + height / 2, point.z)
-  return geometry
+const leadGeometries = (endpoint: Endpoint, y: number) => {
+  const { pad, contact } = endpoint
+  const stem = new THREE.CylinderGeometry(0.042, 0.055, Math.abs(contact.y - y), 8)
+  stem.translate(pad.x, (contact.y + y) / 2, pad.z)
+  const attachment = segmentGeometry(pad, contact, contact.y, 0.075, 0.04)!
+  return [stem, attachment]
 }
 
 const merge = (geometries: THREE.BufferGeometry[]) => {
@@ -251,60 +249,69 @@ const directionFrom = (from: Point, to: Point) => {
   return { x: (to.x - from.x) / length, z: (to.z - from.z) / length }
 }
 
-const prismArrowGeometry = (center: Point, direction: Point, y: number, length = 0.48, width = 0.34) => {
-  const side = { x: -direction.z * width / 2, z: direction.x * width / 2 }
-  const tip = { x: center.x + direction.x * length / 2, z: center.z + direction.z * length / 2 }
-  const base = { x: center.x - direction.x * length / 2, z: center.z - direction.z * length / 2 }
-  const top = y + markerHeight / 2
-  const bottom = y - markerHeight / 2
-  const geometry = new THREE.BufferGeometry()
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute([
-    tip.x, top, tip.z, base.x + side.x, top, base.z + side.z, base.x - side.x, top, base.z - side.z,
-    tip.x, bottom, tip.z, base.x + side.x, bottom, base.z + side.z, base.x - side.x, bottom, base.z - side.z,
-  ], 3))
-  geometry.setIndex([0, 1, 2, 3, 5, 4, 0, 3, 4, 0, 4, 1, 1, 4, 5, 1, 5, 2, 2, 5, 3, 2, 3, 0])
-  geometry.computeVertexNormals()
-  return geometry
+const terminalFor = (path: ReadonlyArray<Point>) => {
+  const segments = segmentsOf(path)
+  let approach = segments[0]
+  for (let index = segments.length - 1; index >= 0; index -= 1) {
+    const segment = segments[index]
+    if (distance(segment.from, segment.to) >= 0.9) {
+      approach = segment
+      break
+    }
+    if (distance(segment.from, segment.to) > distance(approach.from, approach.to)) approach = segment
+  }
+  const direction = directionFrom(approach.from, approach.to)
+  const setback = Math.min(0.65, distance(approach.from, approach.to) / 2)
+  return { center: { x: approach.to.x - direction.x * setback, z: approach.to.z - direction.z * setback }, direction }
 }
 
-const terminalGeometries = (endpoint: Endpoint, pattern: RelationshipPattern, y: number) => {
-  const center = endpoint.exit
+const chevronGeometries = (center: Point, direction: Point, y: number, size = markerSize) => {
+  const side = { x: -direction.z * size / 2, z: direction.x * size / 2 }
+  const tip = { x: center.x + direction.x * size / 2, z: center.z + direction.z * size / 2 }
+  const rear = { x: center.x - direction.x * size / 2, z: center.z - direction.z * size / 2 }
+  return [
+    segmentGeometry({ x: rear.x + side.x, z: rear.z + side.z }, tip, y, 0.074, markerHeight)!,
+    segmentGeometry({ x: rear.x - side.x, z: rear.z - side.z }, tip, y, 0.074, markerHeight)!,
+  ]
+}
+
+const terminalGeometries = (path: ReadonlyArray<Point>, marker: RelationshipMarker, y: number) => {
+  const { center, direction } = terminalFor(path)
   const topY = y + traceHeight / 2 + markerHeight / 2 + 0.004
-  const direction = directionFrom(endpoint.exit, endpoint.pad)
-  if (pattern === "double") {
+  if (marker === "diamond") {
     const geometry = new THREE.CylinderGeometry(markerSize / 2, markerSize / 2, markerHeight, 4)
-    geometry.rotateY(Math.PI / 4)
     geometry.translate(center.x, topY, center.z)
     return [geometry]
   }
-  if (pattern === "dashed") {
+  if (marker === "circle") {
     const geometry = new THREE.TorusGeometry(markerSize / 2 - 0.035, 0.032, 7, 12)
     geometry.rotateX(Math.PI / 2)
     geometry.translate(center.x, topY, center.z)
     return [geometry]
   }
-  if (pattern === "zigzag") {
+  if (marker === "cross") {
     const horizontal = new THREE.BoxGeometry(markerSize, markerHeight, 0.072)
     const vertical = new THREE.BoxGeometry(0.072, markerHeight, markerSize)
+    horizontal.rotateY(Math.PI / 4)
+    vertical.rotateY(Math.PI / 4)
     horizontal.translate(center.x, topY, center.z)
     vertical.translate(center.x, topY, center.z)
     return [horizontal, vertical]
   }
-  if (pattern === "bus") {
+  if (marker === "square") {
     const geometry = new THREE.BoxGeometry(markerSize, markerHeight, markerSize)
     geometry.translate(center.x, topY, center.z)
     return [geometry]
   }
-  if (pattern === "single") return [prismArrowGeometry(center, direction, topY)]
+  if (marker === "arrow") return chevronGeometries(center, direction, topY)
+  if (marker === "double-arrow") {
+    const front = { x: center.x + direction.x * 0.23, z: center.z + direction.z * 0.23 }
+    const rear = { x: center.x - direction.x * 0.23, z: center.z - direction.z * 0.23 }
+    return [...chevronGeometries(front, direction, topY, 0.34), ...chevronGeometries(rear, direction, topY, 0.34)]
+  }
   return []
 }
 
-const successTerminalGeometries = (endpoint: Endpoint, y: number) => {
-  const direction = directionFrom(endpoint.exit, endpoint.pad)
-  const topY = y + traceHeight / 2 + markerHeight / 2 + 0.004
-  const follow = { x: endpoint.exit.x - direction.x * 0.18, z: endpoint.exit.z - direction.z * 0.18 }
-  return [prismArrowGeometry(endpoint.exit, direction, topY), prismArrowGeometry(follow, direction, topY, 0.38, 0.28)]
-}
 
 const changeMarkGeometry = (endpoint: Endpoint, y: number) => {
   const geometry = new THREE.TorusGeometry(0.14, 0.022, 6, 12)
@@ -397,9 +404,7 @@ export const createCircuitTraces = (options: CircuitTraceOptions) => {
     while (occupiedLayers.has(layer)) layer += 1
     placedPaths.push({ points: path, layer, clearance: routingClearance })
     const y = traceY + layer * layerStep
-    const baseColor = new THREE.Color(style.color)
-    const baseEmissive = baseColor.clone().multiplyScalar(0.23)
-    const material = new THREE.MeshStandardMaterial({ color: baseColor, emissive: baseEmissive, emissiveIntensity: 0.38, roughness: 0.5, metalness: 0.35 })
+    const material = new THREE.MeshStandardMaterial({ color: style.color, emissive: style.color, emissiveIntensity: 0.12, roughness: 0.5, metalness: 0.35 })
     const trace = new THREE.Group()
     trace.name = `Circuit trace ${connection.id}`
     trace.userData.connectionId = connection.id
@@ -422,23 +427,14 @@ export const createCircuitTraces = (options: CircuitTraceOptions) => {
       maskGeometries.push(cornerGeometry(point, y - 0.012, padRadius + 0.04, 0.014))
       copperGeometries.push(cornerGeometry(point, y, padRadius, 0.026))
     })
-    copperGeometries.push(leadGeometry(fromEndpoint.pad, y), leadGeometry(toEndpoint.pad, y))
-    if (style.pattern === "single" && connection.kind === "success") copperGeometries.push(...successTerminalGeometries(toEndpoint, y))
-    else copperGeometries.push(...terminalGeometries(toEndpoint, style.pattern, y))
+    copperGeometries.push(...leadGeometries(fromEndpoint, y), ...leadGeometries(toEndpoint, y))
+    copperGeometries.push(...terminalGeometries(path, style.marker, y))
     const maskGeometry = merge(maskGeometries)
     const copperGeometry = merge(copperGeometries)
     if (maskGeometry) trace.add(new THREE.Mesh(maskGeometry, clearanceMaterial))
     if (copperGeometry) trace.add(new THREE.Mesh(copperGeometry, material))
     group.add(trace)
-    const highlightColor = baseColor.clone().lerp(new THREE.Color(0xffffff), 0.2)
-    traces.push({
-      connection,
-      material,
-      baseColor,
-      baseEmissive,
-      highlightColor,
-      highlightEmissive: baseColor.clone().multiplyScalar(0.42),
-    })
+    traces.push({ connection, material })
     if (options.comparison && connection.change !== "unchanged") {
       const markColor = changeColors[connection.change]
       const marks = changeGeometries.get(markColor) ?? []
@@ -457,9 +453,7 @@ export const createCircuitTraces = (options: CircuitTraceOptions) => {
   const select = (id: string) => {
     traces.forEach((trace) => {
       const incident = !id || trace.connection.from === id || trace.connection.to === id
-      trace.material.color.copy(incident && id ? trace.highlightColor : trace.baseColor)
-      trace.material.emissive.copy(incident && id ? trace.highlightEmissive : trace.baseEmissive)
-      trace.material.emissiveIntensity = incident && id ? 0.64 : 0.38
+      trace.material.emissiveIntensity = incident && id ? 0.45 : 0.12
     })
   }
 

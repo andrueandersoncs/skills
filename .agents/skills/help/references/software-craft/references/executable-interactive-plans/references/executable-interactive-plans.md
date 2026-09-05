@@ -1,172 +1,63 @@
-# Executable plans as agreed Effect contracts
+# Executable plans as reviewed Effect contracts
 
 ## Purpose
 
-The plan is code. User stories become `@effect/vitest` Arbitrary tests. Proposed Code is the Schemas, Errors, Services, and Effectful function signatures those tests call.
+An executable plan makes the proposed Effect contract reviewable against the genuine current contract before implementation. Its review order is deliberate: scope board, exact source diff, story evidence, explicit approval, then export. Green properties establish fixture agreement and executable specification, not completed production behavior; later verification must bind assertions to the real public boundary.
 
-The human agrees on those four contracts before implementation.
+## Baseline and declaration inventories
 
-Green properties establish executable specification and fixture agreement, not a completed production implementation. Later verification must bind requirement-derived assertions to the real public boundary; use [verify-change](../../verify-change/SKILL.md) for that behavioral claim.
+For an existing system, preserve the current declaration files under `src/current/` before authoring the proposal. Keep the copied local import tree intact, including helper imports: imports within that tree must resolve to `src/current/`, never to proposed source. A plan for entirely new work may declare `currentCode: []`.
 
-## The four contracts
+`PlanDefinition` declares both `currentCode` and `proposedCode`. Pair the same conceptual contract with the same stable ID; additions and removals occur only in their respective inventory. Each record identifies its local source, exported symbol, category, scope, and explicit dependencies; the server derives declaration ranges. Categories are `Schema`, `Error`, `Service`, `Interface`, `Type`, and `EffectfulFunction`; service shapes use `Interface`.
 
-### Schemas
+Inspect only trusted declarative modules. Inspection imports those modules, so their top-level initializers run and lazy Schemas are forced; it neither runs tests nor proves behavior. Keep business side effects out of inspected modules: the viewer is not a sandbox.
 
-Use the Effect v4 Schema Arbitrary API at <https://www.effect.website/docs/v4/schema/arbitrary>.
+## Scope graph
 
-`it.effect.prop` takes the Schema itself. `@effect/vitest` derives the Arbitrary.
+`scopeGraph` is a bounded declaration graph built from inspected current and proposed modules, not an application model:
 
-```ts
-export const CreateTaskInput = Schema.Struct({ title: TaskTitle })
-export type CreateTaskInput = Schema.Schema.Type<typeof CreateTaskInput>
-```
+- Schema composition comes from each declaration's real SchemaAST.
+- Effectful functions declare input Schema IDs, success Schema ID, Error IDs, Service IDs, and `dependencyIds`.
+- Other declaration edges come only from their explicit `dependencyIds`.
 
-### Errors
+Do not make type-compatible inferred wires, repository-wide declaration inventories, or runtime call graphs. The graph presents three different kinds of review information:
 
-Use `Schema.Error` so the failure is tagged, yieldable, and schema-backed.
+- **Declared edits** are additions, removals, and paired declaration changes.
+- **Unchanged source context** is nearby or connected source retained to orient the reviewer. It does not claim behavioral non-impact.
+- **Structural/dependency effects** are the graph relationships derived by the bounded rules above.
 
-```ts
-export class TaskNotFound extends Schema.Error<TaskNotFound>("TaskNotFound")({
-  id: TaskId,
-}) {}
-```
+The scope board starts in a shallow isometric view with prominent copper circuit traces for declared relationships. Drag or swipe to rotate, use arrow keys while focused, and use Reset view to restore the initial orientation. Rotation does not change the selected contract.
 
-A test that agrees on this Error generates inputs that fail and asserts the Error:
+A keyboard-accessible contract list provides the same review information without WebGL. Use either surface to select a declaration, inspect its category and relationship, and move to its exact source.
 
-```ts
-it.effect.prop("fails for every generated missing task id", [CompleteTaskInput], ([input]) =>
-  Effect.gen(function* () {
-    const layer = yield* makeTaskService([])
-    const error = yield* completeTask(input).pipe(Effect.provide(layer), Effect.flip)
-    assert.instanceOf(error, TaskNotFound)
-    assert.strictEqual(error.id, input.id)
-  }), { fastCheck: { numRuns: 25 } })
-```
+## Exact source contracts
 
-### Services
+The Monaco current/proposed source diff is authoritative for Schema, Interface, Type, and function-signature review. Use it after the board to judge the exact declarations, not a board label or inferred edge.
 
-```ts
-export interface TaskServiceShape {
-  readonly create: (input: CreateTaskInput) => Effect.Effect<Task>
-  readonly list: Effect.Effect<ReadonlyArray<Task>>
-  readonly complete: (input: CompleteTaskInput) => Effect.Effect<Task, TaskNotFound>
-}
+Effect contracts record explicit input, success, error, service, and dependency metadata. A `never` Error channel uses an empty Error list. Error-channel membership does not assert that a story expects every Error.
 
-export class TaskService extends Context.Service<TaskService, TaskServiceShape>()("TaskService") {}
-```
+## Story evidence and decision
 
-Each generated case gets a fresh Layer. Layer factories are test fixtures, not Proposed Code. Inventory both the Service tag and its complete shape as editable Service items.
+Each story has a stable ID, title, outcome, and one or more canonical test files. Each property uses `it.effect.prop` with a proposed Schema, receives a fresh fixture Layer, and calls the proposed function. `assertedErrorIds` identifies only Errors whose outcome the property actually asserts.
 
-### Effectful function signatures
+The local review server keeps the existing evidence controls:
 
-Write Success, Error, and Requirements:
+- loopback, same-origin, per-session-token access and allowlisted files;
+- repository containment, loaded-hash concurrency checks, declaration-range writes, atomic save, and append-only audit;
+- selected canonical Vitest execution with server-owned result and evidence hashes;
+- targeted invalidation for changed tests, declarations, dependencies, and shared fixture/import content;
+- approval blocked by unsaved edits, unresolved save failures, or current failed/not-run properties.
 
-```ts
-export const createTask = (input: CreateTaskInput): Effect.Effect<Task, never, TaskService> =>
-  Effect.flatMap(TaskService, (service) => service.create(input))
+A source change clears the decision. Never accept client-supplied test results as evidence and never infer approval.
 
-export const completeTask = (input: CompleteTaskInput): Effect.Effect<Task, TaskNotFound, TaskService> =>
-  Effect.flatMap(TaskService, (service) => service.complete(input))
-```
+## Source snapshots and export
 
-Each signature records `inputSchemaIds`, `successSchemaId`, `errorIds`, and `serviceIds` in its inventory `contract`. Empty inputs and a `never` Error channel use empty arrays. Formal approval covers these four contracts; [Hyrum's Law](../../../../software-laws/references/reference.md#hyrums-law) also covers consumer dependencies on other observable behavior. Use [design-contract](../../design-contract/SKILL.md) for compatibility decisions.
-
-## Story Tests
-
-Each story has a stable ID, a short title, an outcome, and at least one test ID.
-
-Each test records stable IDs, its canonical file and story, and directly exercised `proposedCodeIds`. `assertedErrorIds` names only Errors whose outcomes that property asserts; a dependency on a signature's complete Error channel is not an assertion of every Error.
-
-Keep one dependency relation in `plan-data.ts`: code items declare `dependencyIds`, and function contracts name their Schema, Error, and Service dependencies. Derive each test's transitive closure and both navigation directions from it, including nested Schemas and complete Service shapes.
-
-The left rail selects a story. The item list selects one test. The editor loads the exact full test file.
-
-Show:
-
-- Test title and path
-- Proposed-code dependency links
-- **Run test**
-- Last status and output
-- **Save proposed code**
-
-**Run test** executes only the selected canonical test file through Vitest.
-
-**Save proposed code** on a test:
-
-1. Saves the selected test atomically.
-2. Marks that test `not run`.
-3. Keeps unrelated results.
-4. Requires the changed test to be run again.
-
-## Proposed Code
-
-Group declarations by **Schemas**, **Errors**, **Services**, and **Effectful functions**.
-
-Each item includes a stable code ID, canonical file, declaration range, and affected test IDs.
-
-Saving a declaration invalidates every test in its dependency closure. Hash the exact test, dependency declarations, and shared imports/fixture source; keep unrelated passing results. The server owns these records and discards results whose content no longer matches, including source changes during a run.
-
-## Shared editing boundary
-
-Both workspaces use the local review server:
-
-- Loopback and same-origin only
-- Per-session token
-- Opaque allowlisted file ID
-- Repository containment
-- Loaded-hash concurrency check
-- Allowed item range
-- Atomic write
-- Targeted result invalidation
-- Append-only audit
-
-An unresolved failed save or current failed test blocks approval. Track failed saves per item; a successful save of another item does not resolve them. Reload source deliberately after a stale save, then retry the affected item. Unsaved edits also block approval.
+The version `2.0.0` artifact contains ordered stories, test inventory and exact test files, `currentCode`, `proposedCode`, `scopeGraph`, source snapshots, the explicit decision, server-owned results and evidence hashes, comments, and the edit audit. Snapshots include statically resolved local imports under the plan root, excluding installed packages and virtual modules. Keep inspection inputs in that tree; preserve the pinned dependency versions. Imported helper changes invalidate inspection and dependent test evidence. The server rechecks captured bytes after inspection before caching. A stale snapshot cannot be exported; durable and downloaded artifact bytes match.
 
 ## Template contract
 
-The template lives at `assets/story-test-template/` and contains:
-
-```text
-assets/story-test-template/
-├── README.md
-├── package.json
-├── review-server.ts
-├── src/
-│   ├── domain/
-│   ├── story-tests/
-│   ├── main.tsx
-│   ├── plan-data.ts
-│   ├── review-shell.tsx
-│   ├── review-types.ts
-│   └── styles.css
-├── tests/
-├── index.html
-├── tsconfig.json
-└── vite.config.ts
-```
-
-A generated plan changes `plan-data.ts`, `src/story-tests/*`, `src/domain/*`, and theme tokens. Shared editor, save, test-run, decision, and export behavior stays in the template.
-
-## Source snapshot and export
-
-`sourceSnapshotId` hashes ordered stories, test inventory, proposed-code inventory, and exact test/code file contents.
-
-The durable artifact contains the decision, ordered stories, exact test files, exact proposed-code files, server-owned current test results and evidence hashes, comments, and edit audit. Never accept client-supplied test results as evidence. A changed source snapshot clears the shell's decision and a stale snapshot cannot be exported.
-
-Embed exact reviewed files. Durable and downloaded artifact bytes match.
+The template at `assets/story-test-template/` owns the review shell and server. A generated plan supplies `plan-data.ts`, `src/current/*` when there is a baseline, `src/domain/*` for the proposal, `src/story-tests/*`, and optional theme tokens.
 
 ## Focused acceptance check
 
-Run one browser pass:
-
-1. Open every story and every test item.
-2. Run every test from the browser.
-3. Confirm each test uses `it.effect.prop` with the proposed Schema.
-4. Confirm Proposed Code groups Schemas, Errors, Services, and Effectful functions.
-5. Follow test→code and code→test links.
-6. Save one reversible test edit in an isolated copy and confirm only that test resets.
-7. Save a reversible proposed-code edit; confirm direct and transitive dependents reset while unrelated results remain. Exercise a failed/stale save and confirm approval stays blocked until that item is resolved.
-8. Export both decisions in an isolated copy and compare bytes.
-9. Confirm the real draft has no synthetic edits or decision artifact.
-
-Then pause for the human. Do not add autonomous review rounds beyond one repository-required clean-context check.
+In one browser pass, review every relevant declaration from the scope board and no-WebGL list, inspect its exact current/proposed diff, run every story property, follow test-to-declaration and declaration-to-test links, and exercise isolated reversible test and declaration saves. Confirm targeted invalidation, blocked approval for failed or stale saves, and matching exports. Leave the real draft without synthetic edits or a decision artifact, then pause for the human decision.

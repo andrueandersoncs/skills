@@ -5,11 +5,17 @@ import { dirname, join, relative } from "node:path"
 import { fileURLToPath } from "node:url"
 import { chromium } from "playwright"
 import { createServer } from "vite"
+import ts from "typescript"
 
 const source = dirname(dirname(fileURLToPath(import.meta.url)))
 const fixture = await mkdtemp(join(tmpdir(), "story-review-acceptance-"))
 let server, browser
 const artifactBefore = await readFile(join(source, "review-artifact.json"), "utf8").catch(() => null)
+let helperRelativePath, proposedRelativePath, originalProposedSource, inspectedId
+const helperSource = `import { Schema } from "effect"
+
+export const inspectionProbe = Schema.brand("ScopeBefore")
+`
 try {
   await cp(source, fixture, { recursive: true, filter: (path) => !relative(source, path).split(/[\\/]/).some((part) => ["node_modules", "dist", ".git", "review-artifact.json"].includes(part)) })
   await symlink(join(source, "node_modules"), join(fixture, "node_modules"), "dir")
@@ -32,12 +38,32 @@ try {
     assert.equal(result.status, 200)
     return result.value
   }
+  const original = await bootstrap()
+  const inspected = original.proposedCode.find((item) => item.category === "Schema")
+  inspectedId = inspected.id
+  proposedRelativePath = inspected.relativePath
+  helperRelativePath = join(dirname(proposedRelativePath), "review-helper.ts")
+  originalProposedSource = await readFile(join(source, proposedRelativePath), "utf8")
+  const parsed = ts.createSourceFile(proposedRelativePath, originalProposedSource, ts.ScriptTarget.Latest, true)
+  const declaration = parsed.statements.filter(ts.isVariableStatement).flatMap((statement) => [...statement.declarationList.declarations]).find((item) => item.name.getText(parsed) === inspected.symbol)
+  assert.ok(declaration?.initializer, "schema fixture has an initializer")
+  const start = declaration.initializer.getStart(parsed), end = declaration.initializer.end
+  const preparedSource = `import { inspectionProbe } from "./review-helper"\n${originalProposedSource.slice(0, start)}(${originalProposedSource.slice(start, end)}).pipe(inspectionProbe)${originalProposedSource.slice(end)}`
+  await writeFile(join(fixture, helperRelativePath), helperSource)
+  await writeFile(join(fixture, proposedRelativePath), preparedSource)
+  await page.reload()
   const initial = await bootstrap()
-  const sourceFiles = new Map(await Promise.all(initial.files.map(async (file) => [file.relativePath, await readFile(join(source, file.relativePath), "utf8")])))
+  const sourceFiles = new Map(await Promise.all(initial.files.map(async (file) => [file.relativePath, await readFile(join(fixture, file.relativePath), "utf8")])))
   const selectTest = async (test) => {
     await page.getByRole("button", { name: "Story Tests", exact: true }).click()
     await page.locator(".story-rail button").nth(initial.plan.stories.findIndex((story) => story.id === test.storyId)).click()
     await page.locator(".test-list > button").filter({ hasText: test.label }).click()
+  }
+  const selectContract = async (item) => {
+    await page.getByRole("button", { name: "Proposed Code", exact: true }).click()
+    const list = page.locator(".scope-board-node-list")
+    if (!await list.evaluate((element) => element.open)) await list.locator("summary").click()
+    await list.getByRole("button").filter({ has: page.getByText(item.label, { exact: true }) }).click()
   }
   const runTest = async (test, status = "passed") => {
     await selectTest(test)
@@ -60,7 +86,6 @@ try {
     await page.getByRole("button", { name: "Save proposed code", exact: true }).click()
     const response = await completed
     assert.equal(response.status(), 200, JSON.stringify(await response.json()))
-    await page.getByText("Saved. Run affected tests again.", { exact: true }).waitFor()
     return bootstrap()
   }
   const saveItem = async (item, content, loadedHash) => {
@@ -70,6 +95,17 @@ try {
   const forged = Object.fromEntries(initial.storyTests.map((test) => [test.id, { status: "passed", output: "client claim" }]))
   assert.equal((await api("export", { decision: "approved", sourceSnapshotId: initial.sourceSnapshotId, testResults: forged })).status, 422, "client claims cannot authorize approval")
   await runAll()
+  const helperFile = initial.files.find((file) => file.relativePath === helperRelativePath)
+  assert.equal(helperFile?.content, helperSource, "bootstrap captures imported helper bytes")
+  const inputBeforeHelperEdit = initial.scopeGraph.nodes.find((node) => node.id === inspectedId)?.proposed?.schema
+  await writeFile(join(fixture, helperRelativePath), helperSource.replace("ScopeBefore", "ScopeAfter"))
+  const helperEdited = await bootstrap()
+  assert.notEqual(helperEdited.sourceSnapshotId, initial.sourceSnapshotId, "helper edits change the source snapshot")
+  assert.equal(helperEdited.files.find((file) => file.relativePath === helperRelativePath)?.content, helperSource.replace("ScopeBefore", "ScopeAfter"))
+  assert.notDeepEqual(helperEdited.scopeGraph.nodes.find((node) => node.id === inspectedId)?.proposed?.schema, inputBeforeHelperEdit, "helper edits refresh the inspected schema shape")
+  assert.equal(helperEdited.testResults[initial.storyTests[0].id], undefined, "helper edits invalidate dependent accepted evidence")
+  await writeFile(join(fixture, helperRelativePath), helperSource)
+  await page.reload(); await runAll()
 
   for (const test of initial.storyTests) {
     await selectTest(test)
@@ -79,8 +115,7 @@ try {
     await page.locator(".test-editor h2").filter({ hasText: test.label }).waitFor()
   }
   for (const item of initial.proposedCode) {
-    await page.getByRole("button", { name: "Proposed Code", exact: true }).click()
-    await page.locator(".code-list button").filter({ has: page.getByText(item.label, { exact: true }) }).click()
+    await selectContract(item)
     await page.locator(".code-pane h2").filter({ hasText: item.label }).waitFor()
   }
 
@@ -100,8 +135,8 @@ try {
 
   const schema = initial.proposedCode.find((item) => item.category === "Schema")
   const schemaFile = sourceFiles.get(schema.relativePath)
-  await page.getByRole("button", { name: "Proposed Code", exact: true }).click()
-  await page.locator(".code-list button").filter({ has: page.getByText(schema.label, { exact: true }) }).click()
+  await selectContract(schema)
+  await page.getByRole("button", { name: "Edit proposed code", exact: true }).click()
   const offset = schemaFile.split("\n").slice(0, schema.range.start.line - 1).join("\n").length + (schema.range.start.line > 1 ? 1 : 0)
   const schemaPosition = schemaFile.indexOf("Schema.", offset)
   assert.ok(schemaPosition >= offset)
@@ -162,7 +197,10 @@ try {
     assert.equal(artifact.decision, decision)
     for (const file of artifact.files) assert.equal(file.content, await readFile(join(fixture, file.relativePath), "utf8"))
   }
-  for (const [path, content] of sourceFiles) assert.equal(await readFile(join(source, path), "utf8"), content, "acceptance leaves the real draft unchanged")
+  for (const [path, content] of sourceFiles) {
+    if (path === helperRelativePath) continue
+    assert.equal(await readFile(join(source, path), "utf8"), path === proposedRelativePath ? originalProposedSource : content, "acceptance leaves the real draft unchanged")
+  }
   assert.equal(await readFile(join(source, "review-artifact.json"), "utf8").catch(() => null), artifactBefore)
   assert.deepEqual(errors, [])
   console.log(`${initial.plan.id}: isolated browser acceptance passed (editing, transitive/selective invalidation, failed/stale saves, forged evidence, fixture changes, both exact exports)`)

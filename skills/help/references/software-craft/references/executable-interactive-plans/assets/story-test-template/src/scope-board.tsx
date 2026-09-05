@@ -223,7 +223,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
       scene.add(visual.group)
       nodeVisuals.set(node.id, visual)
       pickables.push(...visual.pickables)
-      return { id: node.id, x: position.x, z: position.z, width: footprint.width, depth: footprint.depth }
+      return { id: node.id, x: position.x, z: position.z, width: footprint.width, depth: footprint.depth, contacts: visual.contacts }
     })
     const circuitTraces = createCircuitTraces({
       connections: visibleConnections,
@@ -236,19 +236,26 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
 
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
+    const hitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.5)
+    const hitPoint = new THREE.Vector3()
     const labelPoint = new THREE.Vector3()
     const fitPoint = new THREE.Vector3()
     const regionPoint = new THREE.Vector3()
     const cameraOffset = new THREE.Vector3()
     const cameraSpherical = new THREE.Spherical()
     let viewport = { width: 0, height: 0 }
+    const labelBounds = components.map((component) => ({ id: component.id, left: 0, top: 0, width: 0, height: 0, hidden: true }))
 
     const updateLabels = () => {
       const labelWidth = clamp(viewport.width / (camera.right - camera.left) * 4.45, 44, 124)
-      components.forEach((component) => {
+      components.forEach((component, index) => {
         const label = nodeLabelRefs.current.get(component.id)
         if (!label) return
         labelPoint.set(component.x, 0.12, component.z + component.depth / 2 + 0.35).project(camera)
+        const bounds = labelBounds[index]
+        bounds.left = (labelPoint.x * 0.5 + 0.5) * viewport.width
+        bounds.top = (-labelPoint.y * 0.5 + 0.5) * viewport.height
+        bounds.hidden = labelPoint.z < -1 || labelPoint.z > 1
         label.style.maxWidth = `${labelWidth}px`
         label.style.transform = `translate3d(${(labelPoint.x * 0.5 + 0.5) * viewport.width}px, ${(-labelPoint.y * 0.5 + 0.5) * viewport.height}px, 0) translate(-50%, 0)`
         label.hidden = labelPoint.z < -1 || labelPoint.z > 1
@@ -259,6 +266,14 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
         regionPoint.set(region.x, 0.12, region.z - layout.regionDepth / 2 + 0.65).project(camera)
         label.style.transform = `translate3d(${(regionPoint.x * 0.5 + 0.5) * viewport.width}px, ${(-regionPoint.y * 0.5 + 0.5) * viewport.height}px, 0) translate(-50%, -50%)`
         label.hidden = regionPoint.z < -1 || regionPoint.z > 1
+      })
+      // Read after all label writes so hit targets share a single layout pass.
+      labelBounds.forEach((bounds) => {
+        const label = nodeLabelRefs.current.get(bounds.id)
+        if (!label) return
+        bounds.width = label.offsetWidth
+        bounds.height = label.offsetHeight
+        bounds.left -= bounds.width / 2
       })
     }
 
@@ -345,7 +360,21 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
       raycaster.setFromCamera(pointer, camera)
       intersections.length = 0
       raycaster.intersectObjects(pickables, false, intersections)
-      return intersections[0]?.object.userData.scopeNodeId as string | undefined
+      const hit = intersections[0]?.object.userData.scopeNodeId as string | undefined
+      if (hit) return hit
+      if (!raycaster.ray.intersectPlane(hitPlane, hitPoint)) return undefined
+      for (const component of components) {
+        if (Math.abs(hitPoint.x - component.x) <= component.width / 2 && Math.abs(hitPoint.z - component.z) <= component.depth / 2) return component.id
+      }
+      return undefined
+    }
+
+    const pickLabel = (event: PointerEvent): string | undefined => {
+      for (const bounds of labelBounds) {
+        if (bounds.hidden) continue
+        if (event.offsetX >= bounds.left && event.offsetX <= bounds.left + bounds.width && event.offsetY >= bounds.top && event.offsetY <= bounds.top + bounds.height) return bounds.id
+      }
+      return undefined
     }
 
     const activePointers = new Map<number, Point>()
@@ -360,13 +389,18 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
     const onPointerMove = (event: PointerEvent) => {
       const origin = activePointers.get(event.pointerId)
       if (origin && Math.hypot(event.clientX - origin.x, event.clientY - origin.z) > 6) selectionSuppressed = true
-      if (!disabledRef.current && !selectionSuppressed) setHoveredId(pick(event) ?? "")
+      if (!disabledRef.current && !selectionSuppressed) {
+        const id = pickLabel(event) ?? pick(event) ?? ""
+        const node = nodeById.get(id)
+        renderer.domElement.title = node ? `${labelFor(node, comparisonMode)} · ${entityStyles[versionFor(node, comparisonMode)?.category ?? node.category].label} · ${nodeStatus(node, comparisonMode)}` : ""
+        setHoveredId(id)
+      }
     }
     const onPointerUp = (event: PointerEvent) => {
       const canSelect = !disabledRef.current && !selectionSuppressed && event.isPrimary && event.button === 0 && activePointers.has(event.pointerId)
       activePointers.delete(event.pointerId)
       if (canSelect) {
-        const id = pick(event)
+        const id = pickLabel(event) ?? pick(event)
         if (id) selectRef.current(id)
       }
       if (activePointers.size === 0) selectionSuppressed = false
@@ -475,7 +509,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
         </div>
       </div>
     </header>
-    <p className="scope-board-description" id="scope-board-description">Shapes identify entity types; traces identify relationships. Drag or use arrow keys to rotate. Unchanged source does not mean unaffected behavior.</p>
+    <p className="scope-board-description" id="scope-board-description">Arrows point to referenced contracts. Drag or use arrow keys to rotate. Unchanged source does not mean unaffected behavior.</p>
     <ul className="scope-board-relationship-key" aria-label="Relationship key">
       {(Object.keys(relationshipStyles) as ScopeConnection["kind"][]).map((kind) => <li key={kind} data-connection-kind={kind}><RelationshipSwatch kind={kind} /><span>{relationshipStyles[kind].label}</span></li>)}
     </ul>
@@ -497,7 +531,7 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
           aria-pressed={selectedId === node.id}
           data-node-id={node.id}
           data-change={node.change}
-        ><span>{labelFor(node, comparisonMode)}</span><small>{entity.label}{comparisonMode === "comparison" && node.change !== "unchanged" ? ` · ${node.change}` : ""}</small></button>
+        ><span>{labelFor(node, comparisonMode)}</span><small>{entity.label}{comparisonMode === "comparison" && node.change !== "unchanged" ? ` · ${node.change}` : !versionFor(node, comparisonMode) ? " · absent" : ""}</small></button>
         })}
         {layout.regions.map((region) => <span
           key={region.scope}

@@ -1,6 +1,6 @@
 ---
 name: grok-bot
-description: Manage Grok Bots through safe autonomy, focused roles, end-to-end feedback loops, workflow teaching, routines, handoffs, multi-bot learning, and reusable templates. Use when operating, coaching, organizing, creating, sharing, delegating recurring work to, or setting working policies for Grok Bots, especially when deciding autonomy, roster design, recurring work, reviews, feedback loops, or template boundaries.
+description: Create and manage Grok Bots, skills, routines, autonomy policies, rosters, templates, and handoffs.
 metadata:
   internal: true
 ---

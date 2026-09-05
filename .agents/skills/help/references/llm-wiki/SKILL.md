@@ -1,6 +1,6 @@
 ---
 name: llm-wiki
-description: Build and operate a persistent, Git-backed Markdown wiki that an LLM maintains from immutable source documents. Use when creating, ingesting into, querying, linting, or compacting an LLM-maintained wiki or knowledge base.
+description: Create, ingest, query, lint, or compact a persistent Git-backed Markdown wiki from immutable sources.
 metadata:
   internal: true
 ---

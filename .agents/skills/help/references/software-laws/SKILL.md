@@ -1,6 +1,6 @@
 ---
 name: software-laws
-description: Explain, apply, or assess established software laws in context. Use a law-specific verifier when a user asks whether one named law is supported in a concrete case.
+description: Explain, apply, or assess established software laws using evidence from the decision or case.
 metadata:
   internal: true
 ---
