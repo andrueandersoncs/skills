@@ -1,6 +1,6 @@
 ---
 name: verify-kerckhoffs-principle
-description: "Informally assesses whether Kerchkhoff's principle is supported in a concrete project or decision using secret inventory and public-design security assessment. Use when asked to verify, test, assess, investigate, or apply Kerchkhoff's principle."
+description: "Informally assesses whether Kerchkhoff's principle is supported in a concrete project or decision using secret inventory and public-design security assessment. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Kerchkhoff's principle

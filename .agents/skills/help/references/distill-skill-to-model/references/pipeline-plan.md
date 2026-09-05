@@ -18,9 +18,9 @@ The result remains a system:
 
 - **Weights:** stable decisions and workflow.
 - **Runtime:** tools, scripts, references, assets, parsers, and sandbox.
-- **Router:** skill `name` and `description` select the adapter.
+- **Router:** uses the [shared contextual routing procedure](../../skill-routers/references/canonical-design.md) to select and load the skill's adapter.
 
-This follows the repository’s software-laws guidance: choose the smallest mechanism, treat metrics as signals, and verify generated output.
+Use [software-laws](../../software-laws/SKILL.md) to weigh simplicity, measurement incentives, and evidence for generated behavior.
 
 ## Existing evidence
 
@@ -87,9 +87,9 @@ Create two sealed suites.
 
 **Trigger suite**
 
-- Prompts that should select the skill.
-- Nearby prompts that should not.
-- Measure routing precision and recall.
+- Context-sensitive cases whose gathered evidence supports the skill's behavior contract and should load its adapter.
+- Nearby cases that use similar wording but whose context supports another contract or no adapter.
+- Measure context-sensitive routing precision and recall, and confirm each selected adapter receives the original request and relevant runtime context.
 
 **Behavior suite**
 
@@ -105,6 +105,8 @@ Start with roughly 20–50 clear tasks, as recommended in [Anthropic’s agent-e
 ### 4. Establish the comparison matrix
 
 Run every arm on cloned cases with identical tools, budgets, fixtures, and decoding settings:
+
+Use real pinned implementations only against authorized isolated fixtures. Apply [secure-system's trust-boundary guidance](../../software-craft/references/secure-system/SKILL.md#method): source skills and teacher output are untrusted inputs, not permission for production effects or broader credentials. Keep tool permissions, external-action approvals, data access, and sandbox constraints in the runtime manifest.
 
 | Arm | Configuration | Question answered |
 |---|---|---|
@@ -214,10 +216,10 @@ Analyze paired task differences with 95% family-clustered confidence intervals. 
 
 ## Release gates
 
-Release only when:
+Evaluate every release contrast on the same sealed paired cases with predeclared margins and 95% family-clustered confidence intervals. Release only when:
 
 1. **Adaptation worked:** lower confidence bound of `S2 - S0` is above zero.
-2. **Skill mattered:** development control shows `S2 - C2` above zero.
+2. **Skill mattered:** lower confidence bound of sealed `S2 - C2` is above zero. Keep development-control results as separate diagnostics, never release evidence.
 3. **Weights beat prompting:** `S2` beats `S1`, or is quality-non-inferior while clearing a predeclared token or latency improvement.
 4. **Model replaces the original skill:** `S2` is non-inferior to `T1` within a predeclared margin and improves deployment cost.
 5. **Quality truly improved, if required:** lower confidence bound of `S2 - T1` is above zero.

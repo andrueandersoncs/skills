@@ -1,6 +1,6 @@
 # Callstack Template
 
-Output only the following callstack structure with its placeholders replaced. Do not include the surrounding code fence.
+For a callstack-only request, output only the following callstack structure with its placeholders replaced. Do not include the surrounding code fence. For a combined request, preserve this structure as the callstack portion while the selected owner separately publishes the requested state-machine artifacts and report.
 
 ```markdown
 **Entry Point**(arguments)
@@ -30,4 +30,4 @@ Output only the following callstack structure with its placeholders replaced. Do
 - Show alternative continuations inline only when unresolved conditions materially change the result.
 - Represent spawned concurrent work as a separate operation-named root; include a join only when the target guarantees one.
 - Expanded detail may additionally include concise entry values and ordered `enter`, `step`, or `state` notes; all other rules still apply.
-- Output the callstack directly with no title, section heading, scenario, status, execution, limits, assumptions, ambiguities, uncertainties, symbolic-value reference markers, wrapper, or completion metadata. Represent material blockers and truncation only as notes within the relevant frame.
+- Output the callstack directly with no title, section heading, scenario, status, execution, limits, assumptions, ambiguities, uncertainties, symbolic-value reference markers, wrapper, or completion metadata. Represent material blockers and truncation only as notes within the relevant frame. In a combined result, this rule applies to the callstack itself; separately required state-machine artifacts and their report may follow.

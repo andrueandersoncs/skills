@@ -16,6 +16,7 @@ The product message, semantic surface, requested visual experience, supported de
    - data or particle system;
    - object-centered product stage;
    - immersive scene or scroll world.
+   When original visual direction, divergent exploration, or critique is needed, use [elicit-llm-creativity](../../../elicit-llm-creativity/SKILL.md) proportionally; retain one selected visual lane for the production surface.
 2. Start with semantic content and a composed static fallback. Add the visual renderer as progressive enhancement.
 3. Choose the narrowest proven mechanism. Use one scroll conductor and one primary renderer for a storytelling sequence.
 4. Establish the scene graph, camera, renderer, responsive sizing, capability gate, and lifecycle cleanup before visual complexity.

@@ -1,3 +1,5 @@
+import type { ScopeGraph } from "./scope-types"
+
 export type TestStatus = "not-run" | "passed" | "failed"
 
 export interface StoryDefinition {
@@ -16,7 +18,7 @@ export interface StoryTestDefinition {
   readonly assertedErrorIds?: ReadonlyArray<string>
 }
 
-export const codeCategories = ["Schema", "Error", "Service", "EffectfulFunction"] as const
+export const codeCategories = ["Schema", "Error", "Service", "Interface", "Type", "EffectfulFunction"] as const
 export type CodeCategory = (typeof codeCategories)[number]
 
 export interface FunctionContract {
@@ -33,6 +35,8 @@ interface CodeSource {
   readonly relativePath: string
   readonly symbol: string
   readonly dependencyIds?: ReadonlyArray<string>
+  readonly scope?: string
+  readonly rationale?: string
 }
 
 export type CodeDefinition = CodeSource & (
@@ -51,6 +55,7 @@ export interface PlanDefinition {
   readonly description: string
   readonly stories: ReadonlyArray<StoryDefinition>
   readonly storyTests: ReadonlyArray<StoryTestDefinition>
+  readonly currentCode: ReadonlyArray<CodeDefinition>
   readonly proposedCode: ReadonlyArray<CodeDefinition>
 }
 
@@ -65,7 +70,9 @@ export interface Bootstrap {
   readonly sourceSnapshotId: string
   readonly files: ReadonlyArray<CodeFile>
   readonly storyTests: ReadonlyArray<HydratedStoryTest>
+  readonly currentCode: ReadonlyArray<HydratedCodeDefinition>
   readonly proposedCode: ReadonlyArray<HydratedCodeDefinition>
   readonly testResults: Readonly<Record<string, TestResult>>
   readonly failedSaveItemIds: ReadonlyArray<string>
+  readonly scopeGraph: ScopeGraph
 }

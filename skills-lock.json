@@ -2,9 +2,10 @@
   "version": 1,
   "skills": {
     "help": {
-      "source": ".",
-      "sourceType": "local",
-      "computedHash": "e8b3c162fde1821991bc878d8df34924fcad03120eadc7479225f09d578e8e88"
+      "source": "andrueandersoncs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/help/SKILL.md",
+      "computedHash": "347ddf688aca729f4d86ec4da90d198f75e640b1afe21ad0d4873b374b6b4116"
     },
     "impeccable": {
       "source": "pbakaus/impeccable",

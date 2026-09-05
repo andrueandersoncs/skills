@@ -15,7 +15,8 @@ One decision question, candidate directions or constraints, representative scena
 2. Protect production work with an isolated route, directory, branch, or worktree.
 3. Choose the form:
    - **Logic probe:** one dependency-light runnable model with controls and representative scenarios.
-   - **UI comparison:** three materially different full-size variants, each differing on a named structural axis and switchable in the same context.
+   - **UI comparison:** exactly three materially different full-size runnable variants, each differing on a named structural axis and switchable in the same context.
+     Use [elicit-llm-creativity](../../../elicit-llm-creativity/SKILL.md) for needed direction generation or critique; keep the three runnable comparison surfaces as the deliverable.
    - **Technical spike:** the smallest executable path through the riskiest dependency or integration.
 4. Reuse realistic data and surrounding context. Include only behavior needed to answer the question.
 5. Run the prototype. Exercise each scenario or variant, inspect runtime output, and capture the evidence.

@@ -15,6 +15,7 @@ Follow the shared [gather → match → handoff procedure](../skill-routers/refe
 | --- | --- |
 | A reusable agent skill with one direct workflow must be created, consolidated, or improved. | [`author-agent-skill`](references/author-agent-skill/SKILL.md) |
 | A bounded code artifact needs the requested three-stage removal-versus-retention steelman and independent adjudication report. | [`absurd-code-review`](references/absurd-code-review/SKILL.md) |
+| Code needs a focused review for symmetry between related concepts, including missing counterpart abstractions or inconsistent API shapes. | [`review-symmetry`](references/review-symmetry/SKILL.md) |
 | An Effect v4 outcome needs a human-approved artifact containing executable stories and exact Schemas, Errors, Services, and function signatures before implementation. | [`executable-interactive-plans`](references/executable-interactive-plans/SKILL.md) |
 | The requested outcome is agreement on a production Effect Schema domain model through generated examples and behavior-linked properties. | [`effect-schema-brainstorming`](references/effect-schema-brainstorming/SKILL.md) |
 | Existing pages, screenshots, video, or interaction references need capturing and translating into an original builder-ready brief. | [`capture-design-reference`](references/capture-design-reference/SKILL.md) |

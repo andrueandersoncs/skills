@@ -1,6 +1,6 @@
 # Software Craft catalog
 
-This catalog records 25 routed leaves: 22 synthesized from 266 source skills and three consolidated local workflows. [`software-craft`](../SKILL.md) is the single general-software entry point within `help`; its leaves and technical context are progressively loaded references. The [source coverage manifest](../../../../../docs/research/software-craft-source-coverage.md) records the retained rule or exclusion for every inspected source skill.
+This catalog records 25 destination skills: 22 synthesized from 266 source skills and three consolidated local workflows. See [`software-craft`](../SKILL.md) for the current situation patterns and technical context. The [source coverage manifest](../../../../../docs/research/software-craft-source-coverage.md) records the retained rule or exclusion for every inspected source skill.
 
 ## Resulting skills
 
@@ -46,11 +46,8 @@ This catalog records 25 routed leaves: 22 synthesized from 266 source skills and
 
 ## Consolidation decisions
 
-- **One owner per state transition.** `software-craft` owns general software routing; the sibling `skill-routers` component owns agent-router design, implementation, and audit.
-- **Current plus desired state.** First-match rows select the earliest missing owner while preserving the requested result across re-entry.
-- **Context is not ownership.** Guidance for Effect, Effect DSLs, Swift, TypeScript, npm publishing, and Better TypeScript informs the selected leaf without adding another workflow owner. Verification-skill guidance stays within `author-agent-skill`.
-- **One canonical rule.** Shared verification, review, performance, security, and coordination rules live once.
+- **Component boundary.** Agent-router design, implementation, and audit live in the separate `skill-routers` component.
+- **Verification-skill authoring.** This guidance is consolidated into `author-agent-skill`.
 - **Distinct outputs survive.** Adversarial review, Effect Schema brainstorming, and executable Effect contract plans remain separate leaves because each produces a different observable result.
-- **Scope constraints stay context.** An explicit normal-valid-path request limits the chosen plan or implementation without creating a happy-path router.
 - **Personal and package-specific automation is not generalized without a stable second caller.** Source-bound setup mechanics inform reusable guidance but do not become competing owners.
 - **No copied source text or bundled third-party assets.** This set is an original synthesis with source attribution. External package, service, media, font, and asset terms still apply when a component uses them.

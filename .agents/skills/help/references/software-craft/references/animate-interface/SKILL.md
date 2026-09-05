@@ -9,14 +9,17 @@ description: Find, design, implement, optimize, or review purposeful interface m
 
 The requested motion outcome, current interface or reference, supported platforms and inputs, and applicable performance and accessibility constraints.
 
-## Route
+## Choose the motion approach
+
+These are procedure and output choices within `animate-interface`, not routes to other skills:
 
 - Vague visible effect → name the motion and nearest alternatives.
 - Missing motion → propose only justified opportunities and show deliberate rejections.
 - New web motion → use CSS, WAAPI, or the existing motion library.
 - Expo/React Native → use native navigation, Reanimated worklets, Gesture Handler, and sparse haptics.
 - Existing focused diff → review against the motion contract below.
-- Whole codebase → inventory, prioritize, plan, then implement selected findings.
+- Whole codebase → produce an inventory and prioritized findings. Implement selected findings only when implementation is requested.
+- Original motion direction, divergent concepts, or critique needed → use [elicit-llm-creativity](../../../elicit-llm-creativity/SKILL.md) proportionally; keep frequency and purpose as the selection rule.
 
 ## Motion contract
 

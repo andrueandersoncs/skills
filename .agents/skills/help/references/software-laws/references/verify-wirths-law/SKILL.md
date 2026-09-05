@@ -1,6 +1,6 @@
 ---
 name: verify-wirths-law
-description: "Informally assesses whether Wirth's Law is supported in a concrete project or decision using normalized software and hardware performance trends. Use when asked to verify, test, assess, investigate, or apply Wirth's Law."
+description: "Informally assesses whether Wirth's Law is supported in a concrete project or decision using normalized software and hardware performance trends. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Wirth's Law

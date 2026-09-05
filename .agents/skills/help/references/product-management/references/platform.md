@@ -149,6 +149,8 @@ An executive may want:
 
 The platform should generate or maintain these views from shared underlying objects. Users should not have to independently rewrite the same facts for every audience.
 
+Generate only requested views. For a technical guide, reference, or explanation, use [technical-documentation](../../technical-documentation/SKILL.md#classify-the-need) for the reader's need and appropriate proof. For a bounded prose edit, use [deslop](../../deslop/SKILL.md#preserve-what-matters), protecting quotations, customer language, claim scope, effective dates, certainty, and evidence. A generated view creates no new authority.
+
 ## Product Time Travel
 
 A temporal graph allows someone to ask:

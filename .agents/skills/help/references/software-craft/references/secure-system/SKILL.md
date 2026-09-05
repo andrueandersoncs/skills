@@ -18,7 +18,7 @@ The software boundary, assets and actors, privileged actions, data classes, conc
 5. Review dependency reachability, install scripts, lockfiles, provenance, and runtime exposure rather than treating advisory count as risk.
 6. Minimize personal data, define purpose and retention, restrict access, and make deletion/export obligations executable.
 7. For model-driven systems, treat retrieved content and model output as untrusted; constrain tools, arguments, permissions, side effects, and confirmation boundaries.
-8. Test the highest-consequence abuse paths through the real boundary. Inspect audit events, headers, limits, permission failures, and secret absence.
+8. Use [verify-change](../verify-change/SKILL.md) to match each high-consequence security claim to an authoritative observation, then test the real abuse paths through the real boundary. Inspect audit events, headers, limits, permission failures, and secret absence.
 
 ## Output
 

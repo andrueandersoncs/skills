@@ -13,19 +13,36 @@ export interface StoryTestDefinition {
   readonly fileId: string
   readonly relativePath: string
   readonly proposedCodeIds: ReadonlyArray<string>
+  readonly assertedErrorIds?: ReadonlyArray<string>
 }
 
 export const codeCategories = ["Schema", "Error", "Service", "EffectfulFunction"] as const
 export type CodeCategory = (typeof codeCategories)[number]
 
-export interface CodeDefinition {
+export interface FunctionContract {
+  readonly inputSchemaIds: ReadonlyArray<string>
+  readonly successSchemaId: string
+  readonly errorIds: ReadonlyArray<string>
+  readonly serviceIds: ReadonlyArray<string>
+}
+
+interface CodeSource {
   readonly id: string
-  readonly category: CodeCategory
   readonly label: string
   readonly fileId: string
   readonly relativePath: string
   readonly symbol: string
+  readonly dependencyIds?: ReadonlyArray<string>
 }
+
+export type CodeDefinition = CodeSource & (
+  | { readonly category: "EffectfulFunction"; readonly contract: FunctionContract }
+  | { readonly category: Exclude<CodeCategory, "EffectfulFunction"> }
+)
+
+export const codeDependencies = (item: CodeDefinition): ReadonlyArray<string> => item.category === "EffectfulFunction"
+  ? [...(item.dependencyIds ?? []), ...item.contract.inputSchemaIds, item.contract.successSchemaId, ...item.contract.errorIds, ...item.contract.serviceIds]
+  : item.dependencyIds ?? []
 
 export interface PlanDefinition {
   readonly id: string
@@ -41,12 +58,14 @@ export interface SourcePosition { readonly line: number; readonly column: number
 export interface SourceRange { readonly start: SourcePosition; readonly end: SourcePosition }
 export interface CodeFile { readonly fileId: string; readonly relativePath: string; readonly content: string; readonly contentHash: string }
 export interface HydratedStoryTest extends StoryTestDefinition { readonly range: SourceRange }
-export interface HydratedCodeDefinition extends CodeDefinition { readonly range: SourceRange }
-export interface TestResult { readonly status: TestStatus; readonly output: string }
+export type HydratedCodeDefinition = CodeDefinition & { readonly range: SourceRange }
+export interface TestResult { readonly status: TestStatus; readonly output: string; readonly evidenceHash: string }
 export interface Bootstrap {
   readonly plan: PlanDefinition
   readonly sourceSnapshotId: string
   readonly files: ReadonlyArray<CodeFile>
   readonly storyTests: ReadonlyArray<HydratedStoryTest>
   readonly proposedCode: ReadonlyArray<HydratedCodeDefinition>
+  readonly testResults: Readonly<Record<string, TestResult>>
+  readonly failedSaveItemIds: ReadonlyArray<string>
 }

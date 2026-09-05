@@ -4,10 +4,12 @@ import { execFile } from "node:child_process"
 import { readFile, rename, writeFile } from "node:fs/promises"
 import { relative, resolve, sep } from "node:path"
 import { promisify } from "node:util"
-import type { Plugin } from "vite"
+import type { Plugin, ViteDevServer } from "vite"
 import * as ts from "typescript"
 import { plan } from "./src/plan-data"
 import { codeDependencies, type CodeFile, type HydratedCodeDefinition, type HydratedStoryTest, type SourcePosition, type SourceRange, type TestResult } from "./src/review-types"
+import { buildScopeGraph } from "./src/schema-scope"
+import type { ScopeGraph } from "./src/scope-types"
 
 const execFileAsync = promisify(execFile)
 const root = resolve(import.meta.dirname)
@@ -15,6 +17,8 @@ const token = randomBytes(24).toString("hex")
 const edits: Array<Record<string, unknown>> = []
 const testResults = new Map<string, TestResult>()
 const failedSaves = new Set<string>()
+let devServer: ViteDevServer
+let scopeCache: { readonly key: string; readonly graph: ScopeGraph } | undefined
 
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex")
 const canonicalJson = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`
@@ -53,6 +57,7 @@ interface BootstrapData {
   readonly files: ReadonlyArray<CodeFile>
   readonly storyTests: ReadonlyArray<HydratedStoryTest>
   readonly proposedCode: ReadonlyArray<HydratedCodeDefinition>
+  readonly proposedImportedSourceFileIds: ReadonlyMap<string, ReadonlyArray<string>>
 }
 
 const evidenceHash = (test: HydratedStoryTest, bootstrap: BootstrapData) => {
@@ -64,6 +69,7 @@ const evidenceHash = (test: HydratedStoryTest, bootstrap: BootstrapData) => {
     dependencyFileIds.add(file.fileId)
     return { id, content: file.content.slice(offsetAt(file.content, definition.range.start), offsetAt(file.content, definition.range.end)) }
   })
+  const importedSources = new Set(test.proposedCodeIds.flatMap((id) => bootstrap.proposedImportedSourceFileIds.get(id) ?? []))
   const sharedSources = [...dependencyFileIds].map((fileId) => {
     const file = bootstrap.files.find((item) => item.fileId === fileId)!
     const ranges = bootstrap.proposedCode.filter((item) => item.fileId === fileId)
@@ -75,7 +81,11 @@ const evidenceHash = (test: HydratedStoryTest, bootstrap: BootstrapData) => {
     chunks.push(file.content.slice(cursor))
     return { fileId, content: chunks.join("") }
   })
-  return sha256(JSON.stringify({ test, content: testFile.content, dependencies, sharedSources }))
+  const extraSources = [...importedSources].map((fileId) => {
+    const file = bootstrap.files.find((item) => item.fileId === fileId)!
+    return { fileId, content: file.content }
+  })
+  return sha256(JSON.stringify({ test, content: testFile.content, dependencies, sharedSources, extraSources }))
 }
 
 const currentResults = (bootstrap: BootstrapData) => {
@@ -84,6 +94,31 @@ const currentResults = (bootstrap: BootstrapData) => {
     if (result?.evidenceHash !== evidenceHash(test, bootstrap)) testResults.delete(test.id)
   }
   return Object.fromEntries(testResults)
+}
+
+const localSourceTree = async (roots: ReadonlyArray<CodeFile>) => {
+  const sources = new Map(roots.map(({ relativePath, content }) => [relativePath, content]))
+  const imports = new Map<string, ReadonlyArray<string>>()
+  const pending = [...sources.keys()]
+  for (let cursor = 0; cursor < pending.length; cursor += 1) {
+    const relativePath = pending[cursor]
+    const importedPaths: string[] = []
+    for (const { fileName } of ts.preProcessFile(sources.get(relativePath)!, true, true).importedFiles) {
+      const resolution = await devServer.pluginContainer.resolveId(fileName, filePath(relativePath), { ssr: true })
+      const id = typeof resolution === "string" ? resolution : resolution?.id
+      if (!id || id.startsWith("\0")) continue
+      const path = resolve(id.replace(/\?.*$/, ""))
+      const importedPath = relative(root, path)
+      if (!importedPath || importedPath === ".." || importedPath.startsWith(`..${sep}`) || importedPath.split(sep).includes("node_modules")) continue
+      importedPaths.push(importedPath)
+      if (!sources.has(importedPath)) {
+        sources.set(importedPath, await readFile(path, "utf8"))
+        pending.push(importedPath)
+      }
+    }
+    imports.set(relativePath, importedPaths)
+  }
+  return { sources, imports }
 }
 
 const loadBootstrap = async () => {
@@ -100,24 +135,82 @@ const loadBootstrap = async () => {
     ids.forEach(visit)
     return [...seen]
   }
-  const definitions = [...plan.storyTests, ...plan.proposedCode]
-  const fileDefinitions = new Map<string, Array<(typeof definitions)[number]>>()
-  for (const item of definitions) fileDefinitions.set(item.fileId, [...(fileDefinitions.get(item.fileId) ?? []), item])
-  const files: Array<CodeFile> = []
-  const storyTests: Array<HydratedStoryTest> = []
-  const proposedCode: Array<HydratedCodeDefinition> = []
-  for (const [fileId, items] of fileDefinitions) {
-    const relativePath = items[0].relativePath
-    const content = await readFile(filePath(relativePath), "utf8")
-    files.push({ fileId, relativePath, content, contentHash: sha256(content) })
-    for (const item of items) {
-      if ("storyId" in item) storyTests.push({ ...item, proposedCodeIds: dependencyClosure(item.proposedCodeIds), range: { start: { line: 1, column: 1 }, end: positionAt(content, content.length) } })
-      else proposedCode.push({ ...item, range: declarationRange(content, item.symbol) })
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const currentDefinitions = new Set(plan.currentCode)
+    const definitions = [...plan.storyTests, ...plan.currentCode, ...plan.proposedCode]
+    const fileDefinitions = new Map<string, Array<(typeof definitions)[number]>>()
+    for (const item of definitions) fileDefinitions.set(item.fileId, [...(fileDefinitions.get(item.fileId) ?? []), item])
+    const files: Array<CodeFile> = []
+    const storyTests: Array<HydratedStoryTest> = []
+    const currentCode: Array<HydratedCodeDefinition> = []
+    const proposedCode: Array<HydratedCodeDefinition> = []
+    for (const [fileId, items] of fileDefinitions) {
+      const relativePath = items[0].relativePath
+      const content = await readFile(filePath(relativePath), "utf8")
+      files.push({ fileId, relativePath, content, contentHash: sha256(content) })
+      for (const item of items) {
+        if ("storyId" in item) storyTests.push({ ...item, proposedCodeIds: dependencyClosure(item.proposedCodeIds), range: { start: { line: 1, column: 1 }, end: positionAt(content, content.length) } })
+        else (currentDefinitions.has(item) ? currentCode : proposedCode).push({ ...item, range: declarationRange(content, item.symbol) })
+      }
     }
+    const roots = (items: ReadonlyArray<HydratedCodeDefinition>) => [...new Map(items.map((item) => {
+      const file = files.find(({ fileId }) => fileId === item.fileId)!
+      return [file.relativePath, file]
+    })).values()]
+    const currentRoots = roots(currentCode)
+    const proposedRoots = roots(proposedCode)
+    const currentTree = await localSourceTree(currentRoots)
+    const proposedTree = await localSourceTree(proposedRoots)
+    const sourceFileIds = new Map<"current" | "proposed", Map<string, string>>()
+    for (const [version, tree, versionRoots] of [["current", currentTree, currentRoots], ["proposed", proposedTree, proposedRoots]] as const) {
+      const ids = new Map(versionRoots.map(({ relativePath, fileId }) => [relativePath, fileId]))
+      for (const [relativePath, content] of tree.sources) {
+        if (ids.has(relativePath)) continue
+        const fileId = `source:${version}:${relativePath}`
+        if (files.some((file) => file.fileId === fileId)) throw new Error(`Imported source file id conflicts with ${fileId}`)
+        ids.set(relativePath, fileId)
+        files.push({ fileId, relativePath, content, contentHash: sha256(content) })
+      }
+      sourceFileIds.set(version, ids)
+    }
+    const proposedRootFileIds = new Set(proposedRoots.map(({ fileId }) => fileId))
+    const proposedImportedSourceFileIds = new Map<string, ReadonlyArray<string>>()
+    for (const definition of proposedCode) {
+      const importedSourceFileIds = new Set<string>()
+      const seen = new Set<string>()
+      const visit = (relativePath: string): void => {
+        if (seen.has(relativePath)) return
+        seen.add(relativePath)
+        const fileId = sourceFileIds.get("proposed")!.get(relativePath)!
+        if (!proposedRootFileIds.has(fileId)) importedSourceFileIds.add(fileId)
+        proposedTree.imports.get(relativePath)?.forEach(visit)
+      }
+      visit(files.find(({ fileId }) => fileId === definition.fileId)!.relativePath)
+      proposedImportedSourceFileIds.set(definition.id, [...importedSourceFileIds])
+    }
+    const sourceSnapshotId = sha256(JSON.stringify({ stories: plan.stories, storyTests, currentCode, proposedCode, files }))
+    const scopeFileIds = new Set([...sourceFileIds.get("current")!.values(), ...sourceFileIds.get("proposed")!.values()])
+    const scopeFiles = files.filter((file) => scopeFileIds.has(file.fileId))
+    const scopeKey = sha256(JSON.stringify({ currentCode, proposedCode, files: scopeFiles }))
+    let graph = scopeCache?.graph
+    if (scopeCache?.key !== scopeKey) {
+      for (const file of scopeFiles) {
+        const modules = devServer.moduleGraph.getModulesByFile(filePath(file.relativePath))
+        if (modules) for (const module of modules) devServer.moduleGraph.invalidateModule(module)
+      }
+      const declarations = (items: ReadonlyArray<HydratedCodeDefinition>) => items.map(({ range, ...definition }) => {
+        const file = files.find((item) => item.fileId === definition.fileId)!
+        return { definition, source: file.content.slice(offsetAt(file.content, range.start), offsetAt(file.content, range.end)) }
+      })
+      graph = await buildScopeGraph(declarations(currentCode), declarations(proposedCode), (path) => devServer.ssrLoadModule(`/${path}`))
+    }
+    const sourcesChanged = (await Promise.all(files.map(async ({ relativePath, contentHash }) => sha256(await readFile(filePath(relativePath), "utf8")) !== contentHash))).some(Boolean)
+    if (sourcesChanged) continue
+    if (scopeCache?.key !== scopeKey) scopeCache = { key: scopeKey, graph: graph! }
+    const bootstrap = { plan, sourceSnapshotId, files, storyTests, currentCode, proposedCode, proposedImportedSourceFileIds, scopeGraph: graph! }
+    return { ...bootstrap, testResults: currentResults(bootstrap), failedSaveItemIds: [...failedSaves] }
   }
-  const sourceSnapshotId = sha256(JSON.stringify({ stories: plan.stories, storyTests, proposedCode, files }))
-  const bootstrap = { plan, sourceSnapshotId, files, storyTests, proposedCode }
-  return { ...bootstrap, testResults: currentResults(bootstrap), failedSaveItemIds: [...failedSaves] }
+  throw new Error("Source files changed during scope inspection; retry")
 }
 
 const isAuthorized = (request: IncomingMessage) => {
@@ -177,7 +270,7 @@ const exportReview = async (body: Record<string, unknown>) => {
   if (body.decision === "approved" && failedSaves.size > 0) throw new Error("Resolve failed saves before approval")
   const results = currentResults(bootstrap)
   if (body.decision === "approved" && !bootstrap.storyTests.every(({ id }) => results[id]?.status === "passed")) throw new Error("Run every current story test before approval")
-  const artifact = { schemaVersion: "1.0.0", planId: plan.id, sourceSnapshotId: bootstrap.sourceSnapshotId, decision: body.decision, exportedAt: new Date().toISOString(), stories: plan.stories, storyTests: bootstrap.storyTests, proposedCode: bootstrap.proposedCode, files: bootstrap.files, testResults: results, comments: body.comments ?? {}, edits }
+  const artifact = { schemaVersion: "2.0.0", planId: plan.id, sourceSnapshotId: bootstrap.sourceSnapshotId, decision: body.decision, exportedAt: new Date().toISOString(), stories: plan.stories, storyTests: bootstrap.storyTests, currentCode: bootstrap.currentCode, proposedCode: bootstrap.proposedCode, scopeGraph: bootstrap.scopeGraph, files: bootstrap.files, testResults: results, comments: body.comments ?? {}, edits }
   const bytes = canonicalJson(artifact), artifactPath = "review-artifact.json"
   await writeFile(resolve(root, artifactPath), bytes)
   return { artifactPath, bytes }
@@ -187,6 +280,7 @@ export const reviewServer = (): Plugin => ({
   name: "story-test-review-server",
   transformIndexHtml(html) { return html.replace("</head>", `<meta name="review-session-token" content="${token}"/></head>`) },
   configureServer(server) {
+    devServer = server
     let pending = Promise.resolve()
     server.middlewares.use((request, response, next) => {
       if (!request.url?.startsWith("/api/review/")) return next()

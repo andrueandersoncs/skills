@@ -6,6 +6,8 @@ The plan is code. User stories become `@effect/vitest` Arbitrary tests. Proposed
 
 The human agrees on those four contracts before implementation.
 
+Green properties establish executable specification and fixture agreement, not a completed production implementation. Later verification must bind requirement-derived assertions to the real public boundary; use [verify-change](../../verify-change/SKILL.md) for that behavioral claim.
+
 ## The four contracts
 
 ### Schemas
@@ -53,7 +55,7 @@ export interface TaskServiceShape {
 export class TaskService extends Context.Service<TaskService, TaskServiceShape>()("TaskService") {}
 ```
 
-Each generated case gets a fresh Layer. Layer factories are test fixtures, not Proposed Code.
+Each generated case gets a fresh Layer. Layer factories are test fixtures, not Proposed Code. Inventory both the Service tag and its complete shape as editable Service items.
 
 ### Effectful function signatures
 
@@ -67,15 +69,15 @@ export const completeTask = (input: CompleteTaskInput): Effect.Effect<Task, Task
   Effect.flatMap(TaskService, (service) => service.complete(input))
 ```
 
-Hyrum's Law: these signatures are the observable contract.
+Each signature records `inputSchemaIds`, `successSchemaId`, `errorIds`, and `serviceIds` in its inventory `contract`. Empty inputs and a `never` Error channel use empty arrays. Formal approval covers these four contracts; [Hyrum's Law](../../../../software-laws/references/reference.md#hyrums-law) also covers consumer dependencies on other observable behavior. Use [design-contract](../../design-contract/SKILL.md) for compatibility decisions.
 
 ## Story Tests
 
 Each story has a stable ID, a short title, an outcome, and at least one test ID.
 
-Each test has a stable ID, a property title, a canonical file, an owning story ID, and the proposed-code IDs it exercises.
+Each test records stable IDs, its canonical file and story, and directly exercised `proposedCodeIds`. `assertedErrorIds` names only Errors whose outcomes that property asserts; a dependency on a signature's complete Error channel is not an assertion of every Error.
 
-Use one canonical test↔code relation. Derive story-side links from its tests.
+Keep one dependency relation in `plan-data.ts`: code items declare `dependencyIds`, and function contracts name their Schema, Error, and Service dependencies. Derive each test's transitive closure and both navigation directions from it, including nested Schemas and complete Service shapes.
 
 The left rail selects a story. The item list selects one test. The editor loads the exact full test file.
 
@@ -102,7 +104,7 @@ Group declarations by **Schemas**, **Errors**, **Services**, and **Effectful fun
 
 Each item includes a stable code ID, canonical file, declaration range, and affected test IDs.
 
-Saving a declaration marks every dependent test `not run`. Approval stays disabled until those tests pass again.
+Saving a declaration invalidates every test in its dependency closure. Hash the exact test, dependency declarations, and shared imports/fixture source; keep unrelated passing results. The server owns these records and discards results whose content no longer matches, including source changes during a run.
 
 ## Shared editing boundary
 
@@ -118,7 +120,7 @@ Both workspaces use the local review server:
 - Targeted result invalidation
 - Append-only audit
 
-A failed save or test blocks approval.
+An unresolved failed save or current failed test blocks approval. Track failed saves per item; a successful save of another item does not resolve them. Reload source deliberately after a stale save, then retry the affected item. Unsaved edits also block approval.
 
 ## Template contract
 
@@ -149,7 +151,7 @@ A generated plan changes `plan-data.ts`, `src/story-tests/*`, `src/domain/*`, an
 
 `sourceSnapshotId` hashes ordered stories, test inventory, proposed-code inventory, and exact test/code file contents.
 
-The durable artifact contains the decision, ordered stories, exact test files, exact proposed-code files, current test results, comments, and edit audit.
+The durable artifact contains the decision, ordered stories, exact test files, exact proposed-code files, server-owned current test results and evidence hashes, comments, and edit audit. Never accept client-supplied test results as evidence. A changed source snapshot clears the shell's decision and a stale snapshot cannot be exported.
 
 Embed exact reviewed files. Durable and downloaded artifact bytes match.
 
@@ -163,7 +165,7 @@ Run one browser pass:
 4. Confirm Proposed Code groups Schemas, Errors, Services, and Effectful functions.
 5. Follow test→code and code→test links.
 6. Save one reversible test edit in an isolated copy and confirm only that test resets.
-7. Save one reversible proposed-code edit and confirm only dependent tests reset.
+7. Save a reversible proposed-code edit; confirm direct and transitive dependents reset while unrelated results remain. Exercise a failed/stale save and confirm approval stays blocked until that item is resolved.
 8. Export both decisions in an isolated copy and compare bytes.
 9. Confirm the real draft has no synthetic edits or decision artifact.
 

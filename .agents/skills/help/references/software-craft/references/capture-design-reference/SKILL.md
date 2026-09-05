@@ -21,7 +21,7 @@ The design question, candidate sources or discovery scope, target product contex
 4. When lazy or animated content breaks native full-page capture, warm the page, take overlapping settled viewport slices, stitch them, and reject blank bands or disagreement with the live page.
 5. Separate observed facts from interpretation. Extract layout, hierarchy, type, color, material, imagery, motion, interaction, and likely implementation mechanism.
 6. Build an originality ledger: reusable grammar, protected identity/signature elements, replacement direction, and asset-license status.
-7. Convert the evidence into a builder-ready brief with section anatomy, states, motion, constraints, fallbacks, and direct source links.
+7. Convert the evidence into a builder-ready brief with section anatomy, states, motion, constraints, fallbacks, and direct source links. When product translation needs original direction or critique, use [elicit-llm-creativity](../../../elicit-llm-creativity/SKILL.md) proportionally.
 8. Verify files, dimensions, crops, playback, links, duplicates, and manifest entries.
 
 ## Output

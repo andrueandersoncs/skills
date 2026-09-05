@@ -34,7 +34,7 @@ bun add -d @andrue/cli
 
 - `skill-routers` — agent-skill router design, implementation, and review
 - `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, training, evolution, and multi-agent architecture
-- `software-craft` — executable software work
+- `software-craft` — executable software work, including focused `review-symmetry` code reviews
 - `workflows` — nonexecuting callstack and state-machine projections
 - `technical-documentation` — tutorials, how-to guides, reference, and explanation
 - `product-management` — product records and AI opportunity assessments

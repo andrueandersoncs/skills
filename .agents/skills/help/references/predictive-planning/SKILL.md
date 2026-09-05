@@ -13,7 +13,7 @@ Treat a plan as a **forecast plus a policy**:
 
 Use only the detail that can change a decision.
 
-## Route
+## Choose forecast detail
 
 For routine, reversible work, use this minimal forecast-policy and stop:
 
@@ -29,6 +29,8 @@ For work with meaningful stakes or uncertainty, use the full method. First estab
 - When approval incentives could distort the estimate, obtain an independent forecast before choosing the decision forecast.
 
 If a control is missing, make establishing it the first action instead of inventing precision.
+
+Compose forecasts with existing records: [product-management](../product-management/SKILL.md#core-model) owns product behavior and change intent; [manage-project](../manage-project/SKILL.md#record) or the established tracker owns execution status. Store or link one forecast record there without copying mutable state. When supporting another workflow, the forecast does not replace its requested deliverable.
 
 ## Method
 
@@ -107,7 +109,7 @@ Use recurring errors to update local base rates and future estimates. Judge fore
 
 ## Output
 
-For routine work, output the minimal forecast-policy from **Route**. For consequential uncertainty, use the relevant sections of this template:
+For routine work, output the minimal forecast-policy from **Choose forecast detail**. For consequential uncertainty, use the relevant sections of this template:
 
 ```markdown
 # [Plan name]

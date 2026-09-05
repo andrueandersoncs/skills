@@ -1,6 +1,6 @@
 ---
 name: verify-fitts-law
-description: "Informally assesses whether Fitt's Law is supported in a concrete project or decision using target-acquisition measurements. Use when asked to verify, test, assess, investigate, or apply Fitt's Law."
+description: "Informally assesses whether Fitt's Law is supported in a concrete project or decision using target-acquisition measurements. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Fitt's Law

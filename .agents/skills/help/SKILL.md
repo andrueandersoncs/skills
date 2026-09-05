@@ -5,34 +5,22 @@ description: Gather the available task context and route a request to exactly on
 
 # Help
 
-Gather the available context, identify the observable result the user wants, and select one owner.
+Match the user's situation to the skill best suited to handle it.
 
-- **Current state:** Facts established by the request, supplied artifacts, referenced paths, repository or runtime evidence, and prior results.
-- **Desired state:** The observable result requested by the user.
-- **Request context:** Domain, artifact, audience, technology, and constraints passed to the selected skill without becoming additional owners.
+Read [the shared routing guide](references/skill-routers/references/canonical-design.md) and use its gather → match → handoff procedure with these patterns.
 
-Read available evidence before asking the user. If the evidence cannot distinguish two routes, ask one short question whose answer changes the selected result, then route again.
-
-Choose the first matching row. Row order is the only precedence rule.
-
-| Current state | Desired state | Result |
-| --- | --- | --- |
-| Any | A result not owned by a skill below | Not this router |
-| Current evidence already satisfies the requested result | That same satisfied state | Done |
-| Any | An agent-skill-router explanation, design, implementation, or independent audit | [`skill-routers`](references/skill-routers/SKILL.md) |
-| Any | A small skill-specific LoRA and sealed comparison with its source skill | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
-| Any | A Grok Bot, bot skill, routine, roster, autonomy policy, handoff, or template result | [`grok-bot`](references/grok-bot/SKILL.md) |
-| Any | A persistent Git-backed LLM wiki setup, ingest, query, lint, or compaction result | [`llm-wiki`](references/llm-wiki/SKILL.md) |
-| Multiple owned tasks need durable state across blockers, asynchronous events, review, or resumption | A managed project result and durable project record | [`manage-project`](references/manage-project/SKILL.md) |
-| Any | A testable forecast-policy, estimate, plan, proposal, roadmap, or strategy with probabilities and response rules | [`predictive-planning`](references/predictive-planning/SKILL.md) |
-| Any | A durable product record, capability, feature, journey, requirement, release, product roadmap, discovery record, or AI opportunity assessment | [`product-management`](references/product-management/SKILL.md) |
-| Any | A source-grounded nonexecuting callstack trace, state-machine projection, or both | [`workflows`](references/workflows/SKILL.md) |
-| Any | Technical documentation created, restructured, reviewed, or audited for one reader need | [`technical-documentation`](references/technical-documentation/SKILL.md) |
-| Existing prose is available | Prose edited or audited for AI-writing patterns while preserving meaning and voice | [`deslop`](references/deslop/SKILL.md) |
-| Any | An explanation or case assessment grounded in established software laws | [`software-laws`](references/software-laws/SKILL.md) |
-| Any | A distinctive creative concept, prompt, design direction, name, narrative, or other artifact judged by novelty and taste | [`elicit-llm-creativity`](references/elicit-llm-creativity/SKILL.md) |
-| Any | Working, diagnosed, reviewed, verified, shipped, or evidence-backed executable software, infrastructure, library, service, or single-workflow agent skill | [`software-craft`](references/software-craft/SKILL.md) |
-
-Load exactly one selected skill and treat it as active. It owns execution and completion evidence.
-
-After it completes, update current state from its evidence. Stop when current state satisfies desired state; otherwise route again with the same desired state. If the same skill is selected without a state change, report an incomplete skill result or defective route.
+| Situation pattern | Skill |
+| --- | --- |
+| An agent skill router needs explaining, designing, implementing, or auditing. | [`skill-routers`](references/skill-routers/SKILL.md) |
+| A source skill needs distilling into a small LoRA with a sealed comparison against that skill. | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
+| Grok Bot capabilities, skills, routines, roster, autonomy rules, handoffs, or templates need creating or changing. | [`grok-bot`](references/grok-bot/SKILL.md) |
+| A persistent Git-backed LLM wiki needs setting up, ingesting sources, answering queries, linting, or compacting. | [`llm-wiki`](references/llm-wiki/SKILL.md) |
+| A multi-task project needs a durable record to coordinate work, blockers, asynchronous results, review, or resumption. | [`manage-project`](references/manage-project/SKILL.md) |
+| A plan, estimate, proposal, roadmap, or strategy needs testable forecasts, probabilities, and response rules. | [`predictive-planning`](references/predictive-planning/SKILL.md) |
+| Product capabilities, features, journeys, requirements, releases, discovery, or AI opportunities need defining or maintaining in a durable product record. | [`product-management`](references/product-management/SKILL.md) |
+| A workflow needs a source-grounded callstack trace, state-machine projection, or both, without executing it. | [`workflows`](references/workflows/SKILL.md) |
+| Technical documentation needs creating, restructuring, or auditing around a reader's learning, task, lookup, or understanding need. | [`technical-documentation`](references/technical-documentation/SKILL.md) |
+| Existing prose needs editing or auditing for AI-writing patterns while preserving its meaning and voice. | [`deslop`](references/deslop/SKILL.md) |
+| Established software laws need explaining, applying to a decision, or assessing against evidence from a concrete case. | [`software-laws`](references/software-laws/SKILL.md) |
+| A concept, prompt, design direction, name, narrative, or other creative artifact needs developing for novelty and taste. | [`elicit-llm-creativity`](references/elicit-llm-creativity/SKILL.md) |
+| Engineering work on executable software, infrastructure, libraries, services, or single-workflow agent skills needs investigation, scoping, repository mapping, design, planning, a claimable work queue, implementation, review, verification, delivery, coordination, or knowledge transfer. | [`software-craft`](references/software-craft/SKILL.md) |

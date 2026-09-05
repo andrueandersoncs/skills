@@ -1,6 +1,6 @@
 # Software Craft catalog
 
-This catalog records 25 destination skills: 22 synthesized from 266 source skills and three consolidated local workflows. See [`software-craft`](../SKILL.md) for the current situation patterns and technical context. The [source coverage manifest](../../../../../docs/research/software-craft-source-coverage.md) records the retained rule or exclusion for every inspected source skill.
+This catalog records 26 destination skills: 22 synthesized from 266 source skills, three consolidated local workflows, and one local symmetry-review workflow. See [`software-craft`](../SKILL.md) for the current situation patterns and technical context. The [source coverage manifest](../../../../../docs/research/software-craft-source-coverage.md) records the retained rule or exclusion for every inspected source skill.
 
 ## Resulting skills
 
@@ -17,6 +17,7 @@ This catalog records 25 destination skills: 22 synthesized from 266 source skill
 | `diagnose-problem` | Addy: `debugging-and-error-recovery`; Matt: `diagnosing-bugs`; Superpowers: `systematic-debugging`; Meng/Emil: domain performance diagnosis | Build a red-capable loop, falsify causes, fix the earliest verified cause, and guard recurrence. | `implement-change`, `optimize-system`, `verify-change` |
 | `review-change` | Addy: `code-review-and-quality`, `code-simplification`; Matt: `code-review`; Superpowers: requesting/receiving review; Emil: `review-animations`; Meng: audit skills; Pstack: `blast-radius` | Keep specification and quality verdicts separate, then report evidence-backed corrective findings. | `implement-change`, `secure-system`, `optimize-system`, `verify-change` |
 | `absurd-code-review` | Local | Produce a fingerprinted remove-versus-retain review with independent evidence adjudication and exact cross-stage alignment. | `review-change`, `verify-change` |
+| `review-symmetry` | Local | Find symmetry opportunities between conceptual peers and evaluate the smallest change that improves readability and predictability. | `review-change`, `design-contract` |
 | `verify-change` | Superpowers: `verification-before-completion`; Addy: `constraint-driven-development`, `browser-testing-with-devtools`; Meng: `audit-verify-explain-grade-5`, `iterate-until-verified` | Match every completion claim to fresh command, runtime, or artifact evidence. | Every implementation and specialist skill; especially `review-change` and `ship-change` |
 | `ship-change` | Addy: Git, CI/CD, migration, documentation, observability, and launch skills; Superpowers: worktrees and branch finishing; Matt: merge conflicts and `wizard`; Meng: GitHub/game publishing | Integrate, migrate, automate, document, observe, deploy, stage, and roll back completed work. | `verify-change`, `secure-system`, `optimize-system`, `transfer-knowledge` |
 | `coordinate-agents` | Superpowers: parallel agents, subagent development, worktrees; Matt: `implement-spec`, `claude-handoff`; Cartographer: parallel readers; Addy: orchestration patterns | Partition genuinely independent work, specify handoffs, isolate mutation, and integrate once. | `map-codebase`, `plan-change`, `review-change`, `verify-change` |

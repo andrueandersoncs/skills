@@ -3,7 +3,7 @@ Extracted from https://diataxis.fr/how-to-use-diataxis/ on 2026-09-04.
 Author: Daniele Procida.
 Canonical source snapshot: https://github.com/evildmp/diataxis-documentation-framework/tree/957c09ca40b4a1edc23874f713e01937d50d54d5
 License: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/
-Modification: site navigation and generated page furniture removed; heading anchors preserved; internal documentation links made relative.
+Modification: site navigation and generated page furniture removed; heading anchors preserved; internal documentation links made relative; orphan image permalink removed.
 -->
 
 <a id="how-to-use-diataxis"></a>
@@ -72,7 +72,7 @@ A good model for documentation is **well-formed organic growth that adapts to ex
 
 ![](https://diataxis.fr/_images/always-complete.jpg) 
 
-Illustration copyright [Linette Voller](https://linettevoller.com) 2021, reproduced with kind permission.[¶](#id1 "Link to this image")
+Illustration copyright [Linette Voller](https://linettevoller.com) 2021, reproduced with kind permission.
 
 It’s the same with documentation: by following the principles that Diátaxis provides, your documentation will attain a healthy structure, because its internal components themselves are well-formed - like a living organism, it will have built itself up from the inside-out, one cell at a time.
 

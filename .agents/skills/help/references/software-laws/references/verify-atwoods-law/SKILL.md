@@ -1,6 +1,6 @@
 ---
 name: verify-atwoods-law
-description: "Informally assesses whether Atwood's Law is supported in a concrete project or decision using implementation-language and delivery-surface history. Use when asked to verify, test, assess, investigate, or apply Atwood's Law."
+description: "Informally assesses whether Atwood's Law is supported in a concrete project or decision using implementation-language and delivery-surface history. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Atwood's Law

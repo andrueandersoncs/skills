@@ -1,6 +1,6 @@
 ---
 name: verify-knuths-optimization-principle
-description: "Informally assesses whether Knuth's optimization principle is supported in a concrete project or decision using optimization profiles, benchmarks, and maintenance costs. Use when asked to verify, test, assess, investigate, or apply Knuth's optimization principle."
+description: "Informally assesses whether Knuth's optimization principle is supported in a concrete project or decision using optimization profiles, benchmarks, and maintenance costs. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Knuth's optimization principle
