@@ -73,4 +73,5 @@ describe("circuit traces", () => {
     const surface = ray.intersectObject(circuit.group, true)[0].object as Mesh
     expect((surface.material as MeshStandardMaterial).color.getHexString()).toBe(new Color(relationshipStyles.input.color).getHexString())
   })
+
 })

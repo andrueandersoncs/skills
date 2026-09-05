@@ -27,6 +27,8 @@ A capability is a durable customer or business ability. A feature is a product m
 
 Product claims and their evidence remain here. Use [define-work](../software-craft/references/define-work/SKILL.md) only to resolve an unaccepted software outcome, or [design-contract](../software-craft/references/design-contract/SKILL.md) for a requested implementation-facing seam. Link the resulting contract back; planned behavior is not implemented truth.
 
+For marketing context, extend the existing record only with relevant audience/buyer distinctions, positioning and alternatives, switching obstacles, customer language, objections, and attributable proof. Link research and distinguish claims from hypotheses; do not maintain a second marketing brief with competing product facts. Use [marketing](../marketing/SKILL.md) for new customer research, pricing decisions, page copy, SEO audits, or lifecycle email work, then link its evidence or proposals back to this record.
+
 ## Method
 
 1. Establish the actor or segment, their problem or job, the supporting raw evidence, and the desired outcome with a measurable metric.

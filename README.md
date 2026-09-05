@@ -38,6 +38,7 @@ bun add -d @andrue/cli
 - `workflows` — nonexecuting callstack and state-machine projections
 - `technical-documentation` — tutorials, how-to guides, reference, and explanation
 - `product-management` — product records and AI opportunity assessments
+- `marketing` — customer research, pricing decisions, marketing-page copy, SEO audits, and lifecycle email sequences
 - `grok-bot` — Grok Bot operation, organization, skills, routines, and templates
 - `predictive-planning` — testable forecasts and response rules
 - `manage-project` — durable multi-task project coordination
@@ -50,6 +51,12 @@ bun add -d @andrue/cli
 `skills/help` is the repository's single installable skill. Its routed components operate on the active repository rather than this collection.
 
 `skills/` is canonical. `.agents/skills/` contains installed runtime copies and independently sourced skills; `.claude/skills/help` links to the installed `help` copy.
+
+The [marketing router](skills/help/references/marketing/SKILL.md) selects five source-attributed workflows adapted from Corey Haines's Marketing Skills at `5b2c0007766c6a1cf1d53fd8fc73e979e0821022`. They reuse existing product records, preserve evidence and publishing boundaries, and link to existing editing, planning, and engineering owners. Only focused pricing-research and technical-SEO references are bundled; upstream CLIs, channel playbooks, and unsupported performance benchmarks are excluded. The upstream [MIT notice](skills/help/references/marketing/LICENSE) is retained.
+
+Marketing smoke verification used `openai-codex/gpt-5.6-luna` through `omp` 18.1.11: five workflow artifacts, seven routing/boundary cases, a repeated pricing-copy boundary, and isolated installed-skill discovery passed. Local fixtures, source snapshots, transcripts, baseline runs, and limitations are retained in `.scratch/skill-evals/marketing-WkpEZs/report.json`. These reused smoke cases do not establish general marketing effectiveness or reliable improvement over the no-skill baseline.
+
+Reinstall `help` to refresh installed runtime copies after changing canonical skills; editing `skills/` does not update those copies or already-running sessions.
 
 ## Verification
 
