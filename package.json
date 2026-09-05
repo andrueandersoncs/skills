@@ -6,7 +6,8 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "build": "bun run --workspaces build",
-    "test": "bun run --workspaces test",
+    "test": "bun run --workspaces test && bun test ./evals/skills",
+    "eval:skills": "bun scripts/evaluate-skills.ts",
     "lint:bts": "better-typescript"
   },
   "devDependencies": {

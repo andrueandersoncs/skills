@@ -14,7 +14,7 @@ Apply this guidance within `author-agent-skill` when the requested artifact is a
    - **Helpers:** document the invocation of every executable helper the skill owns.
 3. Add a small feature map. For each user-facing feature, record what it does, how a user reaches it, how the harness drives it, the observable end state, and known traps.
 4. Follow the authored instructions end to end for one mapped feature. Confirm that cleanup leaves the captured evidence intact.
-5. If the application cannot start or reach a trustworthy baseline, return a precise blocked result. Do not repair product code from this authoring context; route that work separately.
+5. If the application cannot start or reach a trustworthy baseline, return a precise blocked result. Do not repair product code from this authoring context.
 
 ## Maintain an existing artifact
 

@@ -21,53 +21,13 @@ The human reviews two questions:
 
 Read the shared [Effect context](../effect.md) and [the detailed method](references/executable-interactive-plans.md). Start from [the story-test template](assets/story-test-template).
 
-Gall's Law: ship the smallest complete set of those four contracts. Hyrum's Law: once agreed, every observable of those signatures is the contract.
+Apply [Gall's Law](../../../software-laws/references/reference.md#galls-law) to keep the four-contract artifact complete and small. Under [Hyrum's Law](../../../software-laws/references/reference.md#hyrums-law), compatibility can also depend on observable behavior outside those formally approved contracts; inspect actual consumers before changing it.
 
-## The four contracts
+## Contract and story requirements
 
-Group Proposed Code as **Schemas**, **Errors**, **Services**, and **Effectful functions**. Write each item as exact editable source.
+Group Proposed Code as **Schemas**, **Errors**, **Services**, and **Effectful functions**, with exact editable source, complete Service shapes, and each signature's input/success Schema, Error, and Service IDs. Keep these details in [the four-contract method](references/executable-interactive-plans.md#the-four-contracts).
 
-### Schemas
-
-Effect Schemas for inputs, outputs, and domain values. Tests generate from these Schemas. Do not hand-build random values beside them.
-
-### Errors
-
-`Schema.Error` classes that appear in the `E` channel. Every Error in a signature is proposed code. A story test that lists an Error must assert that Error.
-
-### Services
-
-`Context.Service` contracts. The `R` channel names these Services. Test Layers provide them and are not Proposed Code.
-
-### Effectful function signatures
-
-Write the full signature and call it from the tests:
-
-```ts
-(input: Input): Effect.Effect<Success, Error, Service>
-```
-
-## Story tests
-
-Each story owns at least one `@effect/vitest` property. Generate from the exact proposed Schema. Provide a fresh Service Layer per generated case. Call the exact proposed function. Assert the caller-visible success or Error. Each signature lists its input Schema, success Schema, Errors, and Services; each test lists those same IDs.
-
-```ts
-import { assert, it } from "@effect/vitest"
-import { Effect } from "effect"
-import { CreateTaskInput } from "../domain/task"
-import { createTask, listTasks, makeTaskService } from "../domain/task-service"
-
-it.effect.prop("creates every valid generated task as incomplete", [CreateTaskInput], ([input]) =>
-  Effect.gen(function* () {
-    const layer = yield* makeTaskService([])
-    const created = yield* createTask(input).pipe(Effect.provide(layer))
-    const tasks = yield* listTasks.pipe(Effect.provide(layer))
-
-    assert.strictEqual(created.title, input.title)
-    assert.isFalse(created.completed)
-    assert.deepStrictEqual(tasks, [created])
-  }), { fastCheck: { numRuns: 25 } })
-```
+Each story owns an `@effect/vitest` property generated from the proposed Schemas, using a fresh fixture Layer and calling the proposed function. Derive navigation and invalidation from the inventory's transitive dependency relation. Error-channel dependencies do not imply an Error assertion; identify the specific asserted Error separately. A legitimate `never` channel needs no invented Error.
 
 Keep one test file per property so the whole file is the editable range.
 
@@ -78,6 +38,8 @@ Keep one test file per property so the whole file is the editable range.
 Keep authored story order. For each story, state the caller-visible outcome and the Schema, Error, Service, and function IDs it exercises.
 
 ### 2. Create the artifact
+
+Run from the loaded skill's base directory:
 
 ```sh
 node scripts/create-plan.mjs <artifact-destination>
@@ -91,9 +53,9 @@ Write Schemas, Errors, Services, and signatures first. Then write `it.effect.pro
 
 ### 4. Review in the browser
 
-Story Tests runs and edits each property. Proposed Code edits the four contract groups. Saving a test resets that test. Saving a contract resets every linked test. Approval stays off until every current test passes.
+Run and edit properties in Story Tests; edit contracts in Proposed Code. The server binds results to current test and dependency content, invalidates only affected tests, and blocks approval for unresolved save failures. Source changes clear the decision; approval requires every current property to pass.
 
-Goodhart's Law: green tests are evidence. The human decision is the result.
+Use [Goodhart's Law](../../../software-laws/references/reference.md#goodharts-law) to distinguish green fixture-agreement evidence from the required human decision.
 
 ### 5. Pause for the human
 

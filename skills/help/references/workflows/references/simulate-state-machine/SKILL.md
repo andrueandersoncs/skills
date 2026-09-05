@@ -14,10 +14,13 @@ Create a source-grounded state-machine projection for inspection and learning wi
 2. **Scenario:** Optional initial arguments, machine context, environment values, and expected external responses; omitted values remain symbolic.
 3. **Supporting context:** Optional available definitions, data shapes, invariants, and external behavior that may explain but not override the target.
 4. **Controls:** Optional entry-point override, abstraction level, expansion or focus controls, event-name or payload overrides, initial scenario, repository-relative `.mmd` destination, explicit HTML request, and repository-relative `.html` destination.
+5. **Requested views:** Views assigned to this task: state-machine only, or both projections with any requested Markdown destination. A supporting invocation uses its assigned view only; the full original request remains context.
+
 
 ## Outputs
 
 1. **Simulation result:** One validated static Mermaid `.mmd` projection at the resolved destination, an interactive canonical-template `.html` projection only when explicitly requested, and a concise completion report; it is complete when every selected artifact matches one source-grounded machine model, all modeled terminal outcomes are reachable, validation evidence and symbolic or bounded behavior are disclosed, no unselected or unauthorized destination was changed, and no target code or side effect was executed.
+2. **Callstack companion:** When this task's requested views include it, one source-grounded Markdown callstack conforming to [`../simulate-callstack/references/simulation-template.md`](../simulate-callstack/references/simulation-template.md).
 
 ## Procedure
 
@@ -29,16 +32,16 @@ Create a source-grounded state-machine projection for inspection and learning wi
     b. Scenario.
     c. Supporting context.
     d. Controls.
+    e. Requested views.
 
 **Constraints:**
-
     a. Read the target and relevant supplied or repository context completely.
-    b. Fix the root operation, entry point, initial context, authority order, abstraction boundary, and source identifiers.
+    b. Fix the root operation, entry point, initial context, authority order, abstraction boundary, source identifiers, requested views, and selected destinations.
     c. Treat the target as authoritative and surface any conflicting supporting context.
     d. Default to Mermaid only at `simulate-state-machine.mmd` in the active repository root.
     e. Select HTML only when explicitly requested and, when selected without a destination, place it beside Mermaid with the same basename.
     f. Stop before writing when the target or entry point is missing, unreadable, or ambiguous.
-    g. Stop before writing when a selected destination exists without explicit revision authority.
+    g. Retain supplied projections that already satisfy the assigned views and skip their production steps. Stop before writing if a destination that needs writing already exists without explicit revision authority.
     h. Leave every unselected HTML file untouched.
 
 **Outputs:**
@@ -46,7 +49,26 @@ Create a source-grounded state-machine projection for inspection and learning wi
     a. Fixed simulation contract and selected destinations.
     b. Blocking report when the contract cannot be fixed.
 
-### 2. Map the source-grounded machine
+### 2. Produce the requested callstack companion
+
+**Inputs:**
+
+    a. Fixed simulation contract.
+    b. Requested views and any usable callstack.
+
+**Constraints:**
+
+    a. When no callstack was requested, skip this step. If a supplied callstack already satisfies the request, retain it.
+    b. Otherwise, when a callstack was requested, apply [`../simulate-callstack/SKILL.md`](../simulate-callstack/SKILL.md) to a callstack-only subtask with the same target, scenario, controls, context, and constraints. Keep the original request as context; the supporting procedure produces only the missing companion.
+    c. Do not treat the supporting procedure as another route, handoff, or completion boundary.
+
+**Outputs:**
+
+    a. Validated callstack companion when selected.
+    b. Unchanged state-machine contract.
+
+
+### 3. Map the source-grounded machine
 
 **Inputs:**
 
@@ -66,7 +88,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
 
     a. Finite source-grounded topology with explicit reachable outcomes.
 
-### 3. Define deterministic event semantics
+### 4. Define deterministic event semantics
 
 **Inputs:**
 
@@ -87,7 +109,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
 
     a. One deterministic shared machine model from which every selected projection can be generated.
 
-### 4. Write the Mermaid projection
+### 5. Write the Mermaid projection
 
 **Inputs:**
 
@@ -106,7 +128,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
 
     a. Static Mermaid projection at the resolved `.mmd` destination.
 
-### 5. Write the optional HTML projection
+### 6. Write the optional HTML projection
 
 **Inputs:**
 
@@ -127,7 +149,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
     a. No HTML change when unselected.
     b. Canonical interactive projection at the resolved `.html` destination when selected.
 
-### 6. Validate the model and selected projections
+### 7. Validate the model and selected projections
 
 **Inputs:**
 
@@ -135,6 +157,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
     b. Shared machine model.
     c. Mermaid projection.
     d. Optional selected HTML projection.
+    e. Optional selected callstack companion.
 
 **Constraints:**
 
@@ -145,13 +168,14 @@ Create a source-grounded state-machine projection for inspection and learning wi
     e. When browser automation is unavailable, run the specification's static checks and disclose that live interaction was unavailable.
     f. When HTML is selected, compare it with the canonical template after normalizing only the machine data block and require model parity across both projections.
     g. Correct a failed selected projection and repeat its checks; report an unresolved validation failure without claiming completion.
+    h. When a callstack was selected, require it to satisfy the supporting procedure before treating the combined result as complete.
 
 **Outputs:**
 
     a. Passing validation evidence for every selected projection.
     b. Exact unresolved failure and selected-output status when validation cannot pass.
 
-### 7. Publish the simulation result
+### 8. Publish the simulation result
 
 **Inputs:**
 
@@ -162,7 +186,7 @@ Create a source-grounded state-machine projection for inspection and learning wi
 **Constraints:**
 
     a. Leave only validated, authorized artifacts at their resolved destinations.
-    b. On success, report `Simulation: complete`, `Mermaid: <path> (static; <validation method>)`, `Target: <target and entry point>`, `Terminals: <outcomes>`, `Symbolic behavior: <items|None>`, and `Bounded or omitted: <items|None>`.
+    b. On success, report `Simulation: complete`, `Callstack: <inline|path> (source-grounded)` when selected, `Mermaid: <path> (static; <validation method>)`, `Target: <target and entry point>`, `Terminals: <outcomes>`, `Symbolic behavior: <items|None>`, and `Bounded or omitted: <items|None>`.
     c. When HTML was selected, also report `HTML: <path> (<validation method>)`.
     d. On unresolved failure, report `Simulation: incomplete`, the exact failure, and every selected artifact's status instead of a success report.
     e. Distinguish source-grounded behavior from scenario choices and never claim that the target ran.
@@ -174,4 +198,4 @@ Create a source-grounded state-machine projection for inspection and learning wi
 
 ## Done
 
-Every selected projection is source-grounded, mutually consistent, validated by the disclosed method, and published only at its authorized destination.
+Every selected projection is source-grounded, mutually consistent, validated by the disclosed method, and published only at its authorized destination. A combined request is complete only when its callstack and every selected state-machine artifact are published.

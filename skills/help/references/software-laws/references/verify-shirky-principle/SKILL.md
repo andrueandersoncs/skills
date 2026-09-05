@@ -1,6 +1,6 @@
 ---
 name: verify-shirky-principle
-description: "Informally assesses whether Shirky principle is supported in a concrete project or decision using institutional incentives and durable-fix history. Use when asked to verify, test, assess, investigate, or apply Shirky principle."
+description: "Informally assesses whether Shirky principle is supported in a concrete project or decision using institutional incentives and durable-fix history. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Shirky principle

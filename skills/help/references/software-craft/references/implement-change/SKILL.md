@@ -20,10 +20,10 @@ The accepted software behavior or plan, relevant repository evidence, scope cons
    - write only enough code to pass;
    - run the focused check;
    - simplify while green.
-5. For each slice, run the changed behavior itself. Keep the repository buildable and remove temporary instrumentation.
+5. For each slice, run the changed behavior itself and use [verify-change](../verify-change/SKILL.md) to match focused evidence to the claim. Keep the repository buildable and remove temporary instrumentation.
 6. Follow existing patterns and dependencies. Introduce a new abstraction only when current repetition or contract pressure proves its value.
 7. Re-read consequential decisions with fresh context before they spread. Resolve findings against the contract rather than accepting them by authority.
-8. Complete every caller migration and remove obsolete paths, aliases, comments, and dead compatibility code when the cutover allows it.
+8. Complete every caller migration requested by the accepted scope. Remove obsolete paths, aliases, comments, and dead compatibility code. Retain an intentionally live compatibility path only under [ship-change's migration authority](../ship-change/SKILL.md#migration), with its migration owner, removal condition, and evidence.
 
 ## Tool recipes
 
@@ -31,8 +31,8 @@ For an explicit Better TypeScript setup request, apply [the Better TypeScript re
 
 ## Output
 
-Working repository behavior through the real entry point, with complete caller migration and focused evidence.
+Working repository behavior through the real entry point, every caller migration requested by the accepted scope, and focused evidence.
 
 ## Done
 
-The smallest complete behavior works through its real entry point, regression-prone behavior has a meaningful guard, and no old path or debug residue remains.
+The smallest complete behavior works through its real entry point, every requested caller is migrated, regression-prone behavior has a meaningful guard, and no obsolete or unapproved old path or debug residue remains.

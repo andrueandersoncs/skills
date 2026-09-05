@@ -1,5 +1,9 @@
-import { readFile, writeFile } from "node:fs/promises"
+import { existsSync } from "node:fs"
+import { readFile, realpath } from "node:fs/promises"
+import { resolve } from "node:path"
 import { Schema } from "effect"
+import { lock } from "proper-lockfile"
+import writeFileAtomic from "write-file-atomic"
 
 export const Status = Schema.Literals([
   "Not started",
@@ -83,7 +87,7 @@ export type Action =
   | { op: "pause"; id: string; next: string }
   | { op: "block"; id: string; dependency: string; followUp: string }
   | { op: "submit"; id: string; evidence: string }
-  | { op: "review-task"; id: string; verdict: "Passed" | "Failed"; action?: string }
+  | { op: "review-task"; id: string; verdict: "Passed" | "Failed"; action?: string; blockedBy?: string; followUp?: string }
   | {
     op: "review"
     verdict: "Passed" | "Failed" | "Incomplete"
@@ -119,8 +123,20 @@ export const decodeProject = (text: string) => Schema.decodeUnknownSync(ProjectJ
 
 export const readProject = async (path: string) => decodeProject(await readFile(path, "utf8"))
 
-export const writeProject = async (path: string, project: Project) => {
-  await writeFile(path, encodeProject(project))
+export const updateProject = async (path: string, action: Action): Promise<Project> => {
+  const record = existsSync(path) ? await realpath(path) : resolve(path)
+  const release = await lock(record, {
+    realpath: false,
+    retries: { retries: 100, minTimeout: 20, maxTimeout: 200 }
+  })
+  try {
+    const current = existsSync(record) ? await readProject(record) : undefined
+    const project = applyAction(current, action)
+    await writeFileAtomic(record, encodeProject(project))
+    return project
+  } finally {
+    await release()
+  }
 }
 
 const requireProject = (project: Project | undefined): Project => {
@@ -170,6 +186,9 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
     }
     case "prepare": {
       const current = requireProject(project)
+      if (getTask(current, action.id).status === "Done") {
+        throw new Error(`task ${action.id} is Done`)
+      }
       let task = {
         ...getTask(current, action.id),
         owner: action.owner,
@@ -265,16 +284,21 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
       if (action.verdict === "Failed" && !filled(action.action ?? "")) {
         throw new Error("Failed review needs --action")
       }
-      return putTask(
-        current,
-        action.verdict === "Passed"
-          ? {
-            ...existing,
-            status: "Done",
-            context: filled(existing.context) ? `${existing.context}\nReview: Passed` : "Review: Passed"
-          }
-          : { ...existing, status: "Ready", nextAction: action.action ?? "" }
-      )
+      if (action.verdict === "Failed") {
+        return applyAction(current, {
+          op: "prepare",
+          id: action.id,
+          owner: existing.owner,
+          next: action.action!,
+          blockedBy: action.blockedBy,
+          followUp: action.followUp
+        })
+      }
+      return putTask(current, {
+        ...existing,
+        status: "Done",
+        context: filled(existing.context) ? `${existing.context}\nReview: Passed` : "Review: Passed"
+      })
     }
     case "review": {
       const current = requireProject(project)

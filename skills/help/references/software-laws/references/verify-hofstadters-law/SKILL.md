@@ -1,6 +1,6 @@
 ---
 name: verify-hofstadters-law
-description: "Informally assesses whether Hofstadter's Law is supported in a concrete project or decision using original estimates, buffers, scope, and completion history. Use when asked to verify, test, assess, investigate, or apply Hofstadter's Law."
+description: "Informally assesses whether Hofstadter's Law is supported in a concrete project or decision using original estimates, buffers, scope, and completion history. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Hofstadter's Law

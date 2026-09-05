@@ -1,6 +1,6 @@
 ---
 name: verify-postels-law
-description: "Informally assesses whether Postel's Law is supported in a concrete project or decision using protocol conformance, interoperability, and safety evidence. Use when asked to verify, test, assess, investigate, or apply Postel's Law."
+description: "Informally assesses whether Postel's Law is supported in a concrete project or decision using protocol conformance, interoperability, and safety evidence. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Postel's Law

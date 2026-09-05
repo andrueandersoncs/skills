@@ -24,7 +24,7 @@ Status is the truth. Columns are the state machine, not a free-moving kanban. Il
 
 ## Operating Context
 
-Run with `andrue-cli manage-project --record <path> serve`. The CLI and the board share `applyAction`. Agents and the operator write the same file.
+Run with `andrue-cli manage-project --record <path> serve`. The CLI and the board share `updateProject`, which locks the read–modify–write operation and atomically replaces the record. Agents and the operator use these actions to update the same file.
 
 ## Capabilities and Constraints
 

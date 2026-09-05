@@ -13,10 +13,13 @@ Model supplied behavior as a source-grounded trace for inspection without execut
 2. **Scenario:** Optional arguments, initial state, environment values, and expected external responses; omitted values remain symbolic.
 3. **Supporting context:** Optional available definitions, data shapes, invariants, and external behavior; relevant context accompanying a target path may explain but not override the target.
 4. **Controls:** Optional entry-point override, branch selection, expansion depth, loop or recursion limit, focus area, `compact` or `expanded` detail, and repository-relative Markdown destination; defaults are compact detail, expansion of described local calls, three loop iterations, ten recursive frames, and inline output.
+5. **Requested views:** Views assigned to this task: callstack only, or both projections with any authorized Mermaid or HTML destinations. A supporting invocation uses its assigned view only; the full original request remains context.
+
 
 ## Outputs
 
 1. **Callstack:** One Markdown callstack returned inline or written to the authorized destination, conforming to [`references/simulation-template.md`](references/simulation-template.md); it is complete when it directly presents the validated, source-traceable call hierarchy and material decisions without a title, section heading, metadata, wrapper, or completion message.
+2. **State-machine companion:** When this task's requested views include it, the source-grounded Mermaid and optional HTML projection under [`../simulate-state-machine/SKILL.md`](../simulate-state-machine/SKILL.md).
 
 ## Procedure
 
@@ -28,14 +31,15 @@ Model supplied behavior as a source-grounded trace for inspection without execut
     b. Scenario.
     c. Supporting context.
     d. Controls.
+    e. Requested views.
 
 **Constraints:**
 
-    a. Determine the root operation, initial values, source identifiers, authority order, limits, and output location.
+    a. Determine the root operation, initial values, source identifiers, authority order, requested views, limits, and output locations.
     b. Treat the target as authoritative for control flow, calls, state transitions, returns, and errors.
     c. Surface context conflicts while retaining the target's behavior.
     d. Stop and name the blocker when the target or entry point is missing, unreadable, or ambiguous.
-    e. Stop when the destination exists without explicit revision authority.
+    e. Retain supplied projections that already satisfy the assigned views and skip their production steps. Stop if a destination that needs writing already exists without explicit revision authority.
 
 **Outputs:**
 
@@ -111,12 +115,15 @@ Model supplied behavior as a source-grounded trace for inspection without execut
 
     a. Render the trace exactly according to [`references/simulation-template.md`](references/simulation-template.md).
     b. Return it inline or write it to the authorized destination.
-    c. Output only the callstack without a title, section heading, scenario, status, execution summary, limits, assumptions, wrapper, or separate completion message.
+    c. For a callstack-only task, publish only the callstack in the template's form. For a combined task, retain that form while completing the requested state-machine companion under its own publication rules.
+    d. For a combined task, retain a supplied state-machine projection that already satisfies the task. Otherwise apply [`../simulate-state-machine/SKILL.md`](../simulate-state-machine/SKILL.md) to a state-machine-only subtask with the same source, scenario, bounds, and authorized destinations. Keep the original request as context; the supporting procedure produces only the missing companion.
 
 **Outputs:**
 
-    a. Callstack at the resolved location, completing the workflow.
+    a. Callstack at the resolved location.
+    b. When requested, every selected state-machine companion artifact.
+    c. Complete result only when all requested views are published.
 
 ## Done
 
-The returned callstack is source-traceable, respects the requested bounds and scenario, and contains no fabricated execution or side effects.
+The returned callstack is source-traceable, respects the requested bounds and scenario, and contains no fabricated execution or side effects. For a combined request, the callstack and every requested state-machine artifact are complete.

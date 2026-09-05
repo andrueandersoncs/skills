@@ -1,6 +1,6 @@
 ---
 name: verify-greenspuns-tenth-rule
-description: "Informally assesses whether Greenspun's tenth rule is supported in a concrete project or decision using C or Fortran implementation structure and comparative results. Use when asked to verify, test, assess, investigate, or apply Greenspun's tenth rule."
+description: "Informally assesses whether Greenspun's tenth rule is supported in a concrete project or decision using C or Fortran implementation structure and comparative results. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Greenspun's tenth rule

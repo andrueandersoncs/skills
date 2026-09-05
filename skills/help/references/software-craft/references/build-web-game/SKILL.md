@@ -24,7 +24,7 @@ The requested player outcome, existing game state and systems, supported devices
 
 1. Define authoritative data and runtime owners for each involved boundary. Keep content, visuals, collision, navigation, and encounter logic separable.
 2. When perception is involved, compute one authoritative visibility state, test occlusion and target eligibility deterministically, and derive fog rendering from that state.
-3. Build one playable vertical slice in order: movement and camera → one verb → one enemy → feedback and reward → transition/save.
+3. For a new combat-oriented loop, build one playable vertical slice in order: movement and camera → one verb → one enemy → feedback and reward → transition/save. Otherwise, exercise the smallest playable path through the requested subsystem.
 4. Use typed versioned definitions and deterministic fixtures. Make inventory transfers, saves, and editor-to-source changes atomic and validated.
 5. Design controls for keyboard, pointer, and non-overlapping reachable touch zones. Handle safe areas, orientation, audio unlock, subtitles, and reduced motion.
 6. Set budgets for frame time, draw calls, geometry, textures, AI/ray work, audio voices, and long-session memory. Adapt quality deliberately.

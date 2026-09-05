@@ -1,12 +1,10 @@
-import { existsSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { Console, Effect } from "effect"
 import { Argument, Command, Flag } from "effect/unstable/cli"
 import {
-  applyAction,
   readProject,
-  writeProject,
+  updateProject,
   type Action,
   type Project
 } from "./project"
@@ -28,9 +26,7 @@ const run = (action: Action, view: (project: Project) => unknown) =>
   Effect.gen(function*() {
     const { record } = yield* manageProject
     const path = resolve(record)
-    const existing = existsSync(path) ? yield* Effect.promise(() => readProject(path)) : undefined
-    const project = applyAction(existing, action)
-    yield* Effect.promise(() => writeProject(path, project))
+    const project = yield* Effect.promise(() => updateProject(path, action))
     yield* print({ record: path, ...view(project) as object })
   })
 
@@ -149,10 +145,12 @@ const reviewTask = Command.make(
   {
     id: Argument.string("id"),
     verdict: Flag.choice("verdict", ["Passed", "Failed"]),
-    action: Flag.string("action").pipe(Flag.withDefault(""))
+    action: Flag.string("action").pipe(Flag.withDefault("")),
+    blockedBy: Flag.string("blocked-by").pipe(Flag.withDefault("")),
+    followUp: Flag.string("follow-up").pipe(Flag.withDefault(""))
   },
-  ({ id, verdict, action }) =>
-    run({ op: "review-task", id, verdict, action }, (project) => ({
+  ({ id, verdict, action, blockedBy, followUp }) =>
+    run({ op: "review-task", id, verdict, action, blockedBy, followUp }, (project) => ({
       task: project.tasks.find((task) => task.id === id)
     }))
 ).pipe(Command.withDescription("Accept or return a task in review"))
@@ -210,11 +208,11 @@ const serve = Command.make(
   ({ port }) =>
     Effect.gen(function*() {
       const { record } = yield* manageProject
-      const server = startServer({
+      const server = yield* Effect.promise(() => startServer({
         record,
         port,
         webRoot: join(dirname(fileURLToPath(import.meta.url)), "web")
-      })
+      }))
       yield* Console.log(`http://127.0.0.1:${server.port}`)
       yield* Effect.never
     })

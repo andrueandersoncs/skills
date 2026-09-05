@@ -1,6 +1,6 @@
 ---
 name: verify-doerrs-law
-description: "Informally assesses whether Doerr's Law is supported in a concrete project or decision using team mission, autonomy, initiative, and outcome evidence. Use when asked to verify, test, assess, investigate, or apply Doerr's Law."
+description: "Informally assesses whether Doerr's Law is supported in a concrete project or decision using team mission, autonomy, initiative, and outcome evidence. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Doerr's Law

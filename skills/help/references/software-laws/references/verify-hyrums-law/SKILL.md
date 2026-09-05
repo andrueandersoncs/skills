@@ -1,6 +1,6 @@
 ---
 name: verify-hyrums-law
-description: "Informally assesses whether Hyrum's Law is supported in a concrete project or decision using API behavior and consumer-dependency evidence. Use when asked to verify, test, assess, investigate, or apply Hyrum's Law."
+description: "Informally assesses whether Hyrum's Law is supported in a concrete project or decision using API behavior and consumer-dependency evidence. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Hyrum's Law

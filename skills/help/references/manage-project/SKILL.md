@@ -27,6 +27,8 @@ Use this global `workflow-model`:
 
 ## Record
 
+At a handoff from [manage-work-queue](../software-craft/references/manage-work-queue/SKILL.md), preserve the established execution-state authority unless a transfer was requested. Explicitly map or link the CLI record and existing tracker; do not maintain independently editable copies of task status.
+
 Persist state with:
 
 ```sh
@@ -44,11 +46,13 @@ andrue-cli manage-project --record $project-record-location <command>
 
 Start the operator board with `serve` (http://127.0.0.1:4373). The board reads and writes the same record.
 
+For a failed task review with an unavailable requirement, include `--action`, `--blocked-by`, and `--follow-up`. The CLI reuses preparation to record `Ready` or `Blocked` atomically; naming corrective work alone does not establish access.
+
 ## Inputs
 
 - **project-request:** The requested project, intended outcome, constraints, and known completion conditions in any workable form.
 - **project-context:** Available source locations, repository instructions, prior decisions, tools, permissions, people, deadlines, and existing project records.
-- **project-record-location:** A durable file for project state; when omitted, use `project.json`.
+- **project-record-location:** The durable execution record designated above; use `project.json` only when no canonical execution record already exists.
 
 ## Outputs
 

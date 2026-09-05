@@ -4,6 +4,8 @@ stateDiagram-v2
     state "Is the contract usable?" as s_contract_check
     state "Input blocker [blocked]" as s_input_blocker
     state "Destination blocker [blocked]" as s_destination_blocker
+    state "Was a callstack also requested?" as s_callstack_choice
+    state "Resolve callstack companion" as s_produce_callstack
     state "Build source-grounded machine" as s_build_model
     state "Is controlling information missing?" as s_missing_info
     state "Expose symbolic events" as s_symbolize
@@ -36,7 +38,10 @@ stateDiagram-v2
     s_resolve_contract --> s_contract_check : RESOLVE_INPUTS
     s_contract_check --> s_input_blocker : REPORT_INPUT_BLOCKER
     s_contract_check --> s_destination_blocker : REPORT_DESTINATION_BLOCKER
-    s_contract_check --> s_build_model : FIX_CONTRACT
+    s_contract_check --> s_callstack_choice : FIX_CONTRACT
+    s_callstack_choice --> s_produce_callstack : SELECT_CALLSTACK_COMPANION
+    s_callstack_choice --> s_build_model : USE_STATE_MACHINE_ONLY
+    s_produce_callstack --> s_build_model : CALLSTACK_READY
     s_build_model --> s_missing_info : MAP_TARGET
     s_missing_info --> s_symbolize : KEEP_SYMBOLIC
     s_missing_info --> s_model_ready : USE_SUPPLIED_VALUES

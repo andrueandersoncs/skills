@@ -5,6 +5,9 @@
   "packageManager": "bun@1.4.0",
   "description": "CLI for manage-project, LLM wiki operations, and Effect Schema sample generation",
   "license": "MIT",
+  "engines": {
+    "node": "^20.17.0 || >=22.9.0"
+  },
   "bin": {
     "andrue-cli": "./dist/cli.js"
   },
@@ -22,13 +25,17 @@
   "scripts": {
     "build": "tsup",
     "prepublishOnly": "bun run build",
-    "test": "node dist/cli.js --help"
+    "test": "bun run build && bun test ./test"
   },
   "dependencies": {
-    "effect": "4.0.0-rc.112"
+    "effect": "4.0.0-rc.112",
+    "proper-lockfile": "^4.1.2",
+    "write-file-atomic": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/proper-lockfile": "^4.1.4",
+    "@types/write-file-atomic": "^4.0.3",
     "tsup": "latest",
     "typescript": "latest"
   }

@@ -116,9 +116,7 @@ const walkFiles = (dir: string) => {
   const files: string[] = []
   for (const entry of readdirSync(dir, { recursive: true, withFileTypes: true })) {
     if (!entry.isFile()) continue
-    const parent =
-      (entry as { parentPath?: string }).parentPath ?? (entry as { path: string }).path
-    files.push(join(parent, entry.name))
+    files.push(join(entry.parentPath, entry.name))
   }
   return files
 }
@@ -151,7 +149,7 @@ export const loadWiki = (root: string): Wiki => {
   for (const file of pageFiles) {
     const page = rel(root, file)
     for (const match of readFileSync(file, "utf8").matchAll(LINK)) {
-      const href = match[2]
+      const href = match[2]!
       const target = hrefTarget(file, href)
       if (!target) continue
       if (isRaw(root, target)) {

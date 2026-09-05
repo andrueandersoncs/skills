@@ -1,6 +1,6 @@
 ---
 name: software-laws
-description: Follow and reference established software laws when making software-related decisions.
+description: Explain, apply, or assess established software laws in context. Use a law-specific verifier when a user asks whether one named law is supported in a concrete case.
 metadata:
   internal: true
 ---
@@ -8,6 +8,16 @@ metadata:
 # Software Laws
 
 Use software laws as prompts for judgment, not as automatic verdicts. Read the [complete reference](references/reference.md) when exact wording, context, attribution, or sources matter.
+
+## Informal case verification
+
+Use the shared [gather → match → handoff procedure](../skill-routers/references/canonical-design.md) for this situation. Carry the named law, case, period, comparison, and available evidence into the handoff.
+
+| Situation pattern | Skill |
+| --- | --- |
+| The user asks whether one named software law is supported in a concrete project or decision. | [That law's case-verification skill](references/reference.md#case-verification-methods) |
+
+This applies only to an assessment of one named law. For an explanation, recommendation, or comparison of multiple laws, this skill remains the owner and applies the method below without dropping any requested law.
 
 ## Method
 

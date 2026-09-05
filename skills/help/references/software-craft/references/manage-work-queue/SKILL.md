@@ -9,6 +9,8 @@ description: Turn a large, foggy, or issue-driven program into verified states, 
 
 The canonical tracker, issue or program scope, repository evidence, ownership rules, and known decisions and dependencies.
 
+This skill owns tracker triage and the ready frontier. [manage-project](../../../manage-project/SKILL.md) owns a requested durable execution lifecycle. At handoff, preserve the canonical execution record and explicitly map or reference it instead of silently creating a second queue.
+
 ## Method
 
 1. Identify the canonical tracker, state model, labels, and ownership rules. Preserve one source of truth.

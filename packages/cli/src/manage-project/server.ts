@@ -1,7 +1,8 @@
 import { createReadStream, existsSync, watch } from "node:fs"
 import { createServer } from "node:http"
+import type { AddressInfo } from "node:net"
 import { basename, dirname, extname, join, resolve } from "node:path"
-import { applyAction, type Action, readProject, writeProject } from "./project"
+import { type Action, readProject, updateProject } from "./project"
 
 const mime: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
@@ -17,7 +18,7 @@ const readBody = (req: NodeJS.ReadableStream) =>
     req.on("end", () => ok(Buffer.concat(chunks).toString("utf8")))
   })
 
-export const startServer = (options: {
+export const startServer = async (options: {
   record: string
   port: number
   webRoot: string
@@ -57,8 +58,7 @@ export const startServer = (options: {
 
       if (url.pathname === "/api/action" && req.method === "POST") {
         const action = JSON.parse(await readBody(req)) as Action
-        const next = applyAction(await load(), action)
-        await writeProject(recordPath, next)
+        const next = await updateProject(recordPath, action)
         res.writeHead(200, { "content-type": "application/json; charset=utf-8" })
         res.end(JSON.stringify(next))
         return
@@ -92,9 +92,16 @@ export const startServer = (options: {
         "content-type": mime[extname(filePath)] ?? "application/octet-stream"
       })
       createReadStream(filePath).pipe(res)
-    })()
+    })().catch((error: unknown) => {
+      if (res.headersSent) {
+        res.destroy()
+        return
+      }
+      res.writeHead(500, { "content-type": "application/json; charset=utf-8" })
+      res.end(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }))
+    })
   })
 
-  server.listen(options.port, "127.0.0.1")
-  return { port: options.port }
+  await new Promise<void>((ready) => server.listen(options.port, "127.0.0.1", ready))
+  return { port: (server.address() as AddressInfo).port }
 }

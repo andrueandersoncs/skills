@@ -7,7 +7,7 @@ description: Resolve unclear software intent into an agreed outcome, success tes
 
 ## Inputs
 
-The software request, available repository and product evidence, constraints, decision authority, and known success conditions.
+The software request, existing product records and repository evidence by reference, constraints, decision authority, and known success conditions.
 
 ## Method
 
@@ -19,7 +19,7 @@ The software request, available repository and product evidence, constraints, de
    - **Bounded change:** the outcome and affected surface fit one implementation cycle.
    - **System change:** independent capabilities, public contracts, or costly commitments require a written design.
 5. Explore materially different approaches only where the choice can change the outcome. Compare user value, feasibility, reversibility, and evidence.
-6. Record:
+6. Reuse accepted product claims by reference and record only unresolved software decisions and changed acceptance conditions. When no such record exists, capture:
    - user and outcome;
    - reason now;
    - observable success test;
@@ -27,6 +27,8 @@ The software request, available repository and product evidence, constraints, de
    - explicit non-goals;
    - unresolved decisions and cheapest evidence for each.
 7. Obtain explicit agreement for subjective, architectural, or irreversible choices. Proceed directly on clear mechanical work.
+
+Use [product-management](../../../product-management/SKILL.md) when the requested deliverable is durable product truth; clarification of a software outcome does not require a new product record.
 
 ## Output
 

@@ -255,3 +255,40 @@ Commonly considered a rejoinder to Moore's Law, this law comments on the tendenc
 — [James Zawinski, 1995](https://www.jwz.org/hacks/)
 
 This law is both comical and grim at once. Many programs are totally unrelated to email: consider text editors, compilers, games, etc. Zawinski's Law, also known as the the Law of Software Bloat, suggests that feature creep will inevitably cause all of these programs to read email even though it's entirely unrelated to their core mission. Though there are certainly counter-examples to this specific manifestation of the law, feature creep is an ongoing problem in software development.
+
+## Case-verification methods
+
+Look up the named law to find its case-verification skill.
+
+| Named law | Case evidence to inspect | Verification skill |
+| --- | --- | --- |
+| Atwood's Law | Implementation languages and delivery surfaces across releases | [`verify-atwoods-law`](verify-atwoods-law/SKILL.md) |
+| The Bitter Lesson | Matched general and domain-specific methods, data, compute, and evaluation results | [`verify-bitter-lesson`](verify-bitter-lesson/SKILL.md) |
+| Brooks's Law | Staffing, onboarding, throughput, and schedule history | [`verify-brooks-law`](verify-brooks-law/SKILL.md) |
+| Conway's Law | Team communication and ownership alongside architectural boundaries | [`verify-conways-law`](verify-conways-law/SKILL.md) |
+| Cunningham's Law | Comparable question and correction discussions | [`verify-cunninghams-law`](verify-cunninghams-law/SKILL.md) |
+| Doerr's Law | Team mission, autonomy, initiative, and outcome evidence | [`verify-doerrs-law`](verify-doerrs-law/SKILL.md) |
+| Fitt's Law | Target size, distance, acquisition time, and error rate | [`verify-fitts-law`](verify-fitts-law/SKILL.md) |
+| Gall's Law | System evolution and delivery history | [`verify-galls-law`](verify-galls-law/SKILL.md) |
+| Generative AI Scaling Laws | Model checkpoint scale, training data and compute, and held-out evaluations | [`verify-generative-ai-scaling-laws`](verify-generative-ai-scaling-laws/SKILL.md) |
+| Goodhart's Law | Targeted metrics, real outcomes, and gaming evidence | [`verify-goodharts-law`](verify-goodharts-law/SKILL.md) |
+| Greenspun's tenth rule | C or Fortran implementation structure and comparative results | [`verify-greenspuns-tenth-rule`](verify-greenspuns-tenth-rule/SKILL.md) |
+| Hofstadter's Law | Original estimates, buffers, scope, and completion history | [`verify-hofstadters-law`](verify-hofstadters-law/SKILL.md) |
+| Hyrum's Law | Observable API behavior and consumer dependencies | [`verify-hyrums-law`](verify-hyrums-law/SKILL.md) |
+| Jevons Paradox | Unit costs and total consumption before and after a change | [`verify-jevons-paradox`](verify-jevons-paradox/SKILL.md) |
+| Kerckhoffs's principle | Protected secrets and public-design security assessment | [`verify-kerckhoffs-principle`](verify-kerckhoffs-principle/SKILL.md) |
+| Kernighan's Law | Comparable implementation and debugging evidence | [`verify-kernighans-law`](verify-kernighans-law/SKILL.md) |
+| Knuth's optimization principle | Optimization motivation, representative benchmarks, and maintenance cost | [`verify-knuths-optimization-principle`](verify-knuths-optimization-principle/SKILL.md) |
+| Lady Lovelace's Objection | System-output provenance and mechanisms | [`verify-lady-lovelaces-objection`](verify-lady-lovelaces-objection/SKILL.md) |
+| Law of Leaky Abstractions | Abstraction use, incidents, and bypasses | [`verify-law-of-leaky-abstractions`](verify-law-of-leaky-abstractions/SKILL.md) |
+| Lindy's Law | Technology age at adoption and useful lifetime history | [`verify-lindys-law`](verify-lindys-law/SKILL.md) |
+| Linus's Law | Reviewer participation and bug-resolution history | [`verify-linuss-law`](verify-linuss-law/SKILL.md) |
+| Little's Law | Queue telemetry and $L = \lambda W$ calculations | [`verify-littles-law`](verify-littles-law/SKILL.md) |
+| Moore's Law | Semiconductor component-count and cost trends | [`verify-moores-law`](verify-moores-law/SKILL.md) |
+| Norvig's Law | Fixed-denominator adoption calculations | [`verify-norvigs-law`](verify-norvigs-law/SKILL.md) |
+| Parkinson's Law | Task timing and deadline comparisons | [`verify-parkinsons-law`](verify-parkinsons-law/SKILL.md) |
+| Peter Principle | Role-specific performance and promotion history | [`verify-peter-principle`](verify-peter-principle/SKILL.md) |
+| Postel's Law | Protocol conformance, interoperability, and safety evidence | [`verify-postels-law`](verify-postels-law/SKILL.md) |
+| Shirky principle | Institutional incentives and durable-fix history | [`verify-shirky-principle`](verify-shirky-principle/SKILL.md) |
+| Wirth's Law | Normalized software and hardware performance trends | [`verify-wirths-law`](verify-wirths-law/SKILL.md) |
+| Zawinski's Law | Product purpose and feature-growth history | [`verify-zawinskis-law`](verify-zawinskis-law/SKILL.md) |

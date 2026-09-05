@@ -1,6 +1,6 @@
 ---
 name: verify-parkinsons-law
-description: "Informally assesses whether Parkinson's Law is supported in a concrete project or decision using task timing and deadline comparisons. Use when asked to verify, test, assess, investigate, or apply Parkinson's Law."
+description: "Informally assesses whether Parkinson's Law is supported in a concrete project or decision using task timing and deadline comparisons. Use for a concrete-case support assessment."
 ---
 
 # Informally Verify Parkinson's Law

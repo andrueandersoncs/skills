@@ -151,7 +151,9 @@ const actionForm = (task) => {
       </form>
       <form>
         ${field("action", "Corrective action")}
-        <button type="submit">Return to Ready</button>
+        ${field("blockedBy", "Blocked by")}
+        ${field("followUp", "Follow-up")}
+        <button type="submit">Return for correction</button>
       </form>`
   }
   return ""
@@ -206,7 +208,7 @@ const bindForms = (task) => {
     forms[1].addEventListener("submit", (event) => {
       event.preventDefault()
       const data = Object.fromEntries(new FormData(event.currentTarget))
-      post({ op: "review-task", id: task.id, verdict: "Failed", action: data.action })
+      post({ op: "review-task", id: task.id, verdict: "Failed", action: data.action, blockedBy: data.blockedBy, followUp: data.followUp })
     })
   }
 }

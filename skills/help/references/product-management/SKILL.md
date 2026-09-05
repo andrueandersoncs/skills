@@ -25,6 +25,8 @@ Keep these layers distinct and linked:
 
 A capability is a durable customer or business ability. A feature is a product mechanism that provides that ability. A story or task is a planned slice of change. Never use one object for all three.
 
+Product claims and their evidence remain here. Use [define-work](../software-craft/references/define-work/SKILL.md) only to resolve an unaccepted software outcome, or [design-contract](../software-craft/references/design-contract/SKILL.md) for a requested implementation-facing seam. Link the resulting contract back; planned behavior is not implemented truth.
+
 ## Method
 
 1. Establish the actor or segment, their problem or job, the supporting raw evidence, and the desired outcome with a measurable metric.

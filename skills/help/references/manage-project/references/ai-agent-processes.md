@@ -42,7 +42,7 @@ This document defines task-management processes for work performed by AI agents.
 | **Ready** | The task passes every Ready-gate rule and its next action can run now. | The owner agent starts it, or a new blocker appears. |
 | **In progress** | The owner agent has started execution, work remains, and no blocker prevents progress. | Submit a candidate result, record a blocker, or return actionable paused work to **Ready**. |
 | **Blocked** | A named unavailable condition prevents progress. **Dependencies** names it and **Review or follow-up** states when it will be checked. | Clear the blocker, run the complete Ready gate again, and move to **Ready**. |
-| **In review** | Execution produced a candidate result and evidence. A reviewer is checking the definition of done and outcome. | Accept it as **Done** or return it to **Ready** with a concrete corrective action. |
+| **In review** | Execution produced a candidate result and evidence. A reviewer is checking the definition of done and outcome. | Accept it as **Done**, or record corrective work and use [Process 2](#process-2-prepare-the-agent-and-environment) to determine **Ready** or **Blocked**. |
 | **Done** | Every definition-of-done condition passes and the outcome is satisfied. | None. **Done** is terminal. |
 
 ```mermaid
@@ -56,7 +56,8 @@ stateDiagram-v2
     In_progress --> Ready: execution pauses but remains actionable
     Blocked --> Ready: blocker clears and Ready gate passes
     In_progress --> In_review: candidate and evidence submitted
-    In_review --> Ready: review identifies corrective work
+    In_review --> Ready: corrective work passes Process 2
+    In_review --> Blocked: corrective work has an unavailable requirement
     In_review --> Done: criteria and outcome verified
     Done --> [*]
 ```
@@ -99,7 +100,7 @@ Interpretation is complete when an agent with no access to the original conversa
 
 **Purpose:** Make the interpreted task immediately executable by one accountable agent.
 
-**Starts when:** Process 1 is complete or a blocker has cleared.
+**Starts when:** Process 1 is complete, a blocker has cleared, or review identifies corrective work.
 
 **Responsible role:** The owner agent. The orchestrator assigns the initial owner; the owner accepts the task.
 
@@ -142,7 +143,7 @@ Preparation is complete when the task is in exactly one of these states:
 
 1. Record **Due** only when a real requirement, commitment, or external event establishes a deadline.
 2. Set **Priority** according to value and consequence relative to competing tasks. Record the reason.
-3. Estimate **Effort** in the unit used for capacity planning, such as agent turns, tool calls, elapsed job time, compute, or task size.
+3. Estimate **Effort** in the unit used for capacity planning, such as agent turns, tool calls, elapsed job time, compute, or task size. For consequential uncertainty, use [predictive-planning](../../predictive-planning/SKILL.md) and link its forecast and response rules to the execution record; forecasts do not replace **Due**, **Scheduled**, or **Status**.
 4. Compare due date, priority, effort, required capabilities, and available capacity with existing work.
 5. Reserve enough **Scheduled** capacity to complete the task before **Due**, when a deadline exists.
 6. Identify independent, context-heavy subtasks when parallel work will improve the outcome. Record the delegation plan while keeping one owner accountable for combining the results.
@@ -210,14 +211,14 @@ Execution is controlled when **Status** matches reality, all useful work is pers
 5. Run the smallest meaningful independent check when a claim remains uncertain.
 6. Record the decision:
    - If every criterion passes and the outcome is satisfied, set **Status** to **Done** and record the evidence and approval in **Context**.
-   - If any criterion fails or the outcome is not satisfied, record the missing result, write one concrete corrective action, and set **Status** to **Ready**.
+   - If any criterion fails or the outcome is not satisfied, record the missing result and one concrete corrective action, then run [Process 2](#process-2-prepare-the-agent-and-environment) before assigning **Ready** or **Blocked**.
 7. Apply approved scope changes through Process 1. Update **Outcome** and **Definition of done** before reviewing against the changed commitment.
 
 ### Completion test
 
 Closure is complete only when inspectable evidence supports every completion criterion and the intended outcome.
 
-**Output:** An accepted task in **Done**, or a rejected result in **Ready** with explicit corrective work.
+**Output:** An accepted task in **Done**, or a rejected result with explicit corrective work assessed by Process 2 as **Ready** or **Blocked**, including the blocker and resume trigger when unavailable.
 
 ## Process 6: Monitor and orchestrate the work
 

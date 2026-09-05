@@ -154,13 +154,7 @@ export default plugin;
 
 ## Common publishing workflow
 
-1. Compile source to distributable JS and `.d.ts` files.
-2. Test the actual package artifact with `npm pack`, ideally installing that `.tgz` into a fixture project.
-3. Ensure the CLI target is executable and has a shebang, if applicable.
-4. Use `files` or `.npmignore` to keep source, test fixtures, local configs, and secrets out of the tarball.
-5. Publish with `npm publish`, typically from CI with trusted publishing or a scoped registry token.
-6. Release versions with Changesets, semantic-release, or a conventional-commit pipeline.
-
+Use [the release recipe](npm-publish-tool.md#release-recipe) for the publishing procedure, including the exact-tarball consumer exercise, requested-publication boundary, registry evidence, and recovery action.
 For TypeScript specifically, package authors generally bundle declaration files alongside the runtime package and point `types` at the main `.d.ts`; the alternative is publishing separately through DefinitelyTyped under `@types/*`, which is mainly for packages that do not ship their own types. [typescriptlang](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html)
 
 ## Practical defaults

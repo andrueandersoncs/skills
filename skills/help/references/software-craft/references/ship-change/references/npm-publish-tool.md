@@ -6,7 +6,7 @@ Apply this recipe within the selected `ship-change` release mode for an npm-dist
 
 A publishable package should:
 
-- ship compiled JavaScript and declarations rather than repository-only source;
+- ship compiled JavaScript and declarations rather than repository-only source, unless it deliberately requires an explicit runtime loader;
 - declare its public API through `exports`, including `types`;
 - limit package contents with `files` or an equivalent allowlist;
 - expose `bin` only for a CLI, with a Node-compatible shebang and executable target;
@@ -23,7 +23,7 @@ For a workspace repository, publish only intended package workspaces. Preserve t
 4. Create the package tarball with the repository's npm-compatible pack command.
 5. Inspect the tarball contents. Confirm required runtime files, declarations, metadata, README, and license are present and repository-only files and secrets are absent.
 6. Create a temporary consumer project, install that exact tarball, and exercise the documented normal import. For a CLI, also run the installed binary and confirm its shebang and executable behavior.
-7. Publish the exact tarball that passed the consumer exercise with the repository's trusted registry command or CI release workflow.
+7. Before publication, establish the registry- and authority-appropriate recovery action. Publish the exact tarball that passed the consumer exercise with the repository's trusted registry command or CI release workflow.
 8. Read the published package back from the registry when the release process supports it and compare its identity and version with the verified artifact.
 
 Stop after artifact verification when publication was not requested. Remove temporary consumer projects and generated tarballs unless they are requested outputs or required release artifacts.

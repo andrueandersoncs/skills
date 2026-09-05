@@ -1,149 +1,46 @@
-A perfect skill router is an **ordered state-transition table plus one re-entry rule**.
+# Contextual Skill Routing
+
+An agent skill router matches a contextual situation to the skill best suited to handle it.
 
 ```text
-route(current state, desired state) → one leaf skill
-leaf completes → update current state → route again
+request + gathered context → matching situation pattern → skill(request, relevant context)
 ```
 
-## Core rules
+## Gather → match → handoff
 
-1. **Route on observable states, not keywords.**
-   - Current: what is already known, accepted, implemented, broken, reviewed, or verified.
-   - Desired: the observable result the user wants.
+1. **Gather context.** Understand what the user wants, then inspect the supplied material and available evidence that could change the skill choice: relevant artifacts, what has already happened, the environment, and constraints. Stop when you have enough context to distinguish the plausible matches.
+2. **Match the situation.** Compare the request and gathered context with the route patterns by meaning. Choose the closest match supported by the user's goal and the evidence. A more specific pattern wins when its distinguishing facts are present; a shared keyword is not enough. If a missing fact would change the choice, look it up before asking the user.
+3. **Hand off before acting.** Load one matching skill's linked `SKILL.md` before carrying out its workflow; a route description is not a substitute for the skill. Pass the original request, relevant findings and their sources, constraints, and any unresolved details it needs. The selected skill owns execution and completion.
 
-2. **Select exactly one leaf.**
-   - The router owns selection.
-   - The leaf owns execution and proof.
-   - Multiple matches indicate overlapping skill boundaries.
+When the selected skill is another router, it continues with the same request and gathered context, collecting only additional facts that distinguish its own patterns.
 
-3. **Use first-match ordering as the only precedence system.**
+The selected owner may invoke another skill for an explicitly bounded supporting subtask. Pass the original request as context, but the assigned subtask defines the helper's scope; do not route the original request again. Return the helper's result to the owner, which remains accountable for the complete requested outcome.
 
-4. **Preserve the desired state across transitions.**
-   - If implementation requires a contract first, route to contract design.
-   - Afterward, reroute toward the original desired result.
+If no pattern fits, say that the request is outside this router's scope. The router's job ends at the handoff; any multi-step workflow belongs to the selected skill.
 
-5. **Allow two terminal results.**
-   - `done`: current state already satisfies desired state.
-   - `not this router`: desired state is outside the router’s domain.
+## Writing situation patterns
 
-6. **Keep completion rules in leaves.**
-   - The router should not duplicate each leaf’s `## Done` contract.
-   - Leaves should not contain `## Next`; routing remains centralized.
+A pattern describes a recognizable situation and names the skill that handles it. Include only facts that distinguish that skill from the others. Current state and desired result can be useful cues, alongside domain, artifact, audience, and constraints.
 
-7. **Avoid overlays and simultaneous owners.**
-   - Pass domain concerns as context to the selected leaf.
-   - If coordination is necessary, route to one coordinator leaf.
+Use a simple situation-to-skill table. Describe overlapping patterns more precisely so the agent can distinguish them from context. Keep shared routing instructions in one place, reuse existing skills, and leave each skill's procedure and completion rules in that skill.
 
-## Ideal structure
+## Example
 
-```text
-software-craft/
-├── SKILL.md
-└── references/
-    ├── define-work/SKILL.md
-    ├── design-contract/SKILL.md
-    ├── implement-change/SKILL.md
-    ├── diagnose-problem/SKILL.md
-    ├── review-change/SKILL.md
-    └── verify-change/SKILL.md
-```
-
-## Ideal router
-
-```markdown
----
-name: software-craft
-description: Route software work to the single workflow that owns the next necessary state change. Use when creating, changing, diagnosing, reviewing, verifying, or shipping software.
----
-
-# Software Craft
-
-Choose the first matching route.
-
-`Current state` means facts supported by available evidence.
-`Desired state` means the observable result requested by the user.
-
-## Terminal routes
-
-| Desired state | Current state | Result |
-| --- | --- | --- |
-| Outside software work | Any | Not this router |
-| Any in-scope result | Current evidence already satisfies it | Done |
-
-## Routes
-
-| Desired state | Current state | Skill |
-| --- | --- | --- |
-| Completed reusable agent skill | Any | [`author-agent-skill`](references/author-agent-skill/SKILL.md) |
-| Durable repository map | Map is absent or stale | [`map-codebase`](references/map-codebase/SKILL.md) |
-| Evidence-backed external answer | Required current facts are missing | [`research-evidence`](references/research-evidence/SKILL.md) |
-| Accepted testable outcome | Consequential intent or success criteria are unclear | [`define-work`](references/define-work/SKILL.md) |
-| Empirical decision | A cheap runnable experiment can resolve it | [`prototype-options`](references/prototype-options/SKILL.md) |
-| Stable contract or downstream result | Required public behavior or invariants are undefined | [`design-contract`](references/design-contract/SKILL.md) |
-| Executable implementation plan | Outcome is accepted but dependency order is absent | [`plan-change`](references/plan-change/SKILL.md) |
-| Working, reviewed, verified, or shipped behavior | An unexplained failure currently blocks it | [`diagnose-problem`](references/diagnose-problem/SKILL.md) |
-| Performance budget met | The miss and owning cost are measured | [`optimize-system`](references/optimize-system/SKILL.md) |
-| Working, reviewed, verified, or shipped behavior | Required behavior is not implemented | [`implement-change`](references/implement-change/SKILL.md) |
-| Independent judgment | A reviewable artifact exists | [`review-change`](references/review-change/SKILL.md) |
-| Freshly proven claim | The claim exists but sufficient proof does not | [`verify-change`](references/verify-change/SKILL.md) |
-| Integrated or deployed result | Verified work exists but delivery is incomplete | [`ship-change`](references/ship-change/SKILL.md) |
-
-Load exactly one selected reference and treat it as the active skill.
-
-After it completes:
-
-1. Update the current state using its completion evidence.
-2. Stop if the desired state is satisfied.
-3. Otherwise route again with the same desired state.
-4. If the same skill is selected without any state change, report an incomplete leaf result or defective route.
-```
-
-## Ideal leaf contract
-
-```markdown
----
-name: implement-change
-description: Implement an accepted software behavior using repository-native conventions.
----
-
-# Implement Change
-
-## Inputs
-
-The accepted behavior, relevant repository evidence, and applicable constraints.
-
-## Method
-
-1. ...
-2. ...
-3. ...
-
-## Output
-
-Working behavior and the evidence produced while implementing it.
-
-## Done
-
-The behavior works through its real entry point and obsolete paths are removed.
-```
-
-Every leaf needs:
-
-- Minimum input state
-- One cohesive procedure
-- Observable output
-- Exact completion evidence
-- No knowledge of sibling routing
-- No duplicated global rules
-
-## Pressure tests
-
-| Request | Route |
+| Situation pattern | Skill |
 | --- | --- |
-| “Fix the checkout crash.” | `diagnose-problem` |
-| “Review the PR that fixes the checkout crash.” | `review-change` |
-| “Search is 900 ms against a 200 ms budget; profiling found N+1 queries.” | `optimize-system` |
-| “Turn these recurring prompts into a reusable router.” | `author-agent-skill` |
-| “Explain idempotency.” | Not this router |
+| A failure or performance problem needs investigation because its cause is unknown. | `diagnose-problem` |
+| A measured performance bottleneck needs improvement against a known target. | `optimize-system` |
+| An existing change needs an independent assessment. | `review-change` |
+| A defined behavior needs implementing or changing. | `implement-change` |
 
-The current `skills/help/references/software-craft/SKILL.md` is close: its single-owner and rerouting rules are strong. The main simplification would be adding **desired state** directly to the table, making row order authoritative, and removing the separate precedence/overlay systems. This follows the `software-laws` guidance: use the smallest complete system and keep abstractions understandable.
+For “Fix slow checkout,” the agent reads the available profile and requirements. They show a 900 ms response against a 200 ms budget, with N+1 queries responsible for the delay.
+
+The situation matches `optimize-system`. The handoff includes the original request, the profile and its source, the latency budget, and any behavior that must be preserved. Without a known cause, the same request would match `diagnose-problem`.
+
+“Review the change that fixes slow checkout” matches `review-change`: the requested work is an assessment of an existing change. “Explain idempotency” fits none of these patterns.
+
+## Checking a router
+
+Try representative requests in fresh context. Check which evidence the agent gathers, which skill it chooses, and whether the handoff preserves what that skill needs.
+
+Vary the context while keeping the request unchanged, then vary the intent while keeping similar wording. Include nearby work outside the router's scope. These cases should expose missing context, overlapping patterns, keyword matching, and lost handoff information.

@@ -9,7 +9,7 @@
 
 ## List tasks
 
-- Generate non-empty task fixtures from the exact `Task` Schema.
+- Generate task-array fixtures, including empty arrays, from the exact `Tasks = Schema.Array(Task)` Schema.
 - Create a fresh task-service Layer for every fixture.
 - Run `listTasks`.
 - Assert every task remains in stored order.

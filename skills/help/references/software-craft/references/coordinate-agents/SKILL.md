@@ -1,6 +1,6 @@
 ---
 name: coordinate-agents
-description: Partition and integrate independent software work across fresh-context agents with explicit ownership and handoff contracts. Use when two or more work units can run concurrently, a review needs independent context, or a long task needs isolated workers.
+description: Partition and integrate one requested software result across at least two genuinely independent work units with explicit ownership and handoff contracts. Use when the requested result is an integrated software outcome that can be partitioned this way.
 ---
 
 # Coordinate Agents
@@ -12,6 +12,8 @@ The ready work graph, shared contracts, independent ownership boundaries, integr
 ## Independence gate
 
 Parallelize only when tasks share neither evolving state, file ownership, nor a sequential dependency. Otherwise keep one implementation owner and use fresh agents only for research or review.
+
+Use [review-change](../review-change/SKILL.md) for a standalone independent assessment. Use [manage-project](../../../manage-project/SKILL.md) when a CLI/board or durable asynchronous project lifecycle is explicitly requested.
 
 ## Method
 
@@ -27,7 +29,7 @@ Parallelize only when tasks share neither evolving state, file ownership, nor a 
 4. Use isolated worktrees for concurrent mutation. Avoid duplicate context and repository-wide validation inside workers.
 5. Dispatch every independent task in one wave. Keep dependent frontiers sequential.
 6. Review each result against its contract. Resolve interface conflicts centrally rather than asking workers to negotiate after divergence.
-7. Integrate once, then run cross-slice runtime verification and the relevant full checks.
+7. Integrate once, then use [verify-change](../verify-change/SKILL.md) for cross-slice runtime verification and the relevant full checks.
 8. Persist only pointers, decisions, and evidence needed for recovery. Redact secrets from handoffs and scratch artifacts.
 
 ## Output
