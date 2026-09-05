@@ -15,13 +15,11 @@ Separate evidence, distilled knowledge, and deterministic state. Saving a conver
    - Semantic records for stable facts and concepts.
    - Procedural records for reusable strategies.
    - Typed state for permissions, counters, constraints, and aggregation.
-3. Preserve an append-only evidence layer. Derive mutable memory offline from that evidence.
+3. Read llm-wiki's [evidence contracts](../../../llm-wiki/SKILL.md#preserve-the-contracts), [reconciliation](../../../llm-wiki/SKILL.md#lint-the-wiki), and [compaction](../../../llm-wiki/SKILL.md#compact-the-wiki) for memory maintenance. Apply their source-preservation, provenance, and consistency rules to the chosen backing store; Git, Markdown layout, and commit operations apply only to a Git-backed wiki.
 4. For user memory, follow the lifecycle: retrieve relevant memory, selectively extract and abstract candidates from the new interaction, verify them against evidence and policy, then update.
 5. For each candidate memory, record scope, source, time, confidence, permissions, and expiry or invalidation conditions.
 6. Retrieve with the simplest measured pipeline. Begin with structured filters plus dense or sparse search; add hybrid fusion and reranking only when evaluation proves a recall gap.
-7. Keep a small structured overview resident in context and retrieve raw detail with provenance on demand.
-8. Update shared knowledge like code: propose a minimal change, review it against raw evidence, test retrieval and downstream answers, version it, then publish.
-9. Periodically merge duplicates, resolve conflicts, expire stale claims, rebuild indexes, and test from the raw evidence again.
+7. Keep a small structured overview resident in context and retrieve raw detail with provenance on demand. Test retrieval and downstream answers after maintenance.
 
 ## Retrieval checks
 
@@ -37,7 +35,7 @@ Use recall at k, MRR, or nDCG only as diagnostic measures. Goodhart's Law applie
 ## Boundaries
 
 - Keep tenant and permission filters outside semantic similarity.
-- Sanitize logs and exclude secrets before indexing.
+- Use [secure-system](../../../software-craft/references/secure-system/SKILL.md#method) for secret handling and enforcement at the memory access boundary.
 - Use external knowledge for facts that require updates, citations, access control, or deletion.
 - Treat every observable memory format as a future interface under Hyrum's Law; version deliberately.
 

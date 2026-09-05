@@ -22,16 +22,14 @@ Design the interface around the agent's goal, not the underlying API. A tool sho
 6. Use a small stable catalog plus hierarchical discovery. Load schemas once and expose specialized tools on demand.
    - Use MCP to standardize callable tools and resources across clients.
    - Use a skill to teach when and how to combine tools through a procedure.
-7. Wrap execution in validate, authorize, execute, observe, and independently verify.
+7. Apply [secure-system's method](../../../software-craft/references/secure-system/SKILL.md#method) to the tool's authorization and dependency boundaries. Sandbox dynamic code and third-party tools.
 8. Make mutations idempotent when possible. Query state before retrying side effects.
-9. Sandbox dynamic code and third-party tools; pin versions, review their instructions, and apply least privilege.
 
 ## Tool feedback
 
 - Return enough raw evidence for the model to correct itself.
 - Store large outputs outside context and return a reference plus summary.
-- Re-observe the environment after actions.
-- Verify through another modality when practical: state after a click, rendered output after code, query after a write.
+- Use [verify-change](../../../software-craft/references/verify-change/SKILL.md#method) to choose an authoritative observation of the tool's effect.
 
 Tool abstractions leak. State latency, consistency, authorization, and failure semantics instead of hiding them behind a uniform name.
 
