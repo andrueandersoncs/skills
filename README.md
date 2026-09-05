@@ -33,6 +33,7 @@ bun add -d @andrue/cli
 `help` contains:
 
 - `skill-routers` — agent-skill router design, implementation, and review
+- `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, training, evolution, and multi-agent architecture
 - `software-craft` — executable software work
 - `workflows` — nonexecuting callstack and state-machine projections
 - `technical-documentation` — tutorials, how-to guides, reference, and explanation
@@ -47,6 +48,8 @@ bun add -d @andrue/cli
 - `distill-skill-to-model` — skill-specific LoRA training and sealed evaluation
 
 `skills/help` is the repository's single installable skill. Its routed components operate on the active repository rather than this collection.
+
+`skills/` is canonical. `.agents/skills/` contains installed runtime copies and independently sourced skills; `.claude/skills/help` links to the installed `help` copy.
 
 ## Verification
 

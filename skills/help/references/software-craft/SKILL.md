@@ -1,6 +1,6 @@
 ---
 name: software-craft
-description: Match executable software, libraries, services, infrastructure, and single-workflow agent-skill requests to one evidence-driven workflow. Use when changing, diagnosing, reviewing, verifying, shipping, or making a current evidence-dependent decision about those artifacts.
+description: Match software design, implementation, diagnosis, review, verification, release, or single-workflow skill authoring to one specialist.
 metadata:
   internal: true
 ---

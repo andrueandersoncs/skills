@@ -1,6 +1,6 @@
 ---
 name: elicit-llm-creativity
-description: Produce distinctive creative work by widening ideation, injecting external randomness, grounding choices in taste, and using independent critique. Use for concepts, prompts, designs, names, narratives, or other work where novelty and a strong point of view matter.
+description: Produce distinctive concepts, prompts, designs, names, or narratives through broad ideation, taste, and independent critique.
 metadata:
   internal: true
 ---
