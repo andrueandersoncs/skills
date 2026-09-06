@@ -12,6 +12,7 @@ The accepted outcome or contract, relevant repository map, constraints and exclu
 ## Method
 
 1. Confirm the accepted outcome, contract, exclusions, and evidence source. Map only the code needed to plan accurately.
+   When task context or affected consumers are unclear, use the optional [Ripwire reference](../ripwire.md).
 2. Separate decisions from implementation. Put unresolved decisions into research or prototype work rather than disguising them as coding tasks.
 3. Build the dependency graph. Identify the ready frontier and the critical path.
 4. Prefer thin vertical slices that produce observable behavior. Order contract-first or risk-first when that creates earlier evidence.

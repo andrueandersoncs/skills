@@ -12,6 +12,7 @@ The accepted software behavior or plan, relevant repository evidence, scope cons
 ## Method
 
 1. Read the accepted outcome or plan, relevant source, callers, tests, commands, and repository rules. Resolve material contradictions before editing.
+   When locating that source or its consumers requires structural investigation, use the optional [Ripwire reference](../ripwire.md).
 2. Use an isolated workspace when the harness or repository provides one and the change warrants isolation.
 3. Choose the smallest complete slice. Prefer a public-seam tracer bullet over horizontal layers.
 4. For behavior that can plausibly regress:

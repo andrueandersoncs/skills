@@ -13,6 +13,7 @@ The exact software claim, candidate artifact or runtime surface, authoritative e
 
 1. State the exact claim and the observation that would prove it.
 2. Select the narrowest authoritative evidence source, then include surrounding checks needed to catch integration breakage.
+   When the current working-tree change needs test candidates, use the optional [Ripwire reference](../ripwire.md), then run the required checks and claim-specific scenario.
 3. Obtain fresh evidence for the exact claim:
    - for an artifact claim, inspect the revision-scoped artifact when that inspection is authoritative;
    - for a behavioral claim, run the command or scenario fresh and read the complete relevant output, exit status, failure count, and produced artifact.

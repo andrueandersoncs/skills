@@ -12,6 +12,7 @@ The reviewable software artifact, originating outcome or specification, reposito
 ## Method
 
 1. Pin the review boundary and read the originating outcome, spec, repository rules, and tests.
+   When surrounding callers or change impact are unclear, use the optional [Ripwire reference](../ripwire.md) with that pinned boundary.
 2. Use fresh context for material review. Keep two verdicts distinct:
    - **Specification:** missing behavior, wrong behavior, scope creep, compatibility, and migration completeness.
    - **Quality:** correctness, clarity, simplicity, architecture, security, performance, operability, and test strength.

@@ -15,6 +15,7 @@ The reported failure, affected software boundary, expected behavior, available r
 2. Build one fast, deterministic command or runtime scenario that can visibly fail for the reported problem. Do not propose a fix before this loop can go red.
 3. Reproduce, then minimize the inputs, state, timing, environment, and affected layer.
 4. Trace the bad value or control decision backward across component boundaries. Compare with a complete nearby working path.
+   When locating code from a symptom or stack trace, use the optional [Ripwire reference](../ripwire.md) to identify candidates for the reproduction loop.
 5. State a short ranked set of falsifiable root-cause hypotheses. Test one variable at a time and record the result.
 6. Add temporary instrumentation only where it distinguishes hypotheses. Tag and remove it after diagnosis.
 7. Capture the minimal reproduction as a behavior-level regression test when practical and warranted.

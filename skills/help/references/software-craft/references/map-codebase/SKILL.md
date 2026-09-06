@@ -19,6 +19,7 @@ The repository or subsystem scope, desired decisions or handoff, available fresh
 
 1. Read steering files, manifests, build commands, package boundaries, and generated/vendor exclusions.
 2. Inventory source by module and language. Measure size before partitioning; partition along existing module boundaries.
+   When ranked symbols or callers would help locate the relevant code, use the optional [Ripwire reference](../ripwire.md).
 3. Assign independent regions in parallel only when readers do not need shared evolving state. Require one report shape:
    - responsibility;
    - public interfaces and entry points;
