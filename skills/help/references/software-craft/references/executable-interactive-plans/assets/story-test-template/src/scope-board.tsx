@@ -635,7 +635,6 @@ export const ScopeBoard = ({ graph, selectedId, onSelect, disabled = false }: Sc
           ref={(element) => { if (element) connectionLabelRefs.current.set(connection.id, element); else connectionLabelRefs.current.delete(connection.id) }}
           aria-label={`Isolate connection ${index + 1}: ${relationshipStyles[connection.kind].label}`}
           aria-pressed={focusedConnectionId === connection.id}
-          data-muted={Boolean(focusedConnectionId && focusedConnectionId !== connection.id)}
           onClick={() => focusConnection(connection.id)}
           disabled={disabled}
         >{index + 1}</button>)}

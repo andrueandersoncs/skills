@@ -14,6 +14,7 @@ Create the smallest complete product record that explains who needs the product,
 - [Question model](references/question-model.md) for answer coherence, uncertainty, relationships, time, product claims, and completeness dimensions
 - [Platform design](references/platform.md) for product-platform capabilities, control-plane scope, architecture, and progressive construction
 - [AI opportunity assessment](references/ai-opportunity-assessment.md) for turning discovery evidence into a prioritized AI, automation, and process-improvement decision document
+- [Demand discovery](references/demand-discovery.md) for stage-aware build, narrow, or expand decisions grounded in workarounds, commitment, and unassisted use
 
 ## Core Model
 

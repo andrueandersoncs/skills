@@ -258,7 +258,6 @@
 .scope-board-wire-label { position: absolute; top: 0; left: 0; z-index: 5; pointer-events: auto; }
 .scope-board-wire-label[aria-pressed="true"],
 .scope-board-wire-choice[aria-pressed="true"] { background: var(--wire-color); color: #0b2922; }
-.scope-board-wire-label[data-muted="true"] { visibility: hidden; }
 .scope-board-wire-label:hover,
 .scope-board-wire-choice:hover { outline: 2px solid var(--wire-color); outline-offset: 2px; }
 
