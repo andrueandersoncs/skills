@@ -2,7 +2,8 @@ import { afterEach, expect, test } from "bun:test"
 import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
-import { checkArtifacts, decision, deleteSection, summarize } from "../../scripts/compile-skill.ts"
+import { checkArtifacts, decision, deleteSection } from "../../scripts/compile-skill.ts"
+import { summarize } from "../../scripts/evaluation-metrics.ts"
 import { snapshot } from "../../scripts/evaluate-skills.ts"
 
 const directories: string[] = []
@@ -37,10 +38,9 @@ test("artifact verification catches changed protected content and unauthorized w
 
 function run(pass: boolean, totalTokens: number): Parameters<typeof summarize>[0][number] {
   return {
-    caseId: "fixture", family: "contract", repeat: 0, arm: "compiled", pass, failures: [],
+    caseId: "fixture", family: "contract", pass,
     execution: {
-      runtime: { pass: true, failures: [] }, models: ["test/model"], reads: [], mutations: [], toolCalls: 1,
-      usage: [{ totalTokens }], durationMs: 10, exitCode: 0, transcript: "unused", stderr: "unused",
+      usage: [{ totalTokens }], durationMs: 10, toolCalls: 1,
     },
   }
 }

@@ -1,10 +1,11 @@
 import { cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises"
 import { createHash } from "node:crypto"
-import { isDeepStrictEqual } from "node:util"
+import { isDeepStrictEqual, parseArgs } from "node:util"
 import { tmpdir } from "node:os"
 import { join, relative, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { skillEvaluationCases, type SkillEvaluationCase } from "../evals/skills/cases.ts"
+import { pairedChanges, summarize } from "./evaluation-metrics.ts"
 
 const root = resolve(import.meta.dir, "..")
 const maxTimeSeconds = 120
@@ -12,7 +13,7 @@ const systemPrompt = "Work only in the isolated workspace using its provided fil
 
 type Block = { type: string; id?: string; name?: string; arguments?: Record<string, unknown>; text?: string }
 type Message = { role: string; content: Block[]; provider?: string; model?: string; usage?: unknown; stopReason?: string }
-type Event = { type: string; message?: Message; toolCallId?: string; isError?: boolean; isTerminal?: boolean }
+type Event = { type: string; message?: Message; toolCallId?: string; isError?: boolean; isTerminal?: boolean; result?: { details?: { path?: string } } }
 type Check = { pass: boolean; failures: string[] }
 const check = (failures: string[]): Check => ({ pass: failures.length === 0, failures })
 const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex")
@@ -24,20 +25,27 @@ export function checkReads(reads: string[], required: string[], forbidden: strin
   ])
 }
 
-function argumentsForRun() {
-  const options = new Map<string, string>()
-  const args = process.argv.slice(2)
-  for (let i = 0; i < args.length; i += 2) {
-    const key = args[i]
-    const value = args[i + 1]
-    if (!key || !["--model", "--case", "--output"].includes(key) || !value) throw new Error("Usage: bun run eval:skills --model <provider/model> [--case <id>] [--output <directory>]")
-    options.set(key, value)
-  }
-  const model = options.get("--model")
+async function argumentsForRun() {
+  const { values } = parseArgs({
+    args: process.argv.slice(2),
+    options: {
+      model: { type: "string" }, case: { type: "string" }, output: { type: "string" },
+      baseline: { type: "string" }, repeats: { type: "string", default: "1" },
+    },
+  })
+  const baseline = values.baseline ? resolve(values.baseline) : null
+  const previous = baseline ? JSON.parse(await readFile(join(baseline, "report.json"), "utf8")) : null
+  const suite: SkillEvaluationCase[] = baseline
+    ? JSON.parse(await readFile(join(baseline, "cases.json"), "utf8")) : skillEvaluationCases
+  if (previous && hash(JSON.stringify(suite)) !== previous.casesHash) throw new Error("Baseline cases changed since recording")
+  const model = values.model ?? previous?.model
   if (!model) throw new Error("--model <provider/model> is required")
-  const cases = skillEvaluationCases.filter(item => !options.has("--case") || item.id === options.get("--case"))
-  if (!cases.length) throw new Error(`Unknown case: ${options.get("--case")}`)
-  return { model, cases, output: resolve(options.get("--output") ?? join(root, ".scratch/skill-evals")) }
+  if (previous && model !== previous.model) throw new Error("Use the baseline model to isolate the skill change")
+  const repeats = Number(values.repeats)
+  if (!Number.isSafeInteger(repeats) || repeats < 1) throw new Error("--repeats must be a positive integer")
+  const cases = suite.filter(item => !values.case || item.id === values.case)
+  if (!cases.length) throw new Error(`Unknown case: ${values.case}`)
+  return { model: model as string, cases, repeats, baseline, previous, output: resolve(values.output ?? join(root, ".scratch/skill-evals")) }
 }
 
 export async function snapshot(directory: string, prefix = ""): Promise<Record<string, string>> {
@@ -67,24 +75,28 @@ export async function command(args: string[], cwd: string, timeoutMs: number) {
   }
 }
 
-function toolPaths(workspace: string, block: Block) {
+function toolPaths(workspace: string, block: Block, resolvedPath?: string) {
   const args = block.arguments ?? {}
-  const paths = typeof args.path === "string" ? args.path.split(/;\s*/) : []
+  const paths = resolvedPath ? [resolvedPath] : typeof args.path === "string" ? args.path.split(/;\s*/) : []
   if (block.name === "edit" && typeof args.input === "string") {
-    paths.push(...Array.from(args.input.matchAll(/^\[([^#\n]+)#[A-F0-9]{4}\]/gm), match => match[1]!))
+    if (!resolvedPath) paths.push(...Array.from(args.input.matchAll(/^\[([^[\]#\n]+)#[A-F0-9]{4}\]/gm), match => match[1]!))
     paths.push(...Array.from(args.input.matchAll(/^MV (.+)$/gm), match => match[1]!))
   }
   return paths.map(path => relative(workspace, resolve(workspace, path.replace(/(\.(?:md|ts|json))[:?#].*$/, "$1"))).replaceAll("\\", "/"))
 }
 
-export async function runAgent(workspace: string, prompt: string, model: string, evidence: string, instructions = systemPrompt) {
+export async function runAgent(
+  workspace: string, prompt: string, model: string, evidence: string, instructions = systemPrompt,
+  options: { tools?: string; thinking?: string; maxTimeSeconds?: number } = {},
+) {
+  const limit = options.maxTimeSeconds ?? maxTimeSeconds
   await mkdir(evidence, { recursive: true })
   const start = performance.now()
   const result = await command([
-    "omp", "-p", prompt, "--mode", "json", "--model", model, "--thinking", "minimal",
+    "omp", "-p", prompt, "--mode", "json", "--model", model, "--thinking", options.thinking ?? "minimal",
     "--no-session", "--no-skills", "--no-rules", "--no-extensions", "--no-title", "--no-lsp", "--no-pty",
-    "--tools", "read,write,edit,grep,glob", "--system-prompt", instructions, "--max-time", String(maxTimeSeconds),
-  ], workspace, (maxTimeSeconds + 20) * 1_000)
+    "--tools", options.tools ?? "read,write,edit,grep,glob", "--system-prompt", instructions, "--max-time", String(limit),
+  ], workspace, (limit + 20) * 1_000)
   await writeFile(join(evidence, "transcript.jsonl"), result.stdout)
   await writeFile(join(evidence, "stderr.txt"), result.stderr)
   const failures: string[] = []
@@ -93,9 +105,11 @@ export async function runAgent(workspace: string, prompt: string, model: string,
   catch { failures.push("Invalid or missing omp JSONL") }
   const messages = events.filter(event => event.type === "message_end" && event.message?.role === "assistant").map(event => event.message!)
   const successes = new Set(events.filter(event => event.type === "tool_execution_end" && !event.isError).map(event => event.toolCallId))
+  // Successful edits can normalize their headers. Their returned path is authoritative.
+  const resolvedPaths = new Map(events.filter(event => event.type === "tool_execution_end" && !event.isError && typeof event.result?.details?.path === "string").map(event => [event.toolCallId, event.result!.details!.path!]))
   const calls = messages.flatMap(message => message.content.filter(block => block.type === "toolCall"))
   const reads = calls.filter(call => call.name === "read" && successes.has(call.id)).flatMap(call => toolPaths(workspace, call))
-  const mutations = calls.filter(call => call.name === "write" || call.name === "edit").flatMap(call => toolPaths(workspace, call))
+  const mutations = calls.filter(call => call.name === "write" || call.name === "edit").flatMap(call => toolPaths(workspace, call, resolvedPaths.get(call.id)))
   const models = [...new Set(messages.map(message => `${message.provider}/${message.model}`))]
   if (result.timedOut || result.code !== 0) failures.push(`omp ${result.timedOut ? "timed out" : `exited ${result.code}`}`)
   if (!events.some(event => event.type === "agent_end" && event.isTerminal)) failures.push("No terminal agent result")
@@ -147,7 +161,7 @@ export async function outcome(workspace: string, evaluation: SkillEvaluationCase
   return check(failures)
 }
 
-async function runArm(evaluation: SkillEvaluationCase, arm: "with-skill" | "no-skill", model: string, evidence: string, frozenSkill: string) {
+async function runArm(evaluation: SkillEvaluationCase, arm: string, model: string, evidence: string, frozenSkill: string | null, repeat: number) {
   const workspace = await mkdtemp(join(tmpdir(), "skill-eval-"))
   try {
     for (const [path, content] of Object.entries(evaluation.files)) {
@@ -155,9 +169,9 @@ async function runArm(evaluation: SkillEvaluationCase, arm: "with-skill" | "no-s
       await mkdir(resolve(destination, ".."), { recursive: true })
       await writeFile(destination, content)
     }
-    if (arm === "with-skill") await cp(frozenSkill, join(workspace, "skills/help"), { recursive: true })
+    if (frozenSkill) await cp(frozenSkill, join(workspace, "skills/help"), { recursive: true })
     const before = await snapshot(workspace)
-    const prompt = arm === "with-skill" ? `Start by reading skills/help/SKILL.md and use its selected skill.\n\n${evaluation.prompt}` : evaluation.prompt
+    const prompt = frozenSkill ? `Start by reading skills/help/SKILL.md and use its selected skill.\n\n${evaluation.prompt}` : evaluation.prompt
     const primary = await runAgent(workspace, prompt, model, evidence)
     const result = await outcome(workspace, evaluation)
     const after = await snapshot(workspace)
@@ -166,7 +180,7 @@ async function runArm(evaluation: SkillEvaluationCase, arm: "with-skill" | "no-s
       ...new Set([...changed, ...primary.mutations].filter(path => !evaluation.allowedChanges.includes(path)).map(path => `Disallowed change or write attempt: ${path}`)),
       ...evaluation.requiredChanges.filter(path => !changed.includes(path)).map(path => `Required change missing: ${path}`),
     ])
-    const routing = arm === "no-skill" ? check([]) : checkReads(primary.reads, ["skills/help/SKILL.md", ...evaluation.routes], evaluation.forbiddenRoutes)
+    const routing = frozenSkill ? checkReads(primary.reads, ["skills/help/SKILL.md", ...evaluation.routes], evaluation.forbiddenRoutes) : check([])
     const probes = []
     for (const [index, probe] of (evaluation.probes ?? []).entries()) {
       const probeSpace = await mkdtemp(join(tmpdir(), "skill-probe-"))
@@ -193,46 +207,131 @@ async function runArm(evaluation: SkillEvaluationCase, arm: "with-skill" | "no-s
       } finally { await rm(probeSpace, { recursive: true, force: true }) }
     }
     await cp(workspace, join(evidence, "workspace"), { recursive: true })
+    const taskPass = primary.runtime.pass && result.pass && sideEffects.pass && probes.every(probe => probe.acceptance.pass)
     return {
-      caseId: evaluation.id, arm, primary, probes,
+      caseId: evaluation.id, arm, repeat, primary, probes,
       checks: { outcome: result, sideEffects, routing },
-      pass: primary.runtime.pass && result.pass && sideEffects.pass && routing.pass && probes.every(probe => probe.acceptance.pass),
+      taskPass, pass: taskPass && routing.pass,
     }
   } finally { await rm(workspace, { recursive: true, force: true }) }
 }
 
+function behaviorCase(evaluation: SkillEvaluationCase) {
+  return Boolean(evaluation.runtime || evaluation.audit || evaluation.probes?.length || evaluation.requiredChanges.length)
+}
+
+type ArmResult = Awaited<ReturnType<typeof runArm>>
+
+function metrics(runs: ArmResult[], taskOnly = false) {
+  const summary = summarize(runs.map(run => {
+    const executions = [run.primary, ...run.probes]
+    return {
+      caseId: run.caseId, family: run.caseId, pass: taskOnly ? run.taskPass : run.pass,
+      execution: {
+        usage: executions.every(execution => execution.usage.length) ? executions.flatMap(execution => execution.usage) : [],
+        durationMs: executions.reduce((sum, execution) => sum + execution.durationMs, 0),
+        toolCalls: executions.reduce((sum, execution) => sum + execution.toolCalls, 0),
+      },
+    }
+  }))
+  const groups = Object.values(summary.families)
+  return {
+    ...summary, successRate: summary.runs ? summary.passed / summary.runs : null,
+    casesPassingAnyAttempt: groups.filter(group => group.passed > 0).length,
+    casesPassingEveryAttempt: groups.filter(group => group.passed === group.runs).length,
+  }
+}
+
+function comparison(reports: ArmResult[], baselineArm: string, cases: SkillEvaluationCase[]) {
+  const taskOnly = baselineArm === "no-skill"
+  const eligible = new Set(cases.filter(item => !taskOnly || behaviorCase(item)).map(item => item.id))
+  const baseline = reports.filter(run => run.arm === baselineArm && eligible.has(run.caseId))
+  const candidate = reports.filter(run => run.arm === "with-skill" && eligible.has(run.caseId))
+  const pairs = baseline.flatMap(before => {
+    const after = candidate.find(run => run.caseId === before.caseId && run.repeat === before.repeat)
+    return after ? [{
+      caseId: before.caseId,
+      baseline: taskOnly ? before.taskPass : before.pass,
+      candidate: taskOnly ? after.taskPass : after.pass,
+    }] : []
+  })
+  const before = metrics(baseline, taskOnly)
+  const after = metrics(candidate, taskOnly)
+  const difference = (a: number | null | undefined, b: number | null | undefined) => a == null || b == null ? null : b - a
+  return {
+    ...pairedChanges(pairs),
+    baseline: before, candidate: after,
+    deltas: {
+      tokensPerSuccess: difference(before.tokensPerSuccess, after.tokensPerSuccess),
+      dollarsPerSuccess: difference(before.dollarsPerSuccess, after.dollarsPerSuccess),
+      p95Ms: difference(before.p95Ms, after.p95Ms),
+    },
+  }
+}
+
 async function main() {
-  const { model, cases, output } = argumentsForRun()
+  const { model, cases, output, repeats, baseline, previous } = await argumentsForRun()
+  const contentHash = async (path: string) => hash(JSON.stringify(Object.entries(await snapshot(path)).sort()))
+  if (baseline && await contentHash(join(baseline, "skill-snapshot")) !== previous.skillContentHash) {
+    throw new Error("Baseline skill snapshot changed since recording")
+  }
   await mkdir(output, { recursive: true })
   const directory = await mkdtemp(join(output, "run-"))
   const frozenSkill = join(directory, "skill-snapshot")
-  await cp(join(root, "skills/help"), frozenSkill, { recursive: true })
-  const sourceHashes = await snapshot(frozenSkill)
-  const skillContentHash = hash(JSON.stringify(Object.entries(sourceHashes).sort()))
+  const copyOptions = { recursive: true, filter: (source: string) => !source.split(/[\\/]/).includes("evals") }
+  await cp(join(root, "skills/help"), frozenSkill, copyOptions)
+  const arms: Record<string, string | null> = { "with-skill": frozenSkill, "no-skill": null }
+  if (baseline) {
+    arms.baseline = join(directory, "baseline-snapshot")
+    await cp(join(baseline, "skill-snapshot"), arms.baseline, copyOptions)
+  }
   const runtime = await command(["omp", "--version"], root, 10_000)
   if (runtime.code !== 0) throw new Error(runtime.stderr)
   await writeFile(join(directory, "cases.json"), `${JSON.stringify(cases, null, 2)}\n`)
   const report = {
-    model, thinking: "minimal", maxTimeSeconds, skillContentHash, casesHash: hash(JSON.stringify(cases)),
+    model, thinking: "minimal", maxTimeSeconds, repeats,
+    skillContentHash: await contentHash(frozenSkill), casesHash: hash(JSON.stringify(cases)),
+    baseline: baseline ? { directory: baseline, skillContentHash: await contentHash(arms.baseline!) } : null,
     runtime: { omp: runtime.stdout.trim(), bun: Bun.version, executable: Bun.which("omp") },
-    reports: [] as Awaited<ReturnType<typeof runArm>>[],
+    evaluatorHashes: await Promise.all(["scripts/evaluate-skills.ts", "scripts/evaluation-metrics.ts"].map(async path => [path, hash(await readFile(join(root, path)))])),
+    rule: "Every candidate attempt must pass; any runtime failure in any arm makes the result incomplete. Baseline quality failures are diagnostic, not a gate.",
+    status: "running",
+    reports: [] as ArmResult[],
   }
+  const save = () => writeFile(join(directory, "report.json"), `${JSON.stringify(report, null, 2)}\n`)
   console.log(`Evidence: ${directory}`)
-  for (const evaluation of cases) {
-    const arms = await Promise.all((["with-skill", "no-skill"] as const).map(arm => runArm(evaluation, arm, model, join(directory, evaluation.id, arm), frozenSkill)))
-    report.reports.push(...arms)
-    await writeFile(join(directory, "report.json"), `${JSON.stringify(report, null, 2)}\n`)
-    console.log(`${evaluation.id}: ${arms.map(arm => `${arm.arm}=${arm.pass ? "PASS" : "FAIL"}`).join(" ")}`)
+  await save()
+  for (let repeat = 0; repeat < repeats; repeat++) {
+    for (const evaluation of cases) {
+      const names = Object.keys(arms).filter(arm => arm !== "no-skill" || behaviorCase(evaluation))
+      const order = [...names.slice(repeat % names.length), ...names.slice(0, repeat % names.length)]
+      const paired = await Promise.all(order.map(arm => runArm(evaluation, arm, model, join(directory, `${evaluation.id}-${repeat + 1}`, arm), arms[arm]!, repeat)))
+      report.reports.push(...paired)
+      await save()
+      console.log(`${evaluation.id}/${repeat + 1}: ${paired.map(arm => `${arm.arm}=${arm.pass ? "PASS" : "FAIL"}`).join(" ")}`)
+    }
   }
-  const totals = {
-    cases: cases.length,
-    withSkillPassed: report.reports.filter(arm => arm.arm === "with-skill" && arm.pass).length,
-    noSkillPassed: report.reports.filter(arm => arm.arm === "no-skill" && arm.pass).length,
-    runtimeFailures: report.reports.filter(arm => !arm.primary.runtime.pass || arm.probes.some(probe => !probe.runtime.pass)).map(arm => `${arm.caseId}/${arm.arm}`),
-  }
-  await writeFile(join(directory, "report.json"), `${JSON.stringify({ ...report, totals }, null, 2)}\n`)
-  console.log(JSON.stringify(totals))
-  if (totals.withSkillPassed !== cases.length || totals.runtimeFailures.length) process.exitCode = 1
+  const summaries = Object.fromEntries(Object.keys(arms).map(arm => [arm, metrics(report.reports.filter(run => run.arm === arm))]))
+  const comparisons = Object.fromEntries(Object.keys(arms).filter(arm => arm !== "with-skill").map(arm => [arm, comparison(report.reports, arm, cases)]))
+  const runtimeFailures = report.reports.filter(arm => !arm.primary.runtime.pass || arm.probes.some(probe => !probe.runtime.pass)).map(arm => `${arm.caseId}/${arm.repeat + 1}/${arm.arm}`)
+  const passed = summaries["with-skill"]!.passed === cases.length * repeats
+  report.status = runtimeFailures.length ? "incomplete" : passed ? "pass" : "fail"
+  await writeFile(join(directory, "report.json"), `${JSON.stringify({ ...report, summaries, comparisons, runtimeFailures }, null, 2)}\n`)
+  const format = (value: number | null | undefined) => value == null ? "unavailable" : value.toFixed(1)
+  const lines = [
+    `Result: ${report.status}`,
+    ...Object.entries(summaries).map(([arm, summary]) => `${arm}: ${summary.passed}/${summary.runs} passed; tokens/success ${format(summary.tokensPerSuccess)}; reported $/success ${summary.reportedDollars === null ? "unpriced" : summary.dollarsPerSuccess ?? "unavailable"}; p95 ${format(summary.p95Ms)} ms; all attempts passed in ${summary.casesPassingEveryAttempt}/${Object.keys(summary.families).length} cases`),
+    ...Object.entries(comparisons).flatMap(([arm, result]) => [
+      `Candidate vs ${arm}: ${result.wins} wins, ${result.losses} losses, ${result.ties} ties; success delta ${format(result.successRateDelta === null ? null : result.successRateDelta * 100)} pp; 95% bound ${result.confidence95?.map(value => (value * 100).toFixed(1)).join(" to ") ?? "unavailable"} pp`,
+      `  delta tokens/success ${format(result.deltas.tokensPerSuccess)}; delta reported $/success ${result.deltas.dollarsPerSuccess ?? "unavailable"}; delta p95 ${format(result.deltas.p95Ms)} ms`,
+      `  regressions: ${result.regressions.join(", ") || "none"}`,
+    ]),
+    "Routing-only cases exclude no-skill. No-skill comparisons score outcomes, not internal routing.",
+    "95% bounds assume independent paired attempts on these fixed cases; they do not establish general skill quality.",
+  ]
+  await writeFile(join(directory, "summary.txt"), `${lines.join("\n")}\n`)
+  console.log(lines.join("\n"))
+  if (report.status !== "pass") process.exitCode = 1
 }
 
 if (import.meta.main) await main().catch(error => { console.error(error); process.exitCode = 1 })

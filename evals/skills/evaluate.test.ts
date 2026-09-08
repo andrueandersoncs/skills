@@ -4,6 +4,7 @@ import { join } from "node:path"
 import { tmpdir } from "node:os"
 import { checkReads, outcome } from "../../scripts/evaluate-skills"
 import { skillEvaluationCases } from "./cases"
+import { pairedChanges, summarize } from "../../scripts/evaluation-metrics.ts"
 
 const directories: string[] = []
 const workspace = async () => {
@@ -48,4 +49,30 @@ test("audit grading distinguishes the affected source from its missing reference
   expect((await outcome(directory, evaluation)).pass).toBe(true)
   await writeFile(join(directory, "audit.json"), JSON.stringify({ findings: [{ ...finding, target: "unrelated/SKILL.md" }] }))
   expect((await outcome(directory, evaluation)).pass).toBe(false)
+})
+
+test("equal aggregate scores still expose individual regressions", () => {
+  const result = pairedChanges([
+    { caseId: "retention", baseline: true, candidate: false },
+    { caseId: "new-capability", baseline: false, candidate: true },
+    { caseId: "unchanged", baseline: true, candidate: true },
+  ])
+  expect(result.successRateDelta).toBe(0)
+  expect(result.regressions).toEqual(["retention"])
+  expect(result.improvements).toEqual(["new-capability"])
+  expect(result.confidence95![0]).toBeLessThan(0)
+  expect(result.confidence95![1]).toBeGreaterThan(0)
+  expect(pairedChanges([]).successRateDelta).toBeNull()
+})
+
+test("unpriced attempts cannot silently lower dollars per success", () => {
+  const run = (pass: boolean, cost?: number) => ({
+    caseId: "cost", family: "cost", pass,
+    execution: { usage: [{ totalTokens: 100, cost: { total: cost } }], durationMs: 10, toolCalls: 1 },
+  })
+  const priced = summarize([run(true, 2), run(false, 3)])
+  expect(priced.dollarsPerSuccess).toBe(5)
+  expect(priced.tokensPerSuccess).toBe(200)
+  expect(summarize([run(true, 2), run(false)]).dollarsPerSuccess).toBeNull()
+  expect(summarize([run(true, 2), run(false, 0)]).reportedDollars).toBeNull()
 })

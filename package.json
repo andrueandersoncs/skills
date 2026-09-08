@@ -12,7 +12,7 @@
     "lint:bts": "better-typescript"
   },
   "devDependencies": {
-    "@better-typescript/better-typescript": "^0.4.9",
+    "@better-typescript/better-typescript": "^0.4.13",
     "@types/bun": "latest"
   }
 }

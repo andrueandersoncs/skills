@@ -75,17 +75,31 @@ bun run test
 
 The tests build and exercise the Node CLI, concurrent board/CLI writes, workflow transitions, rejected mutations, and evaluation scoring.
 
-Skill comparisons require an installed, authenticated `omp`:
+Skill comparisons require an installed, authenticated `omp`. Use `openai-codex/gpt-5.6-luna` for repository evals, not GPT-6 Astra. Record the current skill package before editing it:
 
 ```sh
-bun run eval:skills --model openai-codex/gpt-5.6-luna
+bun run eval:skills --model openai-codex/gpt-5.6-luna --repeats 3
 ```
 
-Use an available `provider/model`. `--case one-file-fix-no-map` selects one scenario; `--output <directory>` selects where to retain evidence. Each run creates a new directory and prints its path.
+Each run prints a unique evidence directory under `.scratch/skill-evals/`. After changing `skills/help`, compare against that saved run:
 
-The evaluator runs isolated with-skill and no-skill sessions using the same model. It checks runtime results, allowed writes, loaded workflows, and fresh-context consumers of generated skills. Reports, transcripts, fixture workspaces, and the hashed skill snapshot are retained under `.scratch/skill-evals/` by default.
+```sh
+bun run eval:skills --baseline <saved-run-directory> --repeats 3
+```
 
-A failing skill scenario or runtime failure returns a nonzero exit. Baseline quality failures are reported separately; a tie does not establish that the skills improve outcomes. See [the cases](evals/skills/cases.ts) and [the existing evaluation method](skills/help/references/software-craft/references/author-agent-skill/SKILL.md).
+`--baseline` freezes the comparison to the saved cases and model, verifies the saved case/package hashes, and reruns the old package alongside the current package and a no-skill control. It does not subtract historical scores measured under another runtime. All arms use the current evaluator, tools, budgets, and model settings, with fresh fixtures and rotating launch order. Runtime versions and evaluator hashes are recorded. No sampling seed is exposed by this runner.
+
+`--case one-file-fix-no-map` selects one saved or built-in scenario; `--output <directory>` changes the evidence parent. Repeats default to one. To add coverage, extend [the cases](evals/skills/cases.ts) and record a new baseline; a comparison intentionally ignores subsequent edits to the suite.
+
+Read `summary.txt` for pass counts, cases passing every attempt, paired wins/losses, named regressions, tokens and reported dollars per successful task, p95 latency, and candidate-minus-baseline deltas. Negative cost/latency deltas are improvements. `report.json` retains per-case routing, runtime, artifact, and allowed-write checks, generated-skill consumer results, usage, transcripts, fixture workspaces, and package hashes. Costs include failed attempts and fresh-context consumers; cached tokens count toward token totals. Missing or zero prices are marked unpriced, and provider-reported dollars are not an invoice.
+
+Every candidate attempt must pass. Any arm's runtime failure makes the run incomplete. Both conditions return a nonzero exit; baseline quality failures remain diagnostic. Old-vs-new comparisons include routing compliance. No-skill comparisons use observable outcomes on the same behavioral cases, excluding internal routing and routing-only cases.
+
+The current eight cases cover narrow coding, skill-authoring, and routing contracts, not general usefulness across all workflows. Any-attempt and every-attempt counts describe the sampled repetitions. The conservative 95% Hoeffding bounds assume independent paired attempts on these fixed cases; small runs will usually be inconclusive. These public regression cases are not a sealed holdout. A tie does not establish that the skills improve outcomes. In keeping with [Goodhart's Law](skills/help/references/software-laws/SKILL.md), inspect artifacts and failures rather than optimizing the aggregate score alone.
+
+Fixtures and packages must be trusted: sessions retain the user's filesystem permissions. Excluding `evals` directories from runtime skill copies keeps bundled answer checks out of ordinary context, but is not a security sandbox. The runner explicitly loads the frozen skill entry; it does not test installed-skill discovery or unrestricted production tools.
+
+Recorded Luna baseline: `.scratch/skill-evals/run-vnEMu6/` passed all eight skill cases. The seven matched behavioral cases produced one skill win and six ties; the no-skill-generated router loaded unrelated leaves in one consumer probe. The repeated old-package comparison in `.scratch/skill-evals/run-1XKt8L/` produced two ties on `one-file-fix-no-map`. These are smoke measurements, not evidence of general improvement.
 
 ## Maintaining instructions
 
