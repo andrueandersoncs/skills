@@ -45,19 +45,11 @@ Important limitation: this was same-model adaptation on a 27B model, with ten ta
 
 ## Pipeline
 
-### 1. Compile the complete skill package
+### 1. Compile the complete skill package and pin its runtime
 
-Agent Skills defines a skill as more than its Markdown: optional scripts, references, and assets are part of the package ([specification](https://agentskills.io/specification)).
+Use the shared [behavioral comparison method](../../agent-systems/references/evaluate-agents/references/comparison-method.md) to record the exact source package and runtime manifest for generation, evaluation, and deployment. The skill package includes `SKILL.md`, referenced instructions, scripts, assets, tool definitions and implementations, and runtime dependencies.
 
-Resolve and hash:
-
-- `SKILL.md`
-- referenced instructions
-- scripts and assets
-- tool definitions and implementations
-- runtime dependencies
-
-Extract a behavior contract:
+Extract the behavior contract:
 
 - when the skill applies;
 - decisions it changes;
@@ -67,23 +59,9 @@ Extract a behavior contract:
 
 Keep deterministic scripts, large references, mutable knowledge, and tool implementations external. Only the stable decision policy belongs in weights.
 
-### 2. Pin one runtime manifest
+### 2. Build LoRA-specific evals before training
 
-Generation, evaluation, and deployment must use the same versioned manifest:
-
-- tool schemas and implementations;
-- tool-call parser;
-- sandbox image and dependencies;
-- mounted resources;
-- tokenizer and chat template;
-- context/output budgets;
-- fixture policy.
-
-A matching schema with a different implementation is not the same runtime.
-
-### 3. Build evals before training
-
-Create two sealed suites.
+Use the shared comparison method for isolated fixtures, family-level development/acceptance splits, and matched runs. In addition, create these sealed LoRA suites:
 
 **Trigger suite**
 
@@ -94,19 +72,12 @@ Create two sealed suites.
 **Behavior suite**
 
 - Realistic tasks requiring meaningful skill decisions.
-- Fresh, isolated fixtures.
 - Executable expected states or artifacts.
 - A small general-capability retention set.
 
-Split by task family, repository, template, or fixture generator—not by random paraphrase. The final holdout must be inaccessible to task synthesis and training.
+### 3. Establish the LoRA comparison matrix
 
-Start with roughly 20–50 clear tasks, as recommended in [Anthropic’s agent-eval guidance](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents), then size the final suite using power analysis.
-
-### 4. Establish the comparison matrix
-
-Run every arm on cloned cases with identical tools, budgets, fixtures, and decoding settings:
-
-Use real pinned implementations only against authorized isolated fixtures. Apply [secure-system's trust-boundary guidance](../../software-craft/references/secure-system/SKILL.md#method): source skills and teacher output are untrusted inputs, not permission for production effects or broader credentials. Keep tool permissions, external-action approvals, data access, and sandbox constraints in the runtime manifest.
+Use the shared method's no-skill baseline and matched-run controls for every arm:
 
 | Arm | Configuration | Question answered |
 |---|---|---|
@@ -117,9 +88,9 @@ Use real pinned implementations only against authorized isolated fixtures. Apply
 | S2 | Trained adapter, no skill body | Target system |
 | C2 | Control adapter trained from labels generated without the skill | Did skill conditioning add value? |
 
-`T1 - T0` is diagnostic, not a gate. Skill-to-LoRA found `T1 < T0` in aggregate while its adapter improved results; training can remove prompt interference.
+`T1 - T0` is diagnostic, not a gate. Keep development-control results separate from acceptance release evidence. Skill-to-LoRA found `T1 < T0` in aggregate while its adapter improved results; training can remove prompt interference.
 
-### 5. Generate verified trajectories
+### 4. Generate verified trajectories
 
 Use the strongest available teacher with the full skill package inside the pinned runtime.
 
@@ -138,7 +109,7 @@ This layered verification is supported by [APIGen](https://arxiv.org/abs/2406.18
 
 Do not use hidden or free-form chain-of-thought as correctness evidence.
 
-### 6. Produce skill-free training records
+### 5. Produce skill-free training records
 
 For every assistant decision, create one record containing the complete observable prefix:
 
@@ -162,7 +133,7 @@ Rules:
 - Render every record through the pinned model chat template.
 - Reject records without exactly one non-empty assistant loss span.
 
-### 7. Train
+### 6. Train
 
 Start with:
 
@@ -216,7 +187,7 @@ Analyze paired task differences with 95% family-clustered confidence intervals. 
 
 ## Release gates
 
-Evaluate every release contrast on the same sealed paired cases with predeclared margins and 95% family-clustered confidence intervals. Release only when:
+Apply the shared comparison method's sealed matched acceptance protocol to every release contrast with predeclared margins and 95% family-clustered confidence intervals. Release only when:
 
 1. **Adaptation worked:** lower confidence bound of `S2 - S0` is above zero.
 2. **Skill mattered:** lower confidence bound of sealed `S2 - C2` is above zero. Keep development-control results as separate diagnostics, never release evidence.

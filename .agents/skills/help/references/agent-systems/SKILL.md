@@ -18,6 +18,7 @@ Match the requested agent-system outcome to one specialist. Follow the shared [g
 | Voice, computer-use, visual, or robotic agent interaction needs an event-driven design. | [design-agent-interaction](references/design-agent-interaction/SKILL.md) |
 | A coding agent's execution, observation, repair, or verification loop needs designing. | [build-coding-agents](references/build-coding-agents/SKILL.md) |
 | Deployed agent behavior needs benchmarks, verifiers, calibrated judges, or release criteria. | [evaluate-agents](references/evaluate-agents/SKILL.md) |
+| An established Agent Skill needs a lower-cost candidate while retaining specific measured behavior through development selection and sealed acceptance. | [compile-agent-skill](references/compile-agent-skill/SKILL.md) |
 | A measured agent capability gap needs a choice among context, retrieval, code, or parameter training. | [choose-agent-training](references/choose-agent-training/SKILL.md) |
 | Verified production trajectories need turning into reviewed, versioned agent improvements. | [evolve-agents](references/evolve-agents/SKILL.md) |
 | A multi-agent system's topology, context ownership, delegation, or handoff protocols need designing. | [coordinate-agent-teams](references/coordinate-agent-teams/SKILL.md) |

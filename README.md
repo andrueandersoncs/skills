@@ -60,7 +60,18 @@ The [marketing router](skills/help/references/marketing/SKILL.md) selects five s
 
 Marketing smoke verification used `openai-codex/gpt-5.6-luna` through `omp` 18.1.11: five workflow artifacts, seven routing/boundary cases, a repeated pricing-copy boundary, and isolated installed-skill discovery passed. Local fixtures, source snapshots, transcripts, baseline runs, and limitations are retained in `.scratch/skill-evals/marketing-WkpEZs/report.json`. These reused smoke cases do not establish general marketing effectiveness or reliable improvement over the no-skill baseline.
 
-Reinstall `help` to refresh installed runtime copies after changing canonical skills; editing `skills/` does not update those copies or already-running sessions.
+After editing `skills/help`, refresh this checkout's installed copy:
+
+```sh
+bun run skills:sync
+bun run skills:check
+```
+
+`skills:sync` replaces only `.agents/skills/help` from the local canonical source, excludes directories named `evals`, and restores `.claude/skills/help` as a relative link to that copy. It removes obsolete installed files and leaves other skills untouched. Edit canonical files, not the generated runtime copy.
+
+`skills:check` reports missing, changed, or extra installed files and an incorrect Claude link. It exits nonzero on drift and runs first in `bun run test`. Commit the refreshed runtime copy with the source change. Start a fresh agent session to load updated skill descriptions and instructions; sync does not update already-running sessions.
+
+These commands refresh this checkout only. Reinstall `help` in other repositories to update their installed copies.
 
 The [unlazy workflow](skills/help/references/unlazy/SKILL.md) adapts [Leonxlnx/unlazy](https://github.com/Leonxlnx/unlazy) into the existing `help` routing structure. It uses project-native checks and existing specialists. Its [source record](skills/help/references/unlazy/references/sources.md) pins the revision and explains the adaptation; the [MIT license](skills/help/references/unlazy/LICENSE) is retained. Upstream's checker and Stop hook are not bundled.
 
