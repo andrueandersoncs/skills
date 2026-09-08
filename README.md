@@ -32,6 +32,7 @@ bun add -d @andrue/cli
 
 `help` contains:
 
+- `agent-browser` — website interaction, forms, rendered-data extraction, and page captures, also reused by verification and design research
 - `skill-routers` — agent-skill router design, implementation, and review
 - `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, skill compilation, training, evolution, and multi-agent architecture
 - `software-craft` — executable software work, including focused `review-symmetry` code reviews
@@ -51,6 +52,8 @@ bun add -d @andrue/cli
 `skills/help` is the repository's single installable skill. Its routed components operate on the active repository rather than this collection.
 
 `skills/` is canonical. `.agents/skills/` contains installed runtime copies and independently sourced skills; `.claude/skills/help` links to the installed `help` copy.
+
+The [agent-browser workflow](skills/help/references/agent-browser/SKILL.md) adapts [Vercel Labs' agent-browser](https://github.com/vercel-labs/agent-browser) with isolated sessions, fresh snapshot refs, and installed-version guidance. Its [source record](skills/help/references/agent-browser/references/sources.md) identifies the revision and local changes; the upstream [Apache-2.0 license](skills/help/references/agent-browser/LICENSE) is retained.
 
 The [marketing router](skills/help/references/marketing/SKILL.md) selects five source-attributed workflows adapted from Corey Haines's Marketing Skills at `5b2c0007766c6a1cf1d53fd8fc73e979e0821022`. They reuse existing product records, preserve evidence and publishing boundaries, and link to existing editing, planning, and engineering owners. Only focused pricing-research and technical-SEO references are bundled; upstream CLIs, channel playbooks, and unsupported performance benchmarks are excluded. The upstream [MIT notice](skills/help/references/marketing/LICENSE) is retained.
 
