@@ -32,6 +32,7 @@ bun add -d @andrue/cli
 
 `help` contains:
 
+- `unlazy` — completion recovery with acceptance gates, meaningful task decomposition, and fresh evidence
 - `agent-browser` — website interaction, forms, rendered-data extraction, and page captures, also reused by verification and design research
 - `skill-routers` — agent-skill router design, implementation, and review
 - `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, skill compilation, training, evolution, and multi-agent architecture
@@ -60,6 +61,8 @@ The [marketing router](skills/help/references/marketing/SKILL.md) selects five s
 Marketing smoke verification used `openai-codex/gpt-5.6-luna` through `omp` 18.1.11: five workflow artifacts, seven routing/boundary cases, a repeated pricing-copy boundary, and isolated installed-skill discovery passed. Local fixtures, source snapshots, transcripts, baseline runs, and limitations are retained in `.scratch/skill-evals/marketing-WkpEZs/report.json`. These reused smoke cases do not establish general marketing effectiveness or reliable improvement over the no-skill baseline.
 
 Reinstall `help` to refresh installed runtime copies after changing canonical skills; editing `skills/` does not update those copies or already-running sessions.
+
+The [unlazy workflow](skills/help/references/unlazy/SKILL.md) adapts [Leonxlnx/unlazy](https://github.com/Leonxlnx/unlazy) into the existing `help` routing structure. It uses project-native checks and existing specialists. Its [source record](skills/help/references/unlazy/references/sources.md) pins the revision and explains the adaptation; the [MIT license](skills/help/references/unlazy/LICENSE) is retained. Upstream's checker and Stop hook are not bundled.
 
 ## Verification
 

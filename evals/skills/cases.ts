@@ -57,6 +57,32 @@ const routerProbes: Probe[] = [
 
 export const skillEvaluationCases: SkillEvaluationCase[] = [
   {
+    id: "unlazy-incomplete-deliverables",
+    prompt: "The last agent claimed our migration was complete, but it omitted two required consumers and their integration checks. Recover the original requirements and finish all omitted work. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
+    files: {},
+    allowedChanges: [],
+    requiredChanges: [],
+    routes: ["skills/help/references/unlazy/SKILL.md"],
+    forbiddenRoutes: [`${craft}/manage-work-queue/SKILL.md`],
+  },
+  {
+    id: "unlazy-explicit-request",
+    prompt: "Use unlazy completion discipline for the substantial multi-part report I am about to provide. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
+    files: {},
+    allowedChanges: [],
+    requiredChanges: [],
+    routes: ["skills/help/references/unlazy/SKILL.md"],
+  },
+  {
+    id: "verification-without-unlazy",
+    prompt: "Be thorough: verify that the candidate CLI release meets its documented behavior. I want a report only, with fresh evidence; no implementation changes or recovery of omitted deliverables. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
+    files: {},
+    allowedChanges: [],
+    requiredChanges: [],
+    routes: ["skills/help/references/software-craft/SKILL.md", `${craft}/verify-change/SKILL.md`],
+    forbiddenRoutes: ["skills/help/references/unlazy/SKILL.md"],
+  },
+  {
     id: "compilation-owner-no-training",
     prompt: "Our existing prose-editing skill passes its required behavior cases, but profiling shows loading its instructions dominates token cost. Compile a cheaper instruction representation and evaluate retained behavior. We have not chosen model training. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
     files: {},
@@ -75,7 +101,7 @@ export const skillEvaluationCases: SkillEvaluationCase[] = [
     allowedChanges: ["src/scale.ts"],
     requiredChanges: ["src/scale.ts"],
     routes: [`${craft}/implement-change/SKILL.md`],
-    forbiddenRoutes: [`${craft}/map-codebase/SKILL.md`],
+    forbiddenRoutes: [`${craft}/map-codebase/SKILL.md`, "skills/help/references/unlazy/SKILL.md"],
     runtime: {
       module: "src/scale.ts",
       exportName: "scale",
