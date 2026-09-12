@@ -1,25 +1,9 @@
 # Andrue Anderson's Personal Skills
 
-This project is a repository of Andrue Anderson's personal skills.
+Prefer the simplest complete change. Avoid speculative features, abstractions, validation, and unrelated cleanup. Treat plans as predictions with observable success conditions.
 
-## Rules
-
-### Golden Rules
-
-- Always produce the **simplest**, most **direct**, most **concise**, most **correct**, and most **complete** output possible, regardless of the task.
-
-- Every plan is a prediction (of a sequence of events). You should exploit this fact as much as possible.
-
-### Standard Rules
-
-- Disregard edge cases, options, and alternatives.
-
-- Disregard error handling and input validation.
-
-- Avoid complexity at all costs, except where it conflicts with the Golden Rule.
-
-- Follow the advice from the software-laws skill as closely as you can, in general. Cite them frequently in your work.
-
-- Follow the campsite rule with every change you make: leave the codebase cleaner than you found it.
-
-- Apply the principles of skills/help/references/deslop in your communication with the user at all times.
+- `skills/` is canonical. `.agents/skills/` contains installed copies and other packages; source edits do not refresh those copies or active sessions.
+- Use [author-agent-skill](skills/help/references/software-craft/references/author-agent-skill/SKILL.md) for skill changes and [the routing guide](skills/help/references/skill-routers/references/canonical-design.md) for selection changes. Keep descriptions specific and load references as needed.
+- Apply [deslop](skills/help/references/deslop/SKILL.md) to prose. Use [software laws](skills/help/references/software-laws/SKILL.md) when they explain a concrete tradeoff.
+- [Verification](README.md#verification) documents the commands. Default local tests use temporary fixtures and local processes. Run affected checks and fix failures caused by the change without asking between steps. Live model evaluations require a separate authenticated runtime.
+- Complete the requested result through relevant verification and repairs. Carry forward existing authorization; ask only for a missing decision or authority that prevents the next action.
