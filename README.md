@@ -87,6 +87,10 @@ The evaluator runs isolated with-skill and no-skill sessions using the same mode
 
 A failing skill scenario or runtime failure returns a nonzero exit. Baseline quality failures are reported separately; a tie does not establish that the skills improve outcomes. See [the cases](evals/skills/cases.ts) and [the existing evaluation method](skills/help/references/software-craft/references/author-agent-skill/SKILL.md).
 
+## Maintaining instructions
+
+The [Astra guidance review](docs/research/astra-skill-guidance.md) records the scope and verification of the changes based on [OpenAI's skill and prompt guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra). Edit canonical sources, keep routing descriptions focused on the requested result, and use linked references for detailed examples. Reassess behavioral effects with the intended model when it is available.
+
 ## Skill compilation
 
 [`compile-agent-skill`](skills/help/references/agent-systems/references/compile-agent-skill/SKILL.md) coordinates instruction deletion against a behavioral contract. The checkout-only runner reuses the authenticated `omp` evaluator. It never overwrites a source or installed skill.
@@ -106,7 +110,7 @@ bun run compile:skill compile \
   --development skills/help/references/deslop/evals/development.json \
   --seal .scratch/skill-compilation/deslop-seal.json \
   --model openai-codex/gpt-5.6-luna \
-  --drop '## Pattern catalog' \
+  --drop '## Pattern reference' \
   --drop '## Verbatim references' --together
 ```
 
