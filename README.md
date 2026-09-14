@@ -114,7 +114,7 @@ Recorded Luna baseline: `.scratch/skill-evals/run-vnEMu6/` passed all eight skil
 
 ## Maintaining instructions
 
-The [Astra guidance review](docs/research/astra-skill-guidance.md) records the scope and verification of the changes based on [OpenAI's skill and prompt guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra). Edit canonical sources, keep routing descriptions focused on the requested result, and use linked references for detailed examples. Reassess behavioral effects with the intended model when it is available.
+The [Astra guidance review](docs/research/astra-skill-guidance.md) records the scope and verification of the changes based on [OpenAI's skill and prompt guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra). Edit canonical sources. Keep router descriptions focused on the requested result and use linked references for detailed examples. A direct workflow must still prescribe a runnable process: entry conditions, dependency-bearing steps and branches, evidence-driven repair, output, and completion. Reassess behavioral effects with the intended model when it is available.
 
 ## Skill compilation
 

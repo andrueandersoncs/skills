@@ -141,17 +141,24 @@ export const skillEvaluationCases: SkillEvaluationCase[] = [
   },
   {
     id: "direct-skill-creation",
-    prompt: "Create one reusable direct-workflow agent skill at new-skill/SKILL.md. It converts newline-separated `product,quantity` records into a JSON array of objects with a string `name` and numeric `quantity`. Keep the skill self-contained and discoverable for that recurring conversion. Do not create a router or supporting files.",
+    prompt: "Create one reusable direct-workflow agent skill at new-skill/SKILL.md. It converts newline-separated `product,quantity` records into JSON. Prescribe an ordered parse → normalize → validate → emit process, not only an input/output description. Valid input becomes an array of objects with a trimmed string `name` and positive integer `quantity`, preserving record order. On the first invalid record, emit only {\"error\":{\"line\":N,\"reason\":\"quantity must be a positive integer\"}}. Keep the skill self-contained and discoverable. Do not create a router or supporting files.",
     files: {},
     allowedChanges: ["new-skill/SKILL.md"],
     requiredChanges: ["new-skill/SKILL.md"],
     routes: [`${craft}/author-agent-skill/SKILL.md`],
     forbiddenRoutes: [`${routers}/implement-skill-router/SKILL.md`],
-    probes: [{
-      prompt: "Read new-skill/SKILL.md, apply it to this input, and write its result to result.json without changing the skill:\n\nPears,3\nOats,12",
-      reads: ["new-skill/SKILL.md"],
-      json: { path: "result.json", value: [{ name: "Pears", quantity: 3 }, { name: "Oats", quantity: 12 }] },
-    }],
+    probes: [
+      {
+        prompt: "Read new-skill/SKILL.md, follow its process for this input, and write its result to result.json without changing the skill:\n\n Pears ,3\nOats,12",
+        reads: ["new-skill/SKILL.md"],
+        json: { path: "result.json", value: [{ name: "Pears", quantity: 3 }, { name: "Oats", quantity: 12 }] },
+      },
+      {
+        prompt: "Read new-skill/SKILL.md, follow its process for this input, and write its single result to result.json without changing the skill:\n\nPears,3\nOats,nope\nRice,2",
+        reads: ["new-skill/SKILL.md"],
+        json: { path: "result.json", value: { error: { line: 2, reason: "quantity must be a positive integer" } } },
+      },
+    ],
   },
   {
     id: "router-creation-owner",
