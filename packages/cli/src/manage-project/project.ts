@@ -95,7 +95,7 @@ export type Action =
     evidence?: string
   }
 
-export const filled = (value: string) => value.length > 0
+export const filled = (value: string) => value.trim().length > 0
 
 export const readyGate = (task: Task) =>
   filled(task.task) &&
@@ -146,9 +146,71 @@ const requireProject = (project: Project | undefined): Project => {
   return project
 }
 
+const invalidateReview = (project: Project): Project => ({
+  ...project,
+  reviewVerdict: "",
+  correctiveAction: "",
+  evidence: ""
+})
+
+const prepareTask = (
+  current: Project,
+  action: Extract<Action, { op: "prepare" }>
+): Project => {
+  const existing = getTask(current, action.id)
+  let task = {
+    ...existing,
+    owner: action.owner,
+    nextAction: action.next,
+    dependencies: filled(action.dependency ?? "")
+      ? [action.dependency!]
+      : existing.status === "Blocked" || existing.status === "In review"
+        ? []
+        : existing.dependencies
+  }
+  if (filled(action.context ?? "")) task = { ...task, context: action.context! }
+  if (filled(action.input ?? "")) task = { ...task, inputs: [action.input!] }
+  if (filled(action.blockedBy ?? "")) {
+    if (!filled(action.followUp ?? "")) {
+      throw new Error("Blocked tasks need --follow-up")
+    }
+    task = {
+      ...task,
+      dependencies: [action.blockedBy!],
+      reviewOrFollowUp: action.followUp!,
+      status: "Blocked"
+    }
+  } else if (readyGate(task)) {
+    task = { ...task, status: "Ready", reviewOrFollowUp: "" }
+  } else {
+    const missing = [
+      !filled(task.task) ? "task" : "",
+      !filled(task.outcome) ? "outcome" : "",
+      !filled(task.definitionOfDone) ? "definition of done" : "",
+      !filled(task.owner) ? "owner" : "",
+      !filled(task.nextAction) ? "next action" : ""
+    ].filter(filled)
+    task = {
+      ...task,
+      status: "Blocked",
+      dependencies: missing.map((field) => `${field} is unavailable`),
+      reviewOrFollowUp: filled(action.followUp ?? "")
+        ? action.followUp!
+        : "re-prepare when missing fields are available"
+    }
+  }
+  return putTask(current, task)
+}
+
 export const applyAction = (project: Project | undefined, action: Action): Project => {
   switch (action.op) {
     case "init":
+      if (project) {
+        throw new Error("project record already exists")
+      }
+      if (!filled(action.outcome) || !filled(action.done)) {
+        throw new Error("Project outcome and definition of done are required")
+      }
       return {
         outcome: action.outcome,
         definitionOfDone: action.done,
@@ -159,7 +221,10 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
         evidence: ""
       }
     case "add": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
+      if (!filled(action.id) || !filled(action.task) || !filled(action.outcome) || !filled(action.done)) {
+        throw new Error("Task id, task, outcome, and definition of done are required")
+      }
       if (current.tasks.some((item) => item.id === action.id)) {
         throw new Error(`task ${action.id} already exists`)
       }
@@ -185,51 +250,15 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
       return { ...current, tasks: [...current.tasks, created] }
     }
     case "prepare": {
-      const current = requireProject(project)
-      if (getTask(current, action.id).status === "Done") {
-        throw new Error(`task ${action.id} is Done`)
+      const current = invalidateReview(requireProject(project))
+      const existing = getTask(current, action.id)
+      if (existing.status !== "Not started" && existing.status !== "Blocked") {
+        throw new Error(`task ${action.id} cannot be prepared from ${existing.status}`)
       }
-      let task = {
-        ...getTask(current, action.id),
-        owner: action.owner,
-        nextAction: action.next
-      }
-      if (filled(action.context ?? "")) task = { ...task, context: action.context! }
-      if (filled(action.input ?? "")) task = { ...task, inputs: [action.input!] }
-      if (filled(action.dependency ?? "")) task = { ...task, dependencies: [action.dependency!] }
-      if (filled(action.blockedBy ?? "")) {
-        if (!filled(action.followUp ?? "")) {
-          throw new Error("Blocked tasks need --follow-up")
-        }
-        task = {
-          ...task,
-          dependencies: [action.blockedBy!],
-          reviewOrFollowUp: action.followUp!,
-          status: "Blocked"
-        }
-      } else if (readyGate(task)) {
-        task = { ...task, status: "Ready", reviewOrFollowUp: "" }
-      } else {
-        const missing = [
-          !filled(task.task) ? "task" : "",
-          !filled(task.outcome) ? "outcome" : "",
-          !filled(task.definitionOfDone) ? "definition of done" : "",
-          !filled(task.owner) ? "owner" : "",
-          !filled(task.nextAction) ? "next action" : ""
-        ].filter(filled)
-        task = {
-          ...task,
-          status: "Blocked",
-          dependencies: missing.map((field) => `${field} is unavailable`),
-          reviewOrFollowUp: filled(action.followUp ?? "")
-            ? action.followUp!
-            : "re-prepare when missing fields are available"
-        }
-      }
-      return putTask(current, task)
+      return prepareTask(current, action)
     }
     case "route": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
       return putTask(current, {
         ...getTask(current, action.id),
         priority: action.priority,
@@ -239,7 +268,7 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
       })
     }
     case "start": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
       const existing = getTask(current, action.id)
       if (existing.status !== "Ready" || !readyGate(existing)) {
         throw new Error(`task ${action.id} is not Ready`)
@@ -247,18 +276,24 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
       return putTask(current, { ...existing, status: "In progress" })
     }
     case "pause": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
       const existing = getTask(current, action.id)
       if (existing.status !== "In progress") {
         throw new Error(`task ${action.id} is not In progress`)
       }
+      if (!filled(action.next)) {
+        throw new Error("Paused tasks need --next")
+      }
       return putTask(current, { ...existing, status: "Ready", nextAction: action.next })
     }
     case "block": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
       const existing = getTask(current, action.id)
       if (existing.status !== "Ready" && existing.status !== "In progress") {
         throw new Error(`task ${action.id} cannot be blocked from ${existing.status}`)
+      }
+      if (!filled(action.dependency) || !filled(action.followUp)) {
+        throw new Error("Blocked tasks need --dependency and --follow-up")
       }
       return putTask(current, {
         ...existing,
@@ -268,15 +303,18 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
       })
     }
     case "submit": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
       const existing = getTask(current, action.id)
       if (existing.status !== "In progress") {
         throw new Error(`task ${action.id} is not In progress`)
       }
+      if (!filled(action.evidence)) {
+        throw new Error("Submitted tasks need --evidence")
+      }
       return putTask(current, { ...existing, status: "In review", evidence: action.evidence })
     }
     case "review-task": {
-      const current = requireProject(project)
+      const current = invalidateReview(requireProject(project))
       const existing = getTask(current, action.id)
       if (existing.status !== "In review") {
         throw new Error(`task ${action.id} is not In review`)
@@ -285,7 +323,7 @@ export const applyAction = (project: Project | undefined, action: Action): Proje
         throw new Error("Failed review needs --action")
       }
       if (action.verdict === "Failed") {
-        return applyAction(current, {
+        return prepareTask(current, {
           op: "prepare",
           id: action.id,
           owner: existing.owner,

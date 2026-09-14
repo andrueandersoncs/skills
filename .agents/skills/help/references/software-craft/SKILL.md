@@ -18,11 +18,12 @@ Follow the shared [gather → match → handoff procedure](../skill-routers/refe
 | Code needs a focused review for symmetry between related concepts, including missing counterpart abstractions or inconsistent API shapes. | [`review-symmetry`](references/review-symmetry/SKILL.md) |
 | The requested outcome is agreement on a production Effect Schema domain model through generated examples and behavior-linked properties. | [`effect-schema-brainstorming`](references/effect-schema-brainstorming/SKILL.md) |
 | Existing pages, screenshots, video, or interaction references need capturing and translating into an original builder-ready brief. | [`capture-design-reference`](references/capture-design-reference/SKILL.md) |
-| The requested result is one integrated software outcome that must be partitioned among at least two genuinely independent work units. | [`coordinate-agents`](references/coordinate-agents/SKILL.md) |
+| Parallel agent execution is requested for one software outcome with independent work units. | [`coordinate-agents`](references/coordinate-agents/SKILL.md) |
 | A browser game or game-system change needs a playable, deterministic, cross-input result. | [`build-web-game`](references/build-web-game/SKILL.md) |
 | A Three.js, WebGL, shader, particle, or cinematic-scroll experience needs a purposeful immersive result with a semantic fallback and measured budget. | [`build-immersive-web`](references/build-immersive-web/SKILL.md) |
 | The requested outcome is to name, design, implement, optimize, or assess purposeful web or Expo/React Native interface motion. | [`animate-interface`](references/animate-interface/SKILL.md) |
 | A production web page, component, design system, interface audit, or visual polish needs a coherent, accessible, responsive interface result rather than a dedicated motion, immersive, game, or reference-capture artifact. | [`design-interface`](references/design-interface/SKILL.md) |
+| A Git repository's commit history needs transforming into a source-grounded animated narrative or visual replay. | [`animate-git-history`](references/animate-git-history/SKILL.md) |
 | A trust, authorization, privacy, dependency, secret, or AI-tool boundary needs threat modeling and demonstrated controls. | [`secure-system`](references/secure-system/SKILL.md) |
 | The requested result is a selective or durable map of a repository, subsystem, or change surface. | [`map-codebase`](references/map-codebase/SKILL.md) |
 | A current external API, standard, dependency, technique, or comparative fact needs primary-source evidence to answer a software decision. | [`research-evidence`](references/research-evidence/SKILL.md) |
@@ -46,5 +47,10 @@ Follow the shared [gather → match → handoff procedure](../skill-routers/refe
 - [Swift](references/write-swift.md)
 - [Interface design](references/design-interface/SKILL.md), [motion](references/animate-interface/SKILL.md), [immersive web](references/build-immersive-web/SKILL.md), and [web games](references/build-web-game/SKILL.md)
 - [Security](references/secure-system/SKILL.md)
+
+## Coding examples
+
+- [Kody](https://github.com/kentcdodds/kody) by Kent C. Dodds. Use this repository as an example of good coding.
+- [Epicflare](https://github.com/epicweb-dev/epicflare) by Epic Web. Use this starter as a reference for full-stack Cloudflare Workers apps with Remix and OAuth-protected MCP endpoints.
 
 See [`references/catalog.md`](references/catalog.md) for component origins and boundaries.

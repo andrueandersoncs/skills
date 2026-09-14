@@ -17,7 +17,13 @@ type CommandResult = {
 }
 
 type Project = {
-  tasks: Array<{ id: string; status: string; nextAction: string }>
+  tasks: Array<{
+    id: string
+    status: string
+    nextAction: string
+    dependencies: string[]
+    reviewOrFollowUp: string
+  }>
   reviewVerdict: string
 }
 
@@ -233,6 +239,11 @@ test("gates failed-review corrections and completes only after project review", 
   })
   expect((await runCli(record, ["start", "release"])).code).not.toBe(0)
   await cli(record, ["prepare", "release", "--owner", "agent", "--next", "repair with source access"])
+  expect((await readProject(record)).tasks[0]).toMatchObject({
+    status: "Ready",
+    dependencies: [],
+    reviewOrFollowUp: ""
+  })
   await cli(record, ["start", "release"])
   await cli(record, ["submit", "release", "--evidence", "corrected candidate"])
   const passed = await cli(record, ["review-task", "release", "--verdict", "Passed"])
@@ -292,4 +303,41 @@ test("keeps the board alive after rejecting a conflicting addition", async () =>
   expect(response.ok).toBe(true)
   const project = await response.json() as Project
   expect(project.tasks.map(task => task.id)).toEqual(["existing", "after-rejection"])
+}, 30_000)
+
+test("invalidates project approval when task work changes", async () => {
+  const { record } = await sandbox()
+  await cli(record, ["init", "--outcome", "ship", "--done", "all tasks complete"])
+  await cli(record, ["add", "first", "--task", "first", "--outcome", "shipped", "--done", "available"])
+  await cli(record, ["prepare", "first", "--owner", "agent", "--next", "implement"])
+  await cli(record, ["start", "first"])
+  await cli(record, ["submit", "first", "--evidence", "candidate"])
+  await cli(record, ["review-task", "first", "--verdict", "Passed"])
+  await cli(record, ["review", "--verdict", "Passed", "--evidence", "independent approval"])
+  expect((await cli(record, ["report"])).result).toBe("completed")
+
+  await cli(record, ["add", "second", "--task", "second", "--outcome", "shipped", "--done", "available"])
+  const changed = await readProject(record)
+  expect(changed.reviewVerdict).toBe("")
+  expect((await cli(record, ["report"])).result).toBe("incomplete")
+}, 30_000)
+
+test("rejects reinitialization and illegal state transitions without changing the record", async () => {
+  const { record } = await sandbox()
+  await cli(record, ["init", "--outcome", "ship", "--done", "all tasks complete"])
+  await cli(record, ["add", "release", "--task", "release", "--outcome", "shipped", "--done", "available"])
+  const initialized = await readProject(record)
+
+  expect((await runCli(record, ["init", "--outcome", "replace", "--done", "data lost"])).code).not.toBe(0)
+  expect(await readProject(record)).toEqual(initialized)
+
+  await cli(record, ["prepare", "release", "--owner", "agent", "--next", "implement"])
+  await cli(record, ["start", "release"])
+  const inProgress = await readProject(record)
+  expect((await runCli(record, ["prepare", "release", "--owner", "agent", "--next", "skip review"])).code).not.toBe(0)
+  expect(await readProject(record)).toEqual(inProgress)
+  expect((await runCli(record, ["pause", "release", "--next", ""])).code).not.toBe(0)
+  expect(await readProject(record)).toEqual(inProgress)
+  expect((await runCli(record, ["submit", "release", "--evidence", ""])).code).not.toBe(0)
+  expect(await readProject(record)).toEqual(inProgress)
 }, 30_000)

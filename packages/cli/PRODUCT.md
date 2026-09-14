@@ -31,15 +31,17 @@ Run with `andrue-cli manage-project --record <path> serve`. The CLI and the boar
 - Six statuses: Not started, Ready, In progress, Blocked, In review, Done.
 - Ready requires owner and next action. Done requires review.
 - No drag-anywhere. Actions match the CLI.
-- Inferred, unlabeled by the user: visual world is unset; the first board was rejected as ugly.
+- Visual world: an Assurance Case Docket—technical bond, graphite rules, review red, and blueprint blue.
 
 ## Brand Commitments
 
-None. The first board (warm-black paper, system sans, amber only on the next action) is rejected.
+- Keep task state, evidence, and the next legal action more prominent than decoration.
+- On phones, show the next required action before the complete state register.
+- Use the review-dossier language across controls, forms, and status changes.
 
 ## Evidence on Hand
 
-Live board at `packages/cli/src/manage-project/web`. Sample records created by the CLI. No photography, logo, or customer proof.
+The live board is in `packages/cli/src/manage-project/web`. Desktop, mobile, and task-panel captures verified the replacement direction during implementation.
 
 ## Product Principles
 

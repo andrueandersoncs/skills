@@ -1,6 +1,6 @@
 ---
 name: help
-description: Gather task context and select one specialist for browser tasks, marketing, writing, planning, product, projects, wikis, Grok Bots, agent systems, skills, software laws, or engineering.
+description: Select a specialist for engineering, agent systems, writing, research, planning, or project work when the workflow is unclear.
 ---
 
 # Help
@@ -11,6 +11,7 @@ Read [the shared routing guide](references/skill-routers/references/canonical-de
 
 | Situation pattern | Skill |
 | --- | --- |
+| Substantial work has returned incomplete and needs finishing against every original requirement, or the user explicitly requests unlazy completion discipline. Use ordinary domain workflows for routine work, verification-only requests, or wording such as "be thorough" without a completion-recovery need. | [`unlazy`](references/unlazy/SKILL.md) |
 | The requested outcome is operating a website, filling a form, extracting rendered data, or capturing a page through browser interaction. Software fixes, QA reports, and design research retain their engineering owner, which may use this browser workflow for evidence. | [`agent-browser`](references/agent-browser/SKILL.md) |
 | An agent skill router needs explaining, designing, implementing, or auditing. | [`skill-routers`](references/skill-routers/SKILL.md) |
 | LoRA training is already chosen: a source skill needs distilling into a small adapter with a sealed comparison against that skill. | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
@@ -25,5 +26,6 @@ Read [the shared routing guide](references/skill-routers/references/canonical-de
 | Technical documentation needs creating, restructuring, or auditing around a reader's learning, task, lookup, or understanding need. | [`technical-documentation`](references/technical-documentation/SKILL.md) |
 | Existing prose needs editing or auditing for AI-writing patterns while preserving its meaning and voice. | [`deslop`](references/deslop/SKILL.md) |
 | Established software laws need explaining, applying to a decision, or assessing against evidence from a concrete case. | [`software-laws`](references/software-laws/SKILL.md) |
+| A Git repository's commit history needs transforming into a source-grounded animated narrative or visual replay. | [`software-craft`](references/software-craft/SKILL.md) |
 | A concept, prompt, design direction, name, narrative, or other creative artifact needs developing for novelty and taste. | [`elicit-llm-creativity`](references/elicit-llm-creativity/SKILL.md) |
 | Engineering work on executable software, infrastructure, libraries, services, or single-workflow agent skills needs investigation, scoping, repository mapping, design, planning, a claimable work queue, implementation, review, verification, delivery, coordination, or knowledge transfer. | [`software-craft`](references/software-craft/SKILL.md) |

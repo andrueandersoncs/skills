@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-14T15:25:29Z",
+  "title": "Design System: Project State Register",
+  "extensions": {
+    "colorMeta": {
+      "bond": { "role": "neutral", "displayName": "Technical Bond", "canonical": "#f2efe6", "tonalRamp": ["oklch(18% 0.01 95)", "oklch(29% 0.01 95)", "oklch(40% 0.01 95)", "oklch(51% 0.01 95)", "oklch(62% 0.01 95)", "oklch(73% 0.01 95)", "oklch(84% 0.01 95)", "oklch(95% 0.01 95)"] },
+      "sheet": { "role": "neutral", "displayName": "Docket Sheet", "canonical": "#fbfaf5", "tonalRamp": ["oklch(18% 0.006 95)", "oklch(29% 0.006 95)", "oklch(40% 0.006 95)", "oklch(51% 0.006 95)", "oklch(62% 0.006 95)", "oklch(73% 0.006 95)", "oklch(84% 0.006 95)", "oklch(98% 0.006 95)"] },
+      "ink": { "role": "neutral", "displayName": "Graphite Ink", "canonical": "#18201f", "tonalRamp": ["oklch(15% 0.015 180)", "oklch(26% 0.015 180)", "oklch(37% 0.015 180)", "oklch(48% 0.015 180)", "oklch(59% 0.015 180)", "oklch(70% 0.015 180)", "oklch(81% 0.015 180)", "oklch(92% 0.015 180)"] },
+      "muted": { "role": "neutral", "displayName": "Muted Graphite", "canonical": "#5d6663", "tonalRamp": ["oklch(15% 0.012 165)", "oklch(26% 0.012 165)", "oklch(37% 0.012 165)", "oklch(48% 0.012 165)", "oklch(59% 0.012 165)", "oklch(70% 0.012 165)", "oklch(81% 0.012 165)", "oklch(92% 0.012 165)"] },
+      "rule": { "role": "neutral", "displayName": "Register Rule", "canonical": "#b8b6aa", "tonalRamp": ["oklch(15% 0.01 100)", "oklch(26% 0.01 100)", "oklch(37% 0.01 100)", "oklch(48% 0.01 100)", "oklch(59% 0.01 100)", "oklch(70% 0.01 100)", "oklch(81% 0.01 100)", "oklch(92% 0.01 100)"] },
+      "rule-dark": { "role": "neutral", "displayName": "Control Rule", "canonical": "#7c827d", "tonalRamp": ["oklch(15% 0.012 160)", "oklch(26% 0.012 160)", "oklch(37% 0.012 160)", "oklch(48% 0.012 160)", "oklch(59% 0.012 160)", "oklch(70% 0.012 160)", "oklch(81% 0.012 160)", "oklch(92% 0.012 160)"] },
+      "review": { "role": "primary", "displayName": "Review Red", "canonical": "#b93828", "tonalRamp": ["oklch(15% 0.15 32)", "oklch(26% 0.15 32)", "oklch(37% 0.15 32)", "oklch(48% 0.15 32)", "oklch(59% 0.15 32)", "oklch(70% 0.15 32)", "oklch(81% 0.15 32)", "oklch(92% 0.15 32)"] },
+      "blueprint": { "role": "secondary", "displayName": "Blueprint Blue", "canonical": "#376778", "tonalRamp": ["oklch(15% 0.06 210)", "oklch(26% 0.06 210)", "oklch(37% 0.06 210)", "oklch(48% 0.06 210)", "oklch(59% 0.06 210)", "oklch(70% 0.06 210)", "oklch(81% 0.06 210)", "oklch(92% 0.06 210)"] },
+      "blueprint-dark": { "role": "secondary", "displayName": "Blueprint Dark", "canonical": "#1f4148", "tonalRamp": ["oklch(15% 0.05 210)", "oklch(26% 0.05 210)", "oklch(37% 0.05 210)", "oklch(48% 0.05 210)", "oklch(59% 0.05 210)", "oklch(70% 0.05 210)", "oklch(81% 0.05 210)", "oklch(92% 0.05 210)"] },
+      "blueprint-pale": { "role": "secondary", "displayName": "Blueprint Pale", "canonical": "#dce7e6", "tonalRamp": ["oklch(15% 0.02 200)", "oklch(26% 0.02 200)", "oklch(37% 0.02 200)", "oklch(48% 0.02 200)", "oklch(59% 0.02 200)", "oklch(70% 0.02 200)", "oklch(81% 0.02 200)", "oklch(92% 0.02 200)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Docket Claim", "purpose": "Project outcomes, required actions, verdict stamps, counts, and dossier titles." },
+      "body": { "displayName": "Record Body", "purpose": "Definitions, supporting task evidence, and plain-language record content." },
+      "label": { "displayName": "Evidence Label", "purpose": "Uppercase metadata, status, identifiers, timestamps, and field labels." }
+    },
+    "shadows": [
+      { "name": "task-dossier", "value": "12px 18px 42px rgba(24, 32, 31, 0.22)", "purpose": "Lift the open fixed task dossier above the otherwise flat register." }
+    ],
+    "motion": [
+      { "name": "dossier-open", "value": "transform 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms ease-out", "purpose": "Bring an open task dossier in from the right." },
+      { "name": "view-transition", "value": "320ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Animate board state changes when the View Transition API is available." }
+    ],
+    "breakpoints": [
+      { "name": "directive-stack", "value": "1040px" },
+      { "name": "single-register", "value": "760px" },
+      { "name": "edge-to-edge-dossier", "value": "480px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Docket Button",
+      "kind": "button",
+      "refersTo": "button-standard",
+      "description": "Secondary and close actions in the docket.",
+      "html": "<button class=\"ds-btn\">Close</button>",
+      "css": ".ds-btn { border: 1px solid #18201f; border-radius: 3px; background: transparent; color: #18201f; padding: 9px 13px; cursor: pointer; font-family: Barlow, 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; } .ds-btn:hover { background: #18201f; color: #fbfaf5; } .ds-btn:focus-visible { outline: 3px solid #b93828; outline-offset: 3px; } .ds-btn:disabled { cursor: not-allowed; opacity: .45; }"
+    },
+    {
+      "name": "Review Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The consequential submit, prepare, or review action.",
+      "html": "<button class=\"ds-btn-primary\">Submit for review</button>",
+      "css": ".ds-btn-primary { border: 1px solid #b93828; border-radius: 3px; background: #b93828; color: #fbfaf5; padding: 9px 13px; cursor: pointer; font-family: Barlow, 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; } .ds-btn-primary:hover { border-color: #8d271b; background: #8d271b; } .ds-btn-primary:focus-visible { outline: 3px solid #b93828; outline-offset: 3px; } .ds-btn-primary:disabled { cursor: not-allowed; opacity: .45; }"
+    },
+    {
+      "name": "Evidence Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "A full-width field for evidence, dependencies, and required correction detail.",
+      "html": "<label class=\"ds-field-label\">Evidence<input class=\"ds-field\" value=\"\" /></label>",
+      "css": ".ds-field-label { display: grid; gap: 4px; color: #5d6663; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; } .ds-field { width: 100%; border: 1px solid #7c827d; border-radius: 3px; background: #fbfaf5; color: #18201f; caret-color: #b93828; padding: 10px 11px; font: inherit; } .ds-field:focus { border-color: #376778; } .ds-field:focus-visible { outline: 3px solid #b93828; outline-offset: 3px; }"
+    },
+    {
+      "name": "Task Strip",
+      "kind": "card",
+      "refersTo": "task-strip",
+      "description": "A compact, square evidence row in a state lane.",
+      "html": "<button class=\"ds-strip\"><span class=\"ds-code\">CORRECTION</span><strong>Correct state invariants</strong><span class=\"ds-meta\">Agent</span><span class=\"ds-next\">Implement invalidation</span></button>",
+      "css": ".ds-strip { display: grid; grid-template-columns: minmax(62px, auto) minmax(0, 1fr); gap: 3px 12px; width: 100%; border: 0; border-radius: 0; background: transparent; color: #18201f; padding: 13px 14px 14px; text-align: left; font-family: Barlow, 'Helvetica Neue', sans-serif; } .ds-strip:hover { background: #fbfaf5; } .ds-strip:focus-visible { outline: 3px solid #b93828; outline-offset: 3px; } .ds-code { grid-row: 1 / span 3; color: #1f4148; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; } .ds-strip strong { font-size: 14px; line-height: 1.25; } .ds-meta { color: #5d6663; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; } .ds-next { margin-top: 5px; font-size: 12px; line-height: 1.25; }"
+    },
+    {
+      "name": "Status Seal",
+      "kind": "chip",
+      "description": "A mono status indicator for the current required action.",
+      "html": "<span class=\"ds-seal\">In progress</span>",
+      "css": ".ds-seal { display: inline-block; border: 1px solid currentColor; padding: 4px 6px; color: #c7d4d1; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Verdict Stamp",
+      "kind": "custom",
+      "description": "The independent-review disposition, presented as a decisive docket stamp.",
+      "html": "<strong class=\"ds-verdict\">Unreviewed</strong>",
+      "css": ".ds-verdict { display: inline-block; border: 2px solid currentColor; padding: 7px 10px 5px; color: #5d6663; font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: .04em; line-height: 1; text-transform: uppercase; transform: rotate(-1deg); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Assurance Case Docket",
+    "overview": "A technical bond record for a project claim moving toward independent approval. Dense registers, graphite rules, evidence rows, and decisive stamps make status legible before presentation; the board is an operational document, never decorative dashboard chrome.\n\nThe screen reads from the project claim to one required move, then to the complete state register. Review red marks intervention and failed or incomplete clearance; blueprint blue carries the active directive, resolved status, and selected record. The interface stays flat and paper-like until a task dossier must come forward.",
+    "keyCharacteristics": ["Docket structure over card chrome.", "One current action dominates; all other state remains inspectable.", "Uppercase mono labels and condensed display type separate record metadata from claims.", "Technical bond, graphite rules, review red, and blueprint blue carry the system."],
+    "rules": [
+      { "name": "The Evidence-Color Rule", "body": "Reserve review red for a consequential action or adverse review state; use blueprint blue for active work, selection, and passed clearance.", "section": "colors" },
+      { "name": "The Claim-and-Evidence Rule", "body": "Use display type only for the claim, required move, verdict, or count; record labels stay compact mono and explanatory content stays in the body face.", "section": "typography" },
+      { "name": "The Next-Action-First Rule", "body": "On phones, retain the directive before the register; do not bury the one legal next move below the full state inventory.", "section": "layout" }
+    ],
+    "dos": ["Do make the project claim, one next required action, and task evidence readable before adding visual treatment.", "Do use continuous rules and dense register cells to show state as a system of record.", "Do use review-dossier language for controls, forms, and status changes.", "Do preserve the directive-before-register sequence on narrow screens.", "Do honor reduced-motion preferences by removing transition and animation duration."],
+    "donts": ["Don't turn the state register into free-moving kanban or detached decorative cards.", "Don't spend review red or blueprint blue as ambient decoration.", "Don't replace the next-action dossier with a generic dashboard summary.", "Don't introduce soft shadows, rounded cards, gradients, or ornamental imagery into the record surface."]
+  }
+}

@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  statSync,
   writeFileSync
 } from "node:fs"
 import { basename, dirname, join, relative, resolve, sep } from "node:path"
@@ -102,6 +103,21 @@ export type CompactReport = typeof CompactReport.Type
 const git = (root: string, args: string[]) =>
   spawnSync("git", ["-C", root, ...args], { encoding: "utf8" })
 
+const gitFailure = (
+  args: string[],
+  result: ReturnType<typeof git>
+) => {
+  if (result.error) return result.error
+  const detail = result.stderr.trim() || result.stdout.trim()
+  return new Error(detail || `git ${args.join(" ")} failed with status ${result.status ?? "unknown"}`)
+}
+
+const runGit = (root: string, args: string[]) => {
+  const result = git(root, args)
+  if (result.status !== 0) throw gitFailure(args, result)
+  return result
+}
+
 const rel = (root: string, path: string) => relative(root, path).split(sep).join("/")
 
 const abs = (root: string, path: string) => resolve(root, path)
@@ -166,21 +182,30 @@ export const initWiki = (root: string): Wiki => {
   mkdirSync(join(root, RAW), { recursive: true })
   if (!existsSync(join(root, INDEX))) writeFileSync(join(root, INDEX), README)
   if (!existsSync(join(root, SCHEMA))) writeFileSync(join(root, SCHEMA), AGENTS)
-  if (!existsSync(join(root, ".git"))) git(root, ["init"])
-  git(root, ["add", INDEX, SCHEMA])
-  git(root, [
-    "commit",
-    "-m",
-    "wiki: initialize",
-    "-m",
-    "Create the wiki root, immutable raw sources, index, and schema."
-  ])
+  if (!existsSync(join(root, ".git"))) runGit(root, ["init"])
+  runGit(root, ["add", INDEX, SCHEMA])
+  const staged = git(root, ["diff", "--cached", "--quiet"])
+  if (staged.error || (staged.status !== 0 && staged.status !== 1)) {
+    throw gitFailure(["diff", "--cached", "--quiet"], staged)
+  }
+  if (staged.status === 1) {
+    runGit(root, [
+      "commit",
+      "-m",
+      "wiki: initialize",
+      "-m",
+      "Create the wiki root, immutable raw sources, index, and schema."
+    ])
+  }
   return loadWiki(root)
 }
 
 export const ingestSource = (root: string, source: string): Ingest => {
   const file = resolve(source)
   const rawDir = resolve(root, RAW)
+  if (!existsSync(file) || !statSync(file).isFile()) {
+    throw new Error(`source file does not exist: ${source}`)
+  }
   mkdirSync(rawDir, { recursive: true })
   if (file === rawDir || file.startsWith(rawDir + sep)) {
     return Ingest.make({
