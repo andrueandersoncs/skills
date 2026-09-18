@@ -34,6 +34,7 @@ bun add -d @andrue/cli
 
 - `unlazy` — completion recovery with acceptance gates, meaningful task decomposition, and fresh evidence
 - `agent-browser` — website interaction, forms, rendered-data extraction, and page captures, also reused by verification and design research
+- `typesafe-ai` — TypeSafe System One and Jev integration with model-specific jaggedness safeguards
 - `skill-routers` — agent-skill router design, implementation, and review
 - `agent-systems` — agent harnesses, context, memory, tools, interaction, coding loops, evaluation, skill compilation, training, evolution, and multi-agent architecture
 - `software-craft` — executable software work, including focused `review-symmetry` code reviews
@@ -106,7 +107,7 @@ Read `summary.txt` for pass counts, cases passing every attempt, paired wins/los
 
 Every candidate attempt must pass. Any arm's runtime failure makes the run incomplete. Both conditions return a nonzero exit; baseline quality failures remain diagnostic. Old-vs-new comparisons include routing compliance. No-skill comparisons use observable outcomes on the same behavioral cases, excluding internal routing and routing-only cases.
 
-The current eight cases cover narrow coding, skill-authoring, and routing contracts, not general usefulness across all workflows. Any-attempt and every-attempt counts describe the sampled repetitions. The conservative 95% Hoeffding bounds assume independent paired attempts on these fixed cases; small runs will usually be inconclusive. These public regression cases are not a sealed holdout. A tie does not establish that the skills improve outcomes. In keeping with [Goodhart's Law](skills/help/references/software-laws/SKILL.md), inspect artifacts and failures rather than optimizing the aggregate score alone.
+The current suite covers narrow coding, skill-authoring, and routing contracts, not general usefulness across all workflows. Any-attempt and every-attempt counts describe the sampled repetitions. The conservative 95% Hoeffding bounds assume independent paired attempts on these fixed cases; small runs will usually be inconclusive. These public regression cases are not a sealed holdout. A tie does not establish that the skills improve outcomes. In keeping with [Goodhart's Law](skills/help/references/software-laws/SKILL.md), inspect artifacts and failures rather than optimizing the aggregate score alone.
 
 Fixtures and packages must be trusted: sessions retain the user's filesystem permissions. Excluding `evals` directories from runtime skill copies keeps bundled answer checks out of ordinary context, but is not a security sandbox. The runner explicitly loads the frozen skill entry; it does not test installed-skill discovery or unrestricted production tools.
 

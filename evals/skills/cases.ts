@@ -74,6 +74,15 @@ export const skillEvaluationCases: SkillEvaluationCase[] = [
     routes: ["skills/help/references/unlazy/SKILL.md"],
   },
   {
+    id: "typesafe-jev-jaggedness",
+    prompt: "Review a TypeSafe design for jev-1.13 that asks the model to count overdue invoices, compare their dates, and generate reminder copy. Use the current model-jaggedness guidance to redesign it. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
+    files: {},
+    allowedChanges: [],
+    requiredChanges: [],
+    routes: ["skills/help/references/typesafe-ai/SKILL.md"],
+    forbiddenRoutes: ["skills/help/references/software-craft/SKILL.md"],
+  },
+  {
     id: "verification-without-unlazy",
     prompt: "Be thorough: verify that the candidate CLI release meets its documented behavior. I want a report only, with fresh evidence; no implementation changes or recovery of omitted deliverables. Select and load the responsible specialist, then stop before executing its workflow. Do not change files.",
     files: {},

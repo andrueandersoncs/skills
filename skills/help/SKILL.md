@@ -13,6 +13,7 @@ Read [the shared routing guide](references/skill-routers/references/canonical-de
 | --- | --- |
 | Substantial work has returned incomplete and needs finishing against every original requirement, or the user explicitly requests unlazy completion discipline. Use ordinary domain workflows for routine work, verification-only requests, or wording such as "be thorough" without a completion-recovery need. | [`unlazy`](references/unlazy/SKILL.md) |
 | The requested outcome is operating a website, filling a form, extracting rendered data, or capturing a page through browser interaction. Software fixes, QA reports, and design research retain their engineering owner, which may use this browser workflow for evidence. | [`agent-browser`](references/agent-browser/SKILL.md) |
+| A TypeSafe System One or Jev integration needs designing, implementing, reviewing, or debugging against current model behavior and documented jagged edges. | [`typesafe-ai`](references/typesafe-ai/SKILL.md) |
 | An agent skill router needs explaining, designing, implementing, or auditing. | [`skill-routers`](references/skill-routers/SKILL.md) |
 | LoRA training is already chosen: a source skill needs distilling into a small adapter with a sealed comparison against that skill. | [`distill-skill-to-model`](references/distill-skill-to-model/SKILL.md) |
 | Grok Bot capabilities, skills, routines, roster, autonomy rules, handoffs, or templates need creating or changing. | [`grok-bot`](references/grok-bot/SKILL.md) |
